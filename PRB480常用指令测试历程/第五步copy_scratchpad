@@ -1,0 +1,159 @@
+/*上电复位*/
+Reset;
+
+/*等待1ms，期间保持供电*/
+wait_1ms;
+
+/*发送Match ROM命令码*/
+Send(8'h55);
+
+/*发送之前读到的ROM ID*/
+Send(8'haf);              
+Send(8'hf0);              
+Send(8'h10);              
+Send(8'h04);              
+Send(8'ha0);              
+Send(8'h31);              
+Send(8'h03);              
+Send(8'hc7);  	         
+
+/*发送Write Scratchpad命令码*/
+Send(8'h0F);
+
+/*发送目标地址0000*/
+Send(8'h00); 
+Send(8'h00);
+
+/*发送要写入的密钥数据*/
+Send(8'h18);
+Send(8'h29);
+Send(8'h3f);
+Send(8'h4e);
+Send(8'h5d);
+Send(8'h6c);
+Send(8'h7b);
+Send(8'h8a);
+
+/*接收CRC-16校验值*/
+repeat(2)Receive_Byte;    //crc
+ 
+/*发送复位指令码*/
+Send(8'hFF);  // 发送8个DUMMY字节
+ 
+Send(8'hC0);  //发送复位指令码C0DE
+Send(8'hDE);  
+
+/*发送Resume 命令码*/
+Send(8'hA5);
+
+/*发送Read Scratchpad命令码*/
+Send(8'hAA);
+
+/*接收到2字节地址和E/S字节*/
+repeat(3)Receive_Byte;    // 2 byte address,E/S byte
+
+/*接收到8字节数据*/
+repeat(8)Receive_Byte;    //8 byte data
+
+/*接收CRC-16校验值*/
+repeat(2)Receive_Byte;     //crc-16 
+
+
+
+
+/*发送复位指令码*/
+Send(8'hC0);  //发送复位指令码C0DE
+Send(8'hDE); 
+
+/*发送Resume 命令码*/
+Send(8'hA5);
+
+/*发送Copy Scratchpad命令码*/
+Send(8'h55);
+
+/*发送地址*/
+Send(8'h00); 
+Send(8'h00);
+
+/*发送E/S字节*/
+Send(8'h5f); 
+
+/*等待芯片算法计算，期间保持供电*/
+waitCSHA;
+
+/*主机计算MAC值并发送给芯片*/
+Send(8'h48);
+Send(8'h1a);
+Send(8'h61);
+Send(8'hd6);
+Send(8'h22);
+Send(8'hc9);
+Send(8'h8a);
+Send(8'h18);
+Send(8'h19);
+Send(8'hd8);
+Send(8'hf4);
+Send(8'h2c);
+Send(8'h1a);
+Send(8'hd0);
+Send(8'h30);
+Send(8'h0f);
+Send(8'h39);
+Send(8'h14);
+Send(8'h67);
+Send(8'hb2);
+
+
+/*等待FRAM写入数据，期间保持供电*/
+waitprog;
+
+/*接收到AA循环应答，写入成功*/
+repeat(2)Receive_Byte;    //AA loop
+
+/*上电复位*/
+Reset;
+
+/*等待1ms，期间保持供电*/
+wait_1ms;
+
+/*发送Skip ROM命令码*/
+Send(8'hCC); 
+
+/*发送Read Memory命令码*/
+Send(8'hF0); 
+
+/*发送地址，从0000开始读*/
+Send(8'h00); 
+Send(8'h00);
+
+/*从地址0000开始读到数据，数据应该正确地被改写了*/
+repeat(8)Receive_Byte;
+
+
+
+/******************************
+第五步操作，写入用户区数据
+根据前几步读出来的数据和写入的密钥，以及这一步写入的数据，此时算法的输入应该为：
+12 34 56 78 5a c2 b1 80 
+96 46 10 77 91 cb 45 3e 
+c6 67 cd 2c 65 34 42 f1 
+0b 25 90 aa 34 3e 91 da 
+18 29 3f 4e 5d 6c 7b 8a 
+00 af f0 10 04 a0 31 03 
+ab cd ef 00 ff ff ff 80 
+00 00 00 00 00 00 01 b8
+
+
+算法的输出结果MAC值应该是：
+48 1a 61 d6
+22 c9 8a 18
+19 d8 f4 2c
+1a d0 30 0f
+39 14 67 b2
+*******************************/
+
+
+/*************************
+这些步骤都成功后，就可以按照芯片手册上的内容写入其他数据
+可以写入用户区数据，可以写入配置区数据来锁定密钥，可以设置某些区域数据保护等等
+*************************/

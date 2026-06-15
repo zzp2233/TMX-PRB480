@@ -1,0 +1,8 @@
+{
+    // 自动猜测文件编码
+    "files.autoGuessEncoding": true,
+    // 默认文件编码（如果你的文件都是GBK，就改成gbk；如果要统一UTF-8，就用utf8）
+    "files.encoding": "gbk",
+    // 终端编码（防止控制台输出乱码）
+    "terminal.integrated.encoding": "gbk"    
+}
