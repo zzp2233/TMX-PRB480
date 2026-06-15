@@ -14,26 +14,32 @@
 int main(void)
 {
     /* ========== 变量定义 ========== */
-    u8 rom[8];              /* PRB480 的 ROM ID (8字节唯一标识) */
-    u8 page[32];            /* 从 PRB480 读取的页面数据 (32字节) */
-    u8 mac[20];             /* MAC 认证码 (20字节 SHA1) */
-    u8 readback[8];         /* 从暂存区读回的数据 */
-    
-    /* 第一密钥 - 用于 LoadFirstSecret 命令 (8字节) */
+    u8 rom[8];                         /* 保存从器件读出的 8 字节 ROM ID */
+    u8 readback[8];                    /* 保存最终从 EEPROM 回读的 8 字节数据 */
+
     u8 secret[8] = {0x12, 0x34, 0x56, 0x78, 0xAB, 0xCD, 0xEF, 0x00};
-    
-    /* 要写入暂存区的数据 (8字节) */
+    /* 当前用于认证流程的 first secret */
+
     u8 writeData[8] = {0x18, 0x29, 0x3F, 0x4E, 0x5D, 0x6C, 0x7B, 0x8A};
-    
-    /* CopyScratchpad 命令的 MAC 数据 (20字节) */
-    u8 copyMac[20] = {0x48, 0x1A, 0x61, 0xD6, 0x22, 0xC9, 0x8A, 0x18,
-                      0x19, 0xD8, 0xF4, 0x2C, 0x1A, 0xD0, 0x30, 0x0F,
-                      0x39, 0x14, 0x67, 0xB2};
-    
-    u8 es;                  /* E/S: 结尾状态字 */
-    u8 scratchOk = 0;       /* Scratchpad 写入并验证成功标志 */
-    u8 i;                   /* 循环计数器 */
-    u8 *useRom;             /* 指向 ROM ID 的指针，NULL 则使用 Skip ROM */
+    /* 准备写入地址 0x0000 的 8 字节用户数据 */
+
+    u8 challenge[3] = {0xAB, 0xCD, 0xEF};
+    /* Read Authenticated Page 使用的 3 字节 challenge */
+
+    u8 copyMac[20];
+    /* 主机侧实时计算得到的 Copy Scratchpad 认证 MAC */
+
+    u8 es;
+    /* Read Scratchpad 验证通过后的 E/S 状态字 */
+
+    u8 i;
+    /* 通用循环变量 */
+
+    u8 *useRom;
+    /* 指向当前要操作器件的 ROM ID */
+
+    PRB480_AuthenticatedPagePacket authPacket;
+    /* 保存认证读页返回的完整结果包 */
 
     /* ========== 系统初始化 ========== */
     SysTick_Init(168);                          /* 初始化系统滴答定时器 (168MHz) */
@@ -50,23 +56,29 @@ int main(void)
     }
     printf("PRB480 init OK!\r\n");
 
-    /* ========== Step 1: 读取 ROM 地址 ========== */
-    /* 读取 PRB480 的唯一 8 字节 ID，用于后续的 Match ROM 指令 */
-    useRom = NULL;
-    if(PRB480_ReadROM(rom) == 0)
+    /* ========== Step 1: 读取并校验 ROM 地址 ========== */
+    /* 这里不再退回 Skip ROM。
+     * 因为后续认证算法要用到 ROM ID，本例要求 ROM 必须读对且 CRC8 正确。
+     */
+    useRom = rom;                                  /* 后续所有操作默认都用 Match ROM 访问当前器件 */
+
+    if(PRB480_ReadROM(rom) == 0)                   /* 读取 8 字节 ROM 并做 CRC8 校验 */
     {
-        useRom = rom;  /* 成功则使用 ROM ID 寻址 */
-        printf("PRB480 ROM ID:");
-        for(i = 0; i < 8; i++)
+        printf("PRB480 ROM ID:");                  /* 打印 ROM 头 */
+        for(i = 0; i < 8; i++)                     /* 逐字节打印 8 字节 ROM */
         {
-            printf(" %02X", rom[i]);
+            printf(" %02X", rom[i]);               /* 打印第 i 个字节 */
         }
-        printf("\r\n");
+        printf("\r\n");                            /* 换行结束 */
     }
     else
     {
-        printf("PRB480 Read ROM failed, using Skip ROM fallback\r\n");
-        /* 失败则使用 Skip ROM，广播方式寻址所有设备 */
+        printf("PRB480 Read ROM failed or CRC8 invalid\r\n"); /* ROM 读取失败或 CRC8 错误 */
+        while(1)
+        {
+            LED1 = !LED1;                          /* 快速闪灯表示错误 */
+            delay_ms(120);                         /* 错误状态下短周期闪烁 */
+        }
     }
 
     /* ========== Step 2: 加载第一密钥 ========== */
@@ -85,66 +97,91 @@ int main(void)
         printf("Load First Secret failed\r\n");
     }
 
-    /* ========== Step 3: 读取认证页面 ========== */
-    /* 从 PRB480 读取受保护的数据页 (32字节) 和对应的 MAC 签名 (20字节)
-     * PRB480 使用内部密钥对页面数据进行 SHA1 签名
-     * 返回：
-     * - page[32]: 页面数据
-     * - mac[20]: SHA1 MAC 签名
+    /* ========== Step 3: 认证读页面 ========== */
+    /* 完整流程：
+     * 1. 先把 challenge 写入 scratchpad 指定字节
+     * 2. 执行 Read Authenticated Page (0xA5)
+     * 3. 读取 page / CRC16 / device MAC / CRC16 / trailer
+     * 4. 主机侧用相同输入重算 MAC，与器件返回的 MAC 比较
      */
-    if(PRB480_ReadAuthenticatedPage(NULL, 0x0060, page, mac) == 0)
+    if(PRB480_ReadAuthenticatedPageEx(useRom, secret, 0x0060, challenge, &authPacket) == 0)
     {
-        printf("Authenticated Page 0x0060 data:\r\n");
-        for(i = 0; i < 32; i++)
-        {
-            printf("%02X ", page[i]);
-            if((i + 1) % 16 == 0) printf("\r\n");  /* 每 16 字节换行 */
-        }
-        printf("MAC:");
-        for(i = 0; i < 20; i++)
-        {
-            printf(" %02X", mac[i]);
-        }
-        printf("\r\n");
+        printf("Read Authenticated Page OK\r\n");  /* 认证读成功 */
+
+        printf("Challenge:");                      /* 打印 challenge 标题 */
+        for(i = 0; i < 3; i++)                     /* 逐字节打印 3 字节 challenge */
+            printf(" %02X", authPacket.challenge[i]); /* 打印第 i 个 challenge 字节 */
+        printf("\r\n");                            /* challenge 打印结束换行 */
+
+        printf("Device MAC:");                     /* 打印器件返回 MAC 标题 */
+        for(i = 0; i < 20; i++)                    /* 遍历 20 字节 MAC */
+            printf(" %02X", authPacket.device_mac[i]); /* 打印器件返回的第 i 个 MAC 字节 */
+        printf("\r\n");                            /* device MAC 打印结束换行 */
+
+        printf("Host   MAC:");                     /* 打印主机重算 MAC 标题 */
+        for(i = 0; i < 20; i++)                    /* 遍历 20 字节 MAC */
+            printf(" %02X", authPacket.host_mac[i]); /* 打印主机计算的第 i 个 MAC 字节 */
+        printf("\r\n");                            /* host MAC 打印结束换行 */
+
+        printf("Page CRC16=0x%04X, MAC CRC16=0x%04X\r\n",
+               authPacket.page_crc16,              /* 打印页面段 CRC16 */
+               authPacket.mac_crc16);              /* 打印 MAC 段 CRC16 */
     }
     else
     {
-        printf("Read Authenticated Page failed\r\n");
+        printf("Read Authenticated Page failed\r\n"); /* 认证读流程失败 */
     }
 
-    /* ========== Step 4: 写入并验证暂存区 ========== */
-    /* 手册“带验证的写操作”要求：
-     * 1. Write Scratchpad 写入 8 字节数据
-     * 2. Read Scratchpad 读回 TA1、TA2、E/S、数据和 CRC
-     * 3. 确认目标地址、E/S 状态和读回数据正确后，再执行 Copy Scratchpad
-     */
-    if(PRB480_WriteAndVerifyScratchpad(useRom, 0x0000, writeData, &es) == 0)
-    {
-        scratchOk = 1;  /* 只有验证通过后，后续才允许 Copy Scratchpad */
-        printf("Write and verify Scratchpad OK, E/S=0x%02X\r\n", es);
-    }
-    else
-    {
-        printf("Write and verify Scratchpad failed\r\n");
-    }
+    /* ========== Step 4: 认证写 8 字节块 ========== */
+    // /* 完整流程：
+    //  * 1. 读取目标页旧数据
+    //  * 2. Write Scratchpad
+    //  * 3. Read Scratchpad 验证 TA1 / TA2 / E/S / 数据 / CRC
+    //  * 4. 主机侧实时生成 Copy Scratchpad 所需 MAC
+    //  * 5. 发送 0x55 完成认证写入
+    //  */
+    // if(PRB480_WriteAuthorizedBlock(useRom, secret, 0x0000, writeData, &es, copyMac) == 0)
+    // {
+    //     printf("Authenticated Copy Scratchpad OK, E/S=0x%02X\r\n", es); /* 认证写成功并打印 E/S */
 
-    /* ========== Step 5: 复制暂存区到内存 ========== */
-    /* 将暂存区数据和 MAC 签名复制到 PRB480 的内部非易失性内存
-     * 需要提供正确的 MAC 值否则操作失败
-     * 返回 ACK 字节 (0xAA 0xAA) 表示成功
+    //     printf("Host write MAC:");                 /* 打印主机侧写授权 MAC 标题 */
+    //     for(i = 0; i < 20; i++)                    /* 遍历 20 字节写授权 MAC */
+    //         printf(" %02X", copyMac[i]);           /* 打印第 i 个 MAC 字节 */
+    //     printf("\r\n");                            /* MAC 打印结束换行 */
+    // }
+    // else
+    // {
+    //     printf("Authenticated Copy Scratchpad failed\r\n"); /* 认证写失败 */
+    // }
+
+    /* ========== Step 5: 认证写入用户数据块 ========== */
+    /* 这里不再直接复用“旧的 scratchOk + CopyScratchpad”两段式写法，
+     * 而是改成一个完整的认证写流程：
+     * 1. 先读取目标页旧数据
+     * 2. Write Scratchpad 写入 8 字节数据
+     * 3. Read Scratchpad 验证 TA1 / TA2 / E/S / 数据 / CRC
+     * 4. 主机侧根据 secret + ROM + 页数据 + 新数据实时生成 20 字节 MAC
+     * 5. 执行 Copy Scratchpad 完成真正的 EEPROM 写入
      */
-    if(scratchOk && PRB480_CopyScratchpad(useRom, 0x0000, es, copyMac) == 0)
+    if(PRB480_WriteAuthorizedBlock(useRom, secret, 0x0000, writeData, &es, copyMac) == 0)
     {
-        printf("Copy Scratchpad OK\r\n");
+        printf("Authenticated Copy Scratchpad OK, E/S=0x%02X\r\n", es); /* 认证写入成功 */
+
+        printf("Host write MAC:");                 /* 打印主机实时计算出的写授权 MAC */
+        for(i = 0; i < 20; i++)                    /* 逐字节打印 20 字节 MAC */
+        {
+            printf(" %02X", copyMac[i]);           /* 打印第 i 个 MAC 字节 */
+        }
+        printf("\r\n");                            /* MAC 打印完成后换行 */
     }
     else
     {
-        printf(scratchOk ? "Copy Scratchpad failed\r\n" : "Copy Scratchpad skipped: scratchpad verify failed\r\n");
+        printf("Authenticated Copy Scratchpad failed\r\n"); /* 认证写入失败 */
     }
 
     /* ========== Step 6: 读取内存 ========== */
     /* 读取 PRB480 内存中的数据进行验证 */
-    if(PRB480_ReadMemory(NULL, 0x0000, readback, 8) == 0)
+    if(PRB480_ReadMemory(useRom, 0x0000, readback, 8) == 0)   /* 用 Match ROM 回读写入后的 8 字节数据 */
     {
         printf("Read Memory 0x0000 data:");
         for(i = 0; i < 8; i++)

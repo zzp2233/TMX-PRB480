@@ -96,5 +96,47 @@ u8 PRB480_ReadAuthenticatedPage(u8 *rom, u16 addr, u8 page[32], u8 mac[20]);
      * @返回: 0=成功, 1=失败
      */
 
+
+/*******************************************************************************
+* 名    称         : PRB480_AuthenticatedPagePacket
+* 说    明         : Read Authenticated Page 命令返回的数据包结构
+*                    包含页面数据、challenge、设备返回的 MAC、主机计算的 MAC、
+*                    两段 CRC16 以及末尾交替响应字节
+*******************************************************************************/
+typedef struct
+{
+    u8 page[32];           /* 认证读命令返回的 32 字节页面数据 */
+    u8 challenge[3];       /* 主机在认证读前写入 scratchpad 的 3 字节 challenge */
+    u8 device_mac[20];     /* 器件返回的 20 字节 MAC */
+    u8 host_mac[20];       /* 主机用同样输入重算得到的 20 字节 MAC */
+    u16 page_crc16;        /* 页面数据段返回的 CRC16 */
+    u16 mac_crc16;         /* MAC 数据段返回的 CRC16 */
+    u8 trailer[2];         /* 末尾交替响应字节，通常为 0xAA/0x55 */
+} PRB480_AuthenticatedPagePacket;
+
+/*******************************************************************************
+* 名    称         : PRB480_WriteAuthorizedBlock
+* 功    能         : 按“带认证写入”流程写 1 个 8 字节块
+* 输入参数         : rom    - 目标器件 ROM ID，NULL 表示 Skip ROM
+*                    secret - 当前 8 字节 secret
+*                    addr   - 目标地址，必须位于 0x0000~0x007F 且 8 字节对齐
+*                    data   - 待写入的 8 字节数据
+* 输出参数         : es     - 返回 Read Scratchpad 验证通过后的 E/S
+*                    mac    - 返回主机侧实时计算出的 20 字节写授权 MAC
+* 返 回 值         : 0 成功，1 失败
+*******************************************************************************/
+u8 PRB480_WriteAuthorizedBlock(u8 *rom, u8 *secret, u16 addr, u8 *data, u8 *es, u8 mac[20]);
+
+/*******************************************************************************
+* 名    称         : PRB480_ReadAuthenticatedPageEx
+* 功    能         : 按“认证读页”流程读取页面并在主机侧校验 MAC
+* 输入参数         : rom       - 目标器件 ROM ID，NULL 表示 Skip ROM
+*                    secret    - 当前 8 字节 secret
+*                    addr      - 目标页首地址，必须 32 字节对齐
+*                    challenge - 3 字节 challenge
+* 输出参数         : packet    - 完整返回包
+* 返 回 值         : 0 成功，1 失败
+*******************************************************************************/
+u8 PRB480_ReadAuthenticatedPageEx(u8 *rom, u8 *secret, u16 addr, u8 challenge[3], PRB480_AuthenticatedPagePacket *packet);
 #endif
 
