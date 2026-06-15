@@ -43,7 +43,7 @@ u8 PRB480_WriteScratchpad(u8 *rom, u16 addr, u8 *dat, u8 len, u16 *crc);
      * @rom: ROM ID 指针
      * @addr: 起始地址 (通常 0x0000)
      * @dat: 要写入的数据
-     * @len: 长度 (最大 8 字节)
+     * @len: 固定 8 字节
      * @crc: 输出，PRB480 计算的 CRC16
      * @返回: 0=CRC匹配, 1=CRC错误或通信失败
      */
@@ -54,9 +54,18 @@ u8 PRB480_ReadScratchpad(u8 *rom, u8 *ta1, u8 *ta2, u8 *es, u8 *buf, u8 len, u16
      * @ta1, @ta2: 输出，暂存区的地址字节
      * @es: 输出，结尾状态字 (E/S)
      * @buf: 输出，暂存区的数据
-     * @len: 要读取的数据长度
+     * @len: 固定 8 字节
      * @crc: 输出，PRB480 计算的 CRC16
      * @返回: 0=CRC匹配, 1=CRC错误
+     */
+
+u8 PRB480_WriteAndVerifyScratchpad(u8 *rom, u16 addr, u8 *dat, u8 *es);
+    /* 0x0F + 0xAA - 写入并读回验证暂存区
+     * @rom: ROM ID 指针
+     * @addr: 目标地址，必须 8 字节对齐
+     * @dat: 要写入并验证的 8 字节数据
+     * @es: 输出，验证通过后的 E/S 字节
+     * @返回: 0=写入并验证成功, 1=失败
      */
 
 u8 PRB480_LoadFirstSecret(u8 *rom, u16 addr, u8 *secret, u8 *es);

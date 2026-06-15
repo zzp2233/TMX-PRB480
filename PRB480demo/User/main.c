@@ -30,8 +30,8 @@ int main(void)
                       0x19, 0xD8, 0xF4, 0x2C, 0x1A, 0xD0, 0x30, 0x0F,
                       0x39, 0x14, 0x67, 0xB2};
     
-    u8 ta1, ta2, es;        /* TA1/TA2: 暂存区地址, ES: 结尾状态字 */
-    u16 crc;                /* CRC16 校验值 */
+    u8 es;                  /* E/S: 结尾状态字 */
+    u8 scratchOk = 0;       /* Scratchpad 写入并验证成功标志 */
     u8 i;                   /* 循环计数器 */
     u8 *useRom;             /* 指向 ROM ID 的指针，NULL 则使用 Skip ROM */
 
@@ -112,52 +112,37 @@ int main(void)
         printf("Read Authenticated Page failed\r\n");
     }
 
-    /* ========== Step 4: 写入暂存区 ========== */
-    /* 将测试数据写入 PRB480 的临时暂存区 (8字节)
-     * 数据写入前需要地址和数据长度，PRB480 自动计算 CRC16
-     * 返回总线上的 CRC16 值用于验证
+    /* ========== Step 4: 写入并验证暂存区 ========== */
+    /* 手册“带验证的写操作”要求：
+     * 1. Write Scratchpad 写入 8 字节数据
+     * 2. Read Scratchpad 读回 TA1、TA2、E/S、数据和 CRC
+     * 3. 确认目标地址、E/S 状态和读回数据正确后，再执行 Copy Scratchpad
      */
-    if(PRB480_WriteScratchpad(useRom, 0x0000, writeData, 8, &crc) == 0)
+    if(PRB480_WriteAndVerifyScratchpad(useRom, 0x0000, writeData, &es) == 0)
     {
-        printf("Write Scratchpad OK, CRC=0x%04X\r\n", crc);
+        scratchOk = 1;  /* 只有验证通过后，后续才允许 Copy Scratchpad */
+        printf("Write and verify Scratchpad OK, E/S=0x%02X\r\n", es);
     }
     else
     {
-        printf("Write Scratchpad failed\r\n");
+        printf("Write and verify Scratchpad failed\r\n");
     }
 
-    /* ========== Step 5: 读取并验证暂存区 ========== */
-    /* 读回刚才写入的数据，验证 CRC16 校验值
-     * 返回：
-     * - ta1, ta2: 地址字节
-     * - es: 结尾状态字
-     * - readback[8]: 写入的数据
-     * - crc: 计算的 CRC16
-     */
-    if(PRB480_ReadScratchpad(useRom, &ta1, &ta2, &es, readback, 8, &crc) == 0)
-    {
-        printf("Read Scratchpad TA1=0x%02X TA2=0x%02X E/S=0x%02X CRC=0x%04X\r\n", ta1, ta2, es, crc);
-    }
-    else
-    {
-        printf("Read Scratchpad failed\r\n");
-    }
-
-    /* ========== Step 6: 复制暂存区到内存 ========== */
+    /* ========== Step 5: 复制暂存区到内存 ========== */
     /* 将暂存区数据和 MAC 签名复制到 PRB480 的内部非易失性内存
      * 需要提供正确的 MAC 值否则操作失败
      * 返回 ACK 字节 (0xAA 0xAA) 表示成功
      */
-    if(PRB480_CopyScratchpad(useRom, 0x0000, es, copyMac) == 0)
+    if(scratchOk && PRB480_CopyScratchpad(useRom, 0x0000, es, copyMac) == 0)
     {
         printf("Copy Scratchpad OK\r\n");
     }
     else
     {
-        printf("Copy Scratchpad failed\r\n");
+        printf(scratchOk ? "Copy Scratchpad failed\r\n" : "Copy Scratchpad skipped: scratchpad verify failed\r\n");
     }
 
-    /* ========== Step 7: 读取内存 ========== */
+    /* ========== Step 6: 读取内存 ========== */
     /* 读取 PRB480 内存中的数据进行验证 */
     if(PRB480_ReadMemory(NULL, 0x0000, readback, 8) == 0)
     {

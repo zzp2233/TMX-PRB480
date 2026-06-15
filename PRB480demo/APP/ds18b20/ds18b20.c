@@ -10,8 +10,50 @@
 #include "SHA1.h"
 #include <string.h>
 
-static u8 PRB480_CheckPresence(void);  /* 静态函数：检测设备应答 */
-static u8 PRB480_CommandStart(u8 *rom); /* 静态函数：发送复位+寻址前导 */
+#define PRB480_SCRATCHPAD_SIZE      8       /* Scratchpad 固定为 8 字节 */
+
+#define PRB480_ES_E_MASK            0x07    /* E/S bit[2:0]：Ending Offset 掩码 */
+#define PRB480_ES_E_FULL            0x07    /* 写满 8 字节后 Ending Offset 应为 111b */
+#define PRB480_ES_PF                0x20    /* E/S bit5：PF，Partial Byte Flag */
+#define PRB480_ES_AA                0x80    /* E/S bit7：AA，Authorization Accepted */
+
+static u8 PRB480_CheckPresence(void);        /* 检测 1-Wire presence 应答 */
+static u8 PRB480_CommandStart(u8 *rom);      /* 发送 Reset + ROM 寻址命令 */
+static u8 PRB480_CheckWriteAddress(u16 addr);/* 检查写地址是否 8 字节对齐 */
+static u8 PRB480_CheckScratchpadES(u8 es);   /* 检查 E/S 状态是否合法 */
+static u8 PRB480_VerifyScratchpad(u8 *rom, u16 addr, u8 *expected, u8 *ta1, u8 *ta2, u8 *es); /* 读回并验证 scratchpad */
+
+
+static u8 PRB480_CheckWriteAddress(u16 addr) /* 检查写入地址是否符合手册要求 */
+{                                              
+    return (addr & 0x0007) ? 1 : 0;           /* 地址低 3 位必须为 0，否则不是 8 字节边界 */
+}                                             
+
+static u8 PRB480_CheckScratchpadES(u8 es)     /* 检查 Read Scratchpad 读回的 E/S 字节 */
+{                                              
+    if ((es & PRB480_ES_E_MASK) != PRB480_ES_E_FULL) return 1; /* E[2:0] 应为 111b，表示写满 8 字节 */
+    if (es & PRB480_ES_PF) return 1;                           /* PF=1 表示部分字节/无效写入，失败 */
+    if (es & PRB480_ES_AA) return 1;                           /* AA=1 表示已复制授权，刚写完 scratchpad 时不应为 1 */
+    return 0;                                                  /* E/S 状态正常 */
+}                                            
+
+static u8 PRB480_VerifyScratchpad(u8 *rom, u16 addr, u8 *expected, u8 *ta1, u8 *ta2, u8 *es) /* 验证 scratchpad */
+{                                              
+    u8 readback[PRB480_SCRATCHPAD_SIZE];      /* 保存 Read Scratchpad 读回的 8 字节数据 */
+    u16 crc;                                  /* 保存芯片返回的 CRC16 */
+
+    if (PRB480_ReadScratchpad(rom, ta1, ta2, es, readback, PRB480_SCRATCHPAD_SIZE, &crc)) return 1; /* 读回 scratchpad 并校验 CRC */
+
+    if (*ta1 != (u8)(addr & 0xFF)) return 1;  /* 检查 TA1 是否等于目标地址低字节 */
+    if (*ta2 != (u8)(addr >> 8)) return 1;    /* 检查 TA2 是否等于目标地址高字节 */
+    if (PRB480_CheckScratchpadES(*es)) return 1; /* 检查 E/S 状态位是否正常 */
+    if (memcmp(readback, expected, PRB480_SCRATCHPAD_SIZE) != 0) return 1; /* 比较读回数据和期望数据 */
+
+    return 0;                                 /* scratchpad 验证通过 */
+}                                            
+
+
+
 
 /* ========== PG9 引脚配置函数，不使用内部上拉是因为PG9已经外接了上拉电阻 ========== */
 
@@ -49,7 +91,7 @@ void PRB480_IO_OUT(void)
  * @func PRB480_Init
  * @brief PRB480 初始化
  * 1. 使能 GPIOG 时钟
- * 2. 配置 PG9 为推挽输出
+ * 2. 配置 PG9 为开漏输出
  * 3. 执行复位命令并检测设备应答
  * @return 0=初始化成功, 1=设备无应答
  */
@@ -206,8 +248,8 @@ u8 PRB480_ReadByte(void)
 
 /**
  * @func PRB480_CalcCRC16
- * @brief 计算数据的 CRC16 校验值 (CRC-CCITT)
- * 用于验证暂存区写入的数据完整性
+ * @brief 计算 PRB480/1-Wire CRC16 反码
+ * 用于验证暂存区写入、读回等 1-Wire 数据完整性
  */
 u16 PRB480_CalcCRC16(u8 *data, u8 len)
 {
@@ -355,44 +397,44 @@ u8 PRB480_ReadMemory(u8 *rom, u16 addr, u8 *buf, u8 len)
  * @param crc 输出，PRB480 返回的 CRC16 值
  * @return 0=CRC16 匹配, 1=CRC 错误或失败
  */
-u8 PRB480_WriteScratchpad(u8 *rom, u16 addr, u8 *dat, u8 len, u16 *crc)
-{
-    u8 tx[11];
-    u8 i;
-    u8 crcLo;
-    u8 crcHi;
-    u16 busCrc;
-    u16 localCrc;
+u8 PRB480_WriteScratchpad(u8 *rom, u16 addr, u8 *dat, u8 len, u16 *crc) /* 写 8 字节到 scratchpad */
+{                                                                        
+    u8 tx[3 + PRB480_SCRATCHPAD_SIZE];                                  /* 保存命令码、地址、数据，用于本地 CRC */
+    u8 i;                                                               /* 循环变量 */
+    u8 crcLo;                                                           /* 芯片返回 CRC 低字节 */
+    u8 crcHi;                                                           /* 芯片返回 CRC 高字节 */
+    u16 busCrc;                                                         /* 总线上读到的 CRC16 */
+    u16 localCrc;                                                       /* 本地计算的 CRC16 */
 
-    if (len != 8) return 1;  /* 长度检查 */
-    if (PRB480_CommandStart(rom)) return 1;
+    if (dat == 0) return 1;                                             /* 数据指针不能为空 */
+    if (len != PRB480_SCRATCHPAD_SIZE) return 1;                        /* 手册要求 scratchpad 写入固定 8 字节 */
+    if (PRB480_CheckWriteAddress(addr)) return 1;                       /* 写地址必须 8 字节对齐 */
+    if (PRB480_CommandStart(rom)) return 1;                             /* 发送 Reset + ROM 寻址，失败则返回 */
 
-    if (addr & 0x0007) return 1;  /* 地址必须是 8 字节对齐 */
+    PRB480_WriteByte(0x0F);                                             /* 发送 Write Scratchpad 命令码 0x0F */
+    PRB480_WriteByte((u8)(addr & 0xFF));                                /* 发送 TA1，目标地址低字节 */
+    PRB480_WriteByte((u8)(addr >> 8));                                  /* 发送 TA2，目标地址高字节 */
 
-    PRB480_WriteByte(0x0F);  /* Write Scratchpad 命令 */
-    PRB480_WriteByte((u8)(addr & 0xFF));      /* 地址低字节 */
-    PRB480_WriteByte((u8)(addr >> 8));        /* 地址高字节 */
+    tx[0] = 0x0F;                                                       /* CRC 输入第 1 字节：命令码 */
+    tx[1] = (u8)(addr & 0xFF);                                          /* CRC 输入第 2 字节：TA1 */
+    tx[2] = (u8)(addr >> 8);                                            /* CRC 输入第 3 字节：TA2 */
 
-    /* 记录发送的所有数据用于本地 CRC16 计算 */
-    tx[0] = 0x0F;
-    tx[1] = (u8)(addr & 0xFF);
-    tx[2] = (u8)(addr >> 8);
-    for (i = 0; i < len; i++)
-    {
-        PRB480_WriteByte(dat[i]);
-        tx[3 + i] = dat[i];
-    }
+    for (i = 0; i < PRB480_SCRATCHPAD_SIZE; i++)                        /* 循环发送 8 字节数据 */
+    {                                                                   /* 循环开始 */
+        PRB480_WriteByte(dat[i]);                                       /* 发送第 i 个数据字节 */
+        tx[3 + i] = dat[i];                                             /* 保存第 i 个数据字节用于 CRC */
+    }                                                                   /* 循环结束 */
 
-    /* 读取 PRB480 计算的 CRC16 (LSB 优先) */
-    crcLo = PRB480_ReadByte();
-    crcHi = PRB480_ReadByte();
-    busCrc = crcLo | (crcHi << 8);
+    crcLo = PRB480_ReadByte();                                          /* 读取芯片返回的 CRC 低字节 */
+    crcHi = PRB480_ReadByte();                                          /* 读取芯片返回的 CRC 高字节 */
+    busCrc = crcLo | ((u16)crcHi << 8);                                 /* 合成总线返回的 CRC16 */
 
-    /* 本地计算 CRC16 进行验证 */
-    localCrc = PRB480_CalcCRC16(tx, (u8)(3 + len));
-    if (crc) *crc = busCrc;
-    return (busCrc == localCrc) ? 0 : 1;  /* 返回验证结果 */
-}
+    localCrc = PRB480_CalcCRC16(tx, 3 + PRB480_SCRATCHPAD_SIZE);         /* 本地计算 CRC16：0x0F + TA1 + TA2 + 8字节数据 */
+
+    if (crc) *crc = busCrc;                                             /* 如果调用者需要，就输出芯片返回 CRC */
+
+    return (busCrc == localCrc) ? 0 : 1;                                /* CRC 一致返回成功，否则失败 */
+}                                                                        
 
 /**
  * @func PRB480_ReadScratchpad
@@ -412,46 +454,79 @@ u8 PRB480_WriteScratchpad(u8 *rom, u16 addr, u8 *dat, u8 len, u16 *crc)
  * @param crc 输出，PRB480 的 CRC16
  * @return 0=CRC 匹配成功, 1=CRC 错误
  */
-u8 PRB480_ReadScratchpad(u8 *rom, u8 *ta1, u8 *ta2, u8 *es, u8 *buf, u8 len, u16 *crc)
+u8 PRB480_ReadScratchpad(u8 *rom, u8 *ta1, u8 *ta2, u8 *es, u8 *buf, u8 len, u16 *crc) /* 读取 scratchpad */
+{                                                                                       
+    u8 verify[4 + PRB480_SCRATCHPAD_SIZE];                                             /* 保存 CRC 校验输入数据 */
+    u8 i;                                                                              /* 循环变量 */
+    u8 crcLo;                                                                          /* 芯片返回 CRC 低字节 */
+    u8 crcHi;                                                                          /* 芯片返回 CRC 高字节 */
+    u16 busCrc;                                                                        /* 总线上读到的 CRC16 */
+    u16 localCrc;                                                                      /* 本地计算的 CRC16 */
+
+    if (ta1 == 0 || ta2 == 0 || es == 0 || buf == 0) return 1;                         /* 输出指针不能为空 */
+    if (len != PRB480_SCRATCHPAD_SIZE) return 1;                                       /* 手册要求读取完整 8 字节 scratchpad */
+    if (PRB480_CommandStart(rom)) return 1;                                            /* 发送 Reset + ROM 寻址，失败则返回 */
+
+    PRB480_WriteByte(0xAA);                                                            /* 发送 Read Scratchpad 命令码 0xAA */
+
+    *ta1 = PRB480_ReadByte();                                                          /* 读取 TA1，目标地址低字节 */
+    *ta2 = PRB480_ReadByte();                                                          /* 读取 TA2，目标地址高字节 */
+    *es  = PRB480_ReadByte();                                                          /* 读取 E/S，传输状态字节 */
+
+    for (i = 0; i < PRB480_SCRATCHPAD_SIZE; i++)                                       /* 循环读取 8 字节 scratchpad 数据 */
+    {                                                                                  /* 循环开始 */
+        buf[i] = PRB480_ReadByte();                                                    /* 读取第 i 个数据字节 */
+    }                                                                                  /* 循环结束 */
+
+    crcLo = PRB480_ReadByte();                                                         /* 读取 CRC 低字节 */
+    crcHi = PRB480_ReadByte();                                                         /* 读取 CRC 高字节 */
+    busCrc = crcLo | ((u16)crcHi << 8);                                                /* 合成总线返回的 CRC16 */
+
+    verify[0] = 0xAA;                                                                  /* CRC 输入第 1 字节：Read Scratchpad 命令码 */
+    verify[1] = *ta1;                                                                  /* CRC 输入第 2 字节：TA1 */
+    verify[2] = *ta2;                                                                  /* CRC 输入第 3 字节：TA2 */
+    verify[3] = *es;                                                                   /* CRC 输入第 4 字节：E/S */
+
+    for (i = 0; i < PRB480_SCRATCHPAD_SIZE; i++)                                       /* 循环保存 8 字节数据到 CRC 输入数组 */
+    {                                                                                  /* 循环开始 */
+        verify[4 + i] = buf[i];                                                        /* CRC 输入后续字节：scratchpad 数据 */
+    }                                                                                  /* 循环结束 */
+
+    localCrc = PRB480_CalcCRC16(verify, 4 + PRB480_SCRATCHPAD_SIZE);                   /* 本地计算 CRC16：0xAA + TA1 + TA2 + E/S + 8字节数据 */
+
+    if (crc) *crc = busCrc;                                                            /* 如果调用者需要，就输出芯片返回 CRC */
+
+    return (busCrc == localCrc) ? 0 : 1;                                               /* CRC 一致返回成功，否则失败 */
+}                                                                                       
+
+/**
+ * @func PRB480_WriteAndVerifyScratchpad
+ * @brief 写入 8 字节 scratchpad，并按手册“带验证的写操作”读回确认
+ * 流程：
+ *   1. WriteScratchpad 写入 8 字节数据
+ *   2. ReadScratchpad 读回 TA1、TA2、E/S、8 字节数据和 CRC
+ *   3. 比较 TA1/TA2、E/S 状态和读回数据
+ * @param rom ROM ID 指针
+ * @param addr 目标地址，必须 8 字节对齐
+ * @param dat 期望写入的 8 字节数据
+ * @param es 输出，验证通过后的 E/S 字节
+ * @return 0=写入并验证成功, 1=失败
+ */
+u8 PRB480_WriteAndVerifyScratchpad(u8 *rom, u16 addr, u8 *dat, u8 *es)
 {
-    u8 i;
-    u8 verify[11];
-    u8 crcLo;
-    u8 crcHi;
-    u16 busCrc;
-    u16 localCrc;
+    u16 crc;            /* 保存 Write Scratchpad 返回的 CRC16 */
+    u8 ta1;             /* 保存 Read Scratchpad 读回的 TA1 */
+    u8 ta2;             /* 保存 Read Scratchpad 读回的 TA2 */
+    u8 localEs;         /* 保存 Read Scratchpad 读回的 E/S */
 
-    if (PRB480_CommandStart(rom)) return 1;
+    if (dat == 0) return 1;                                                        /* 写入数据指针不能为空 */
+    if (PRB480_WriteScratchpad(rom, addr, dat, PRB480_SCRATCHPAD_SIZE, &crc)) return 1; /* 先写满 8 字节 scratchpad */
+    if (PRB480_VerifyScratchpad(rom, addr, dat, &ta1, &ta2, &localEs)) return 1;   /* 再读回并验证地址、状态、数据和 CRC */
 
-    PRB480_WriteByte(0xAA);  /* Read Scratchpad 命令 */
-    *ta1 = PRB480_ReadByte();  /* 读取地址字节 1 */
-    *ta2 = PRB480_ReadByte();  /* 读取地址字节 2 */
-    *es  = PRB480_ReadByte();  /* 读取结尾状态字 */
+    if (es) *es = localEs;                                                        /* 如果调用者需要，就返回验证后的 E/S */
 
-    for (i = 0; i < len; i++)
-    {
-        buf[i] = PRB480_ReadByte();  /* 读取暂存区数据 */
-    }
-
-    /* 读取 CRC16 */
-    crcLo = PRB480_ReadByte();
-    crcHi = PRB480_ReadByte();
-    busCrc = crcLo | (crcHi << 8);
-
-    /* 本地验证：重新计算返回的数据的 CRC16 */
-    verify[0] = *ta1;
-    verify[1] = *ta2;
-    verify[2] = *es;
-    for (i = 0; i < len; i++)
-    {
-        verify[3 + i] = buf[i];
-    }
-
-    localCrc = PRB480_CalcCRC16(verify, (u8)(3 + len));
-    if (crc) *crc = busCrc;
-    return (busCrc == localCrc) ? 0 : 1;  /* CRC 验证结果 */
+    return 0;                                                                     /* scratchpad 写入并验证成功 */
 }
-
 /**
  * @func PRB480_LoadFirstSecret
  * @brief 0x5A - 加载第一密钥到内部存储
@@ -465,37 +540,38 @@ u8 PRB480_ReadScratchpad(u8 *rom, u8 *ta1, u8 *ta2, u8 *es, u8 *buf, u8 len, u16
  * @param es 输出，结尾状态字
  * @return 0=成功, 1=失败
  */
-u8 PRB480_LoadFirstSecret(u8 *rom, u16 addr, u8 *secret, u8 *es)
-{
-    u16 crc;
-    u8 ta1, ta2;
-    u8 ack1;
-    u8 ack2;
+u8 PRB480_LoadFirstSecret(u8 *rom, u16 addr, u8 *secret, u8 *es) /* 加载 first secret */
+{                                                                 
+    u16 crc;                                                     /* 保存 Write Scratchpad 返回的 CRC16 */
+    u8 ta1;                                                      /* 保存 Read Scratchpad 读回的 TA1 */
+    u8 ta2;                                                      /* 保存 Read Scratchpad 读回的 TA2 */
+    u8 localEs;                                                  /* 保存 Read Scratchpad 读回的 E/S */
+    u8 ack1;                                                     /* 保存第 1 个 ACK 字节 */
+    u8 ack2;                                                     /* 保存第 2 个 ACK 字节 */
 
-    /* 第 1 步：写入密钥到暂存区 */
-    if (PRB480_WriteScratchpad(rom, addr, secret, 8, &crc)) return 1;
+    if (secret == 0) return 1;                                   /* secret 指针不能为空 */
+    if (PRB480_CheckWriteAddress(addr)) return 1;                /* secret 写入地址必须 8 字节对齐 */
 
-    /* 第 2 步：读回暂存区进行验证 */
-    if (PRB480_ReadScratchpad(rom, &ta1, &ta2, es, secret, 8, &crc)) return 1;
+    if (PRB480_WriteScratchpad(rom, addr, secret, PRB480_SCRATCHPAD_SIZE, &crc)) return 1; /* 先写 8 字节 secret 到 scratchpad */
 
-    if (*es & 0x20) return 1;   // PF bit = 1，scratchpad 无效
-    if (*es & 0x80) return 1;   // AA bit = 1，说明状态不符合刚写入后的预期
-    if ((*es & 0x07) != 0x07) return 1;
+    if (PRB480_VerifyScratchpad(rom, addr, secret, &ta1, &ta2, &localEs)) return 1;        /* 读回并验证 TA1/TA2/E/S/数据/CRC */
 
-    /* 第 3 步：发送 LoadFirstSecret 命令 */
-    if (PRB480_CommandStart(rom)) return 1;
-    PRB480_WriteByte(0x5A);  /* Load First Secret 命令 */
-    PRB480_WriteByte((u8)(addr & 0xFF));      /* 地址低字节 */
-    PRB480_WriteByte((u8)(addr >> 8));        /* 地址高字节 */
-    PRB480_WriteByte(*es);   /* 发送结尾状态字 */
+    if (es) *es = localEs;                                      /* 如果调用者需要，就输出验证后的 E/S */
 
-    /* 等待操作完成 (20ms) */
-    delay_ms(20);
-    ack1 = PRB480_ReadByte();  /* 读取 ACK 字节 */
-    ack2 = PRB480_ReadByte();
+    if (PRB480_CommandStart(rom)) return 1;                     /* 重新开始 1-Wire 事务并寻址芯片 */
 
-    return (ack1 == 0xAA && ack2 == 0xAA) ? 0 : 1;  /* 验证 ACK */
-}
+    PRB480_WriteByte(0x5A);                                     /* 发送 Load First Secret 命令码 0x5A */
+    PRB480_WriteByte(ta1);                                      /* 发送已验证的 TA1 */
+    PRB480_WriteByte(ta2);                                      /* 发送已验证的 TA2 */
+    PRB480_WriteByte(localEs);                                  /* 发送已验证的 E/S */
+
+    delay_ms(20);                                               /* 等待内部写入 secret 完成 */
+
+    ack1 = PRB480_ReadByte();                                   /* 读取第 1 个 ACK 字节 */
+    ack2 = PRB480_ReadByte();                                   /* 读取第 2 个 ACK 字节 */
+
+    return (ack1 == 0xAA && ack2 == 0xAA) ? 0 : 1;              /* 两个 ACK 都是 0xAA 表示成功 */
+}                                                                
 
 /**
  * @func PRB480_CopyScratchpad
@@ -507,32 +583,36 @@ u8 PRB480_LoadFirstSecret(u8 *rom, u16 addr, u8 *secret, u8 *es)
  * @param mac 20 字节的 MAC 签名（必须正确）
  * @return 0=成功, 1=MAC 错误或失败
  */
-u8 PRB480_CopyScratchpad(u8 *rom, u16 addr, u8 es, u8 mac[20])
-{
-    u8 i;
-    u8 ack1;
-    u8 ack2;
+u8 PRB480_CopyScratchpad(u8 *rom, u16 addr, u8 es, u8 mac[20]) /* 复制 scratchpad 到 EEPROM */
+{                                                               
+    u8 i;                                                      /* 循环变量 */
+    u8 ack1;                                                   /* 保存第 1 个 ACK 字节 */
+    u8 ack2;                                                   /* 保存第 2 个 ACK 字节 */
 
-    if (PRB480_CommandStart(rom)) return 1;
+    if (mac == 0) return 1;                                    /* MAC 指针不能为空 */
+    if (PRB480_CheckWriteAddress(addr)) return 1;              /* 目标地址必须 8 字节对齐 */
+    if (PRB480_CheckScratchpadES(es)) return 1;                /* E/S 必须是刚才 Read Scratchpad 验证通过的值 */
+    if (PRB480_CommandStart(rom)) return 1;                    /* 发送 Reset + ROM 寻址，失败则返回 */
 
-    PRB480_WriteByte(0x55);  /* Copy Scratchpad 命令 */
-    PRB480_WriteByte((u8)(addr & 0xFF));      /* 地址低字节 */
-    PRB480_WriteByte((u8)(addr >> 8));        /* 地址高字节 */
-    PRB480_WriteByte(es);    /* 结尾状态字 */
+    PRB480_WriteByte(0x55);                                    /* 发送 Copy Scratchpad 命令码 0x55 */
+    PRB480_WriteByte((u8)(addr & 0xFF));                       /* 发送 TA1，目标地址低字节 */
+    PRB480_WriteByte((u8)(addr >> 8));                         /* 发送 TA2，目标地址高字节 */
+    PRB480_WriteByte(es);                                      /* 发送 E/S，必须来自 Read Scratchpad */
 
-    delay_ms(10);  /* PRB480 处理命令的时间 */
-    for (i = 0; i < 20; i++)
-    {
-        PRB480_WriteByte(mac[i]);  /* 发送 20 字节的 MAC 签名 */
-    }
+    delay_ms(10);                                              /* 等待芯片准备/计算授权流程 */
 
-    /* 等待复制完成 (20ms) */
-    delay_ms(20);
-    ack1 = PRB480_ReadByte();  /* 读取 ACK 字节 */
-    ack2 = PRB480_ReadByte();
+    for (i = 0; i < 20; i++)                                   /* 循环发送 20 字节 MAC */
+    {                                                          /* 循环开始 */
+        PRB480_WriteByte(mac[i]);                              /* 发送第 i 个 MAC 字节 */
+    }                                                          /* 循环结束 */
 
-    return (ack1 == 0xAA && ack2 == 0xAA) ? 0 : 1;  /* MAC 验证结果 */
-}
+    delay_ms(20);                                              /* 等待 EEPROM 编程完成 */
+
+    ack1 = PRB480_ReadByte();                                  /* 读取第 1 个 ACK 字节 */
+    ack2 = PRB480_ReadByte();                                  /* 读取第 2 个 ACK 字节 */
+
+    return (ack1 == 0xAA && ack2 == 0xAA) ? 0 : 1;             /* 两个 ACK 都是 0xAA 表示复制成功 */
+}                                                               
 
 /**
  * @func PRB480_ReadAuthenticatedPage
