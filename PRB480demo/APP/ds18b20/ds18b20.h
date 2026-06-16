@@ -87,6 +87,18 @@ u8 PRB480_CopyScratchpad(u8 *rom, u16 addr, u8 es, u8 mac[20]);
      * @返回: 0=成功, 1=MAC错误或失败
      */
 
+u8 PRB480_CopyScratchpadVerified(u8 *rom, u16 addr, u8 *writeData, u8 *secret, u8 *pageData, u8 mac[20], u8 *copyStatus);
+    /* 0x55 - 标准 Copy Scratchpad 授权写入流程
+     * @rom: ROM ID 指针，必须用于 MAC 输入
+     * @addr: 目标地址，数据页 0x0000~0x007F 或配置页 0x0088~0x009F，必须 8 字节对齐
+     * @writeData: 待写入的 8 字节数据
+     * @secret: 当前 8 字节 secret
+     * @pageData: 输出，数据页为页首 32 字节，配置页为 0x0080 起 32 字节
+     * @mac: 输出，主机侧计算出的 20 字节 Copy MAC
+     * @copyStatus: 输出，Copy Scratchpad 原始状态字节 AAh/00h/FFh
+     * @返回: 0=成功, 1=失败
+     */
+
 u8 PRB480_ReadAuthenticatedPage(u8 *rom, u16 addr, u8 page[32], u8 mac[20]);
     /* 0xA5 - 读取受保护页面及其 MAC 签名
      * @rom: ROM ID 指针
@@ -116,10 +128,10 @@ typedef struct
 
 /*******************************************************************************
 * 名    称         : PRB480_WriteAuthorizedBlock
-* 功    能         : 按“带认证写入”流程写 1 个 8 字节块
-* 输入参数         : rom    - 目标器件 ROM ID，NULL 表示 Skip ROM
+* 功    能         : 按 Copy Scratchpad[55h] 授权写入流程写 1 个 8 字节块
+* 输入参数         : rom    - 目标器件 ROM ID，Copy MAC 必须使用 ROM 前 7 字节
 *                    secret - 当前 8 字节 secret
-*                    addr   - 目标地址，必须位于 0x0000~0x007F 且 8 字节对齐
+*                    addr   - 目标地址，数据页 0x0000~0x007F 或配置页 0x0088~0x009F
 *                    data   - 待写入的 8 字节数据
 * 输出参数         : es     - 返回 Read Scratchpad 验证通过后的 E/S
 *                    mac    - 返回主机侧实时计算出的 20 字节写授权 MAC

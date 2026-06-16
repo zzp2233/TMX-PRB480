@@ -8,7 +8,8 @@
 #include "SysTick.h"
 #include "CRC16.h"
 #include "SHA1.h"
-#include <string.h>
+#include <stdio.h>                               /* 提供 printf 调试输出声明 */
+#include <string.h>                              /* 提供 memcmp/memcpy/memset 内存操作声明 */
 
 #define PRB480_SCRATCHPAD_SIZE      8       /* Scratchpad 固定为 8 字节 */
 
@@ -16,6 +17,18 @@
 #define PRB480_ES_E_FULL            0x07    /* 写满 8 字节后 Ending Offset 应为 111b */
 #define PRB480_ES_PF                0x20    /* E/S bit5：PF，Partial Byte Flag */
 #define PRB480_ES_AA                0x80    /* E/S bit7：AA，Authorization Accepted */
+#define PRB480_TCSHA_MS             3       /* SHA-1 计算最大等待时间，手册约 2.15ms，取 3ms 留余量 */
+#define PRB480_TPROG_MS             1       /* FRAM 写入等待时间，手册为 ns 级，这里取 1ms 留余量 */
+#define PRB480_COPY_OK              0       /* Copy Scratchpad 状态：AAh，复制成功 */
+#define PRB480_COPY_MAC_ERR         1       /* Copy Scratchpad 状态：00h，MAC 不匹配 */
+#define PRB480_COPY_AUTH_ERR        2       /* Copy Scratchpad 状态：FFh，TA/E/S 错误、地址无效或写保护 */
+#define PRB480_COPY_TIMEOUT         3       /* Copy Scratchpad 状态：等待状态字节超时 */
+#define PRB480_COPY_UNKNOWN         4       /* Copy Scratchpad 状态：未知返回值 */
+#define PRB480_COPY_AREA_DATA       0       /* Copy Scratchpad 目标类型：普通数据页 0x0000~0x007F */
+#define PRB480_COPY_AREA_CONFIG     1       /* Copy Scratchpad 目标类型：配置/寄存器页 0x0088~0x009F */
+#define PRB480_COPY_AREA_INVALID    2       /* Copy Scratchpad 目标类型：非法地址 */
+
+static u8 PRB480_LastCopyStatus = 0xFF;                                             /* 保存最近一次 Copy Scratchpad 原始状态字节 */
 
 static u8 PRB480_CheckAlternatingResponse(u8 first, u8 second);                       /* 检查成功后的交替响应 */
 static u8 PRB480_CalcCRC8(u8 *data, u8 len);                                          /* 计算 ROM 用 CRC8 */
@@ -23,7 +36,10 @@ static u16 PRB480_PageStart(u16 addr);                                          
 static u8 PRB480_VerifyReadAuthPageCRC(u8 *prefix, u8 prefix_len, u8 *payload, u8 payload_len, u16 bus_crc); /* 校验认证读 CRC16 */
 static void PRB480_RunMacCompression(const u8 message[64], u32 state[5]);            /* 执行 PRB480 单块 SHA-1 压缩 */
 static void PRB480_StateToBusMAC(const u32 state[5], u8 mac[20]);                    /* 把内部状态转换成总线输出 MAC */
-static void PRB480_GenerateCopyScratchpadMAC(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 *scratchpad, u8 mac[20]); /* 生成写授权 MAC */
+static u8 PRB480_GetCopyTargetArea(u16 addr);                                      /* 判断 Copy Scratchpad 目标地址类型 */
+static u8 PRB480_GenerateCopyMAC(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 *scratchpad, u8 mac[20]); /* 按目标类型生成写授权 MAC */
+static void PRB480_GenerateCopyDataPageMAC(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 *scratchpad, u8 mac[20]); /* 生成数据页写授权 MAC */
+static u8 PRB480_GenerateCopyConfigPageMAC(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 *scratchpad, u8 mac[20]); /* 生成配置页写授权 MAC */
 static void PRB480_GenerateReadAuthPageMAC(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 challenge[3], u8 mac[20]);  /* 生成认证读校验 MAC */
 static u8 PRB480_LoadChallengeScratchpad(u8 *rom, u16 addr, u8 challenge[3], u8 *es); /* challenge 写入 scratchpad */
 static u8 PRB480_ReadAuthenticatedPageRaw(u8 *rom, u16 addr, u8 challenge[3], PRB480_AuthenticatedPagePacket *packet); /* 原始认证读流程 */
@@ -34,6 +50,7 @@ static u8 PRB480_CheckWriteAddress(u16 addr);/* 检查写地址是否 8 字节对齐 */
 static u8 PRB480_CheckScratchpadES(u8 es);   /* 检查 E/S 状态是否合法 */
 static u8 PRB480_VerifyScratchpad(u8 *rom, u16 addr, u8 *expected, u8 *ta1, u8 *ta2, u8 *es); /* 读回并验证 scratchpad */
 static u8 PRB480_WaitReady(u16 timeout);                                             /* 等待 PRB480 忙状态结束，图 8b 中忙时读 0，完成读 1 */
+static u8 PRB480_WaitCopyResult(u8 *status);                                         /* 等待 Copy Scratchpad 返回 AAh/00h/FFh 状态 */
 static u8 PRB480_CheckPostCopyES(u8 es);                                             /* 检查 Copy / Load First Secret 后的 E/S 状态 */
 static u8 PRB480_CheckDataPageAddress(u16 addr);                                     /* 检查 Compute Next Secret 使用的数据页地址 */
 u8 PRB480_LoadPartialSecretScratchpad(u8 *rom, u16 addr, u8 partial[8], u8 *es);      /* 把 8 字节 partial secret 写入 scratchpad 并验证 */
@@ -106,6 +123,52 @@ static u8 PRB480_WaitReady(u16 timeout)
     }
 
     return 1;                                                                          /* 超时仍未读到 1，认为芯片忙状态异常 */
+}
+
+/*******************************************************************************
+* 名    称         : PRB480_WaitCopyResult
+* 功    能         : 等待 Copy Scratchpad(0x55) 返回最终 loop 状态
+* 说    明         : 对应图 8c 中 Copy Scratchpad 结束后的 AAh / 00h / FFh loop。
+*                    AAh 表示复制成功，00h 表示 MAC 不匹配，
+*                    FFh 表示 TA1/TA2/E/S 错误、无效地址或写保护。
+* 输入参数         : status - 状态字节输出缓存
+* 输出参数         : status - 返回芯片最终状态字节
+* 返 回 值         : 0 复制成功，1 MAC 不匹配，2 地址/认证错误，
+*                    3 超时，4 未知状态
+*******************************************************************************/
+static u8 PRB480_WaitCopyResult(u8 *status)
+{
+    u8 loop;                                                                           /* 保存当前读取到的 loop 状态字节 */
+    u8 retry;                                                                          /* 状态字节轮询次数 */
+
+    if (status == 0) return PRB480_COPY_UNKNOWN;                                       /* 状态输出指针为空则返回未知错误 */
+
+    *status = 0xFF;                                                                    /* 先给输出状态一个默认值，便于失败时观察 */
+
+    for (retry = 0; retry < 20; retry++)                                               /* 最多读取 20 次状态 loop，避免总线异常时卡死 */
+    {
+        loop = PRB480_ReadByte();                                                      /* 读取 Copy Scratchpad 返回的状态字节 */
+        *status = loop;                                                                /* 保存最近一次状态字节给调用者打印 */
+
+        if (loop == 0xAA)                                                              /* 判断是否为 AAh 成功状态 */
+        {
+            return PRB480_COPY_OK;                                                     /* 返回复制成功 */
+        }
+
+        if (loop == 0x00)                                                              /* 判断是否为 00h MAC 不匹配状态 */
+        {
+            return PRB480_COPY_MAC_ERR;                                                /* 返回 MAC 不匹配 */
+        }
+
+        if (loop == 0xFF)                                                              /* 判断是否为 FFh 地址/认证错误状态 */
+        {
+            return PRB480_COPY_AUTH_ERR;                                               /* 返回 TA/E/S 错误、无效地址或写保护 */
+        }
+
+        delay_us(50);                                                                  /* 未读到标准状态时稍等后再次读取 */
+    }
+
+    return PRB480_COPY_TIMEOUT;                                                        /* 多次读取仍无标准状态则返回超时 */
 }
 
 /*******************************************************************************
@@ -308,7 +371,7 @@ static void PRB480_StateToBusMAC(const u32 state[5], u8 mac[20])
 }
 
 /*******************************************************************************
-* 名    称         : PRB480_GenerateCopyScratchpadMAC
+* 名    称         : PRB480_GenerateCopyDataPageMAC
 * 功    能         : 生成 Copy Scratchpad 写授权 MAC
 * 说    明         : 输入块由以下部分组成：
 *                    1. 当前 secret 前 4 字节
@@ -326,7 +389,7 @@ static void PRB480_StateToBusMAC(const u32 state[5], u8 mac[20])
 * 输出参数         : mac        - 20 字节 MAC
 * 返 回 值         : 无
 *******************************************************************************/
-static void PRB480_GenerateCopyScratchpadMAC(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 *scratchpad, u8 mac[20])
+static void PRB480_GenerateCopyDataPageMAC(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 *scratchpad, u8 mac[20])
 {
     u8 msg[64] = {0};                             /* 认证算法使用的 64 字节输入块 */
     u32 state[5];                                 /* 压缩后的 A/B/C/D/E 状态字 */
@@ -376,6 +439,144 @@ static void PRB480_GenerateCopyScratchpadMAC(u8 *secret, u8 *rom, u16 addr, u8 *
     PRB480_StateToBusMAC(state, mac);             /* 生成最终 MAC */
 }
 
+/*******************************************************************************
+* 名    称         : PRB480_GetCopyTargetArea
+* 功    能         : 判断 Copy Scratchpad 目标地址属于数据页还是配置页
+* 说    明         : 图 8c 的总线流程相同，但 Host Computes MAC 时必须按地址类型
+*                    选择表 3A 或表 3B 的输入块，不能混用。
+* 输入参数         : addr - Copy Scratchpad 目标地址
+* 返 回 值         : PRB480_COPY_AREA_DATA   数据页 0x0000~0x007F
+*                    PRB480_COPY_AREA_CONFIG 配置/寄存器页 0x0088~0x009F
+*                    PRB480_COPY_AREA_INVALID 非法地址
+*******************************************************************************/
+static u8 PRB480_GetCopyTargetArea(u16 addr)
+{
+    if (addr <= 0x007F)                                                                  /* 判断地址是否落在 4 个普通数据页 */
+    {
+        return PRB480_COPY_AREA_DATA;                                                    /* 返回普通数据页类型 */
+    }
+
+    if (addr >= 0x0088 && addr <= 0x009F)                                                /* 判断地址是否落在配置/寄存器页窗口 */
+    {
+        return PRB480_COPY_AREA_CONFIG;                                                  /* 返回配置页类型 */
+    }
+
+    return PRB480_COPY_AREA_INVALID;                                                     /* 超出手册图 8a 地址窗口则为非法地址 */
+}
+
+/*******************************************************************************
+* 名    称         : PRB480_GenerateCopyConfigPageMAC
+* 功    能         : 生成配置页 Copy Scratchpad 写授权 MAC
+* 说    明         : 配置页必须按 PRB480 手册表 3B 拼接 SHA-1 输入块，
+*                    不能复用普通数据页表 3A 的 page[0..27] 格式。
+*                    page 参数必须为从 0x0080 开始读取的 32 字节缓存，
+*                    其中 page[8..27] 对应配置页 RP0..RP19。
+* 输入参数         : secret     - 当前 8 字节 secret
+*                    rom        - 8 字节 ROM ID
+*                    addr       - 配置页目标地址
+*                    page       - 配置/寄存器页数据缓存
+*                    scratchpad - 8 字节待写入数据
+* 输出参数         : mac        - 20 字节 MAC
+* 返 回 值         : 0 成功，1 失败
+*******************************************************************************/
+static u8 PRB480_GenerateCopyConfigPageMAC(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 *scratchpad, u8 mac[20])
+{
+    u8 msg[64] = {0};                                                                    /* 认证算法使用的 64 字节输入块 */
+    u32 state[5];                                                                        /* 压缩后的 A/B/C/D/E 状态字 */
+    u8 i;                                                                                /* 循环变量 */
+
+    if (secret == 0 || rom == 0 || page == 0 || scratchpad == 0 || mac == 0) return 1;  /* 任一输入指针为空则返回失败 */
+    if (PRB480_GetCopyTargetArea(addr) != PRB480_COPY_AREA_CONFIG) return 1;            /* 目标地址必须属于配置页窗口 */
+
+    for (i = 0; i < 4; i++)                                                             /* 填入 M0：SS0~SS3 */
+    {
+        msg[i] = secret[i];                                                             /* msg[0..3] <- SS0..SS3 */
+    }
+
+    for (i = 0; i < 4; i++)                                                             /* 填入 M1：SS0~SS3 */
+    {
+        msg[4 + i] = secret[i];                                                         /* msg[4..7] <- SS0..SS3 */
+    }
+
+    for (i = 0; i < 4; i++)                                                             /* 填入 M2：SS4~SS7 */
+    {
+        msg[8 + i] = secret[4 + i];                                                     /* msg[8..11] <- SS4..SS7 */
+    }
+
+    for (i = 0; i < 20; i++)                                                            /* 填入 M3~M7：RP0~RP19 */
+    {
+        msg[12 + i] = page[8 + i];                                                       /* page[8..27] 对应 0x0088 开始的 RP0..RP19 */
+    }
+
+    for (i = 0; i < 8; i++)                                                             /* 填入 M8~M9：SP0~SP7 */
+    {
+        msg[32 + i] = scratchpad[i];                                                     /* msg[32..39] <- scratchpad[0..7] */
+    }
+
+    msg[40] = 0x04;                                                                      /* 填入 M10[31:24]：配置页 MP 固定为 04h */
+
+    for (i = 0; i < 7; i++)                                                             /* 填入 M10/M11：RN0~RN6 */
+    {
+        msg[41 + i] = rom[i];                                                           /* msg[41..47] <- ROM 前 7 字节 */
+    }
+
+    for (i = 0; i < 4; i++)                                                             /* 填入 M12：SS4~SS7 */
+    {
+        msg[48 + i] = secret[4 + i];                                                     /* msg[48..51] <- SS4..SS7 */
+    }
+
+    msg[52] = 0xFF;                                                                      /* 填入 M13[31:24]：固定 FFh */
+    msg[53] = 0xFF;                                                                      /* 填入 M13[23:16]：固定 FFh */
+    msg[54] = 0xFF;                                                                      /* 填入 M13[15:8]：固定 FFh */
+    msg[55] = 0x80;                                                                      /* 填入 M13[7:0]：SHA-1 padding 起始 80h */
+    msg[56] = 0x00;                                                                      /* 填入 M14[31:24]：固定 00h */
+    msg[57] = 0x00;                                                                      /* 填入 M14[23:16]：固定 00h */
+    msg[58] = 0x00;                                                                      /* 填入 M14[15:8]：固定 00h */
+    msg[59] = 0x00;                                                                      /* 填入 M14[7:0]：固定 00h */
+    msg[60] = 0x00;                                                                      /* 填入 M15[31:24]：固定 00h */
+    msg[61] = 0x00;                                                                      /* 填入 M15[23:16]：固定 00h */
+    msg[62] = 0x01;                                                                      /* 填入 M15[15:8]：长度高字节 01h */
+    msg[63] = 0xB8;                                                                      /* 填入 M15[7:0]：长度低字节 B8h */
+
+    PRB480_RunMacCompression(msg, state);                                               /* 执行 PRB480 单块 SHA-1 压缩 */
+    PRB480_StateToBusMAC(state, mac);                                                   /* 按总线顺序输出 20 字节 MAC */
+
+    return 0;                                                                            /* 配置页 Copy MAC 生成成功 */
+}
+
+/*******************************************************************************
+* 名    称         : PRB480_GenerateCopyMAC
+* 功    能         : 根据目标地址类型生成 Copy Scratchpad 写授权 MAC
+* 说    明         : 数据页按表 3A 调用 PRB480_GenerateCopyDataPageMAC，
+*                    配置页按表 3B 调用 PRB480_GenerateCopyConfigPageMAC。
+* 输入参数         : secret     - 当前 8 字节 secret
+*                    rom        - 8 字节 ROM ID
+*                    addr       - Copy Scratchpad 目标地址
+*                    page       - 目标页或配置页数据缓存
+*                    scratchpad - 8 字节待写入数据
+* 输出参数         : mac        - 20 字节 Copy Scratchpad MAC
+* 返 回 值         : 0 成功，1 失败
+*******************************************************************************/
+static u8 PRB480_GenerateCopyMAC(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 *scratchpad, u8 mac[20])
+{
+    u8 area;                                                                             /* 保存目标地址类型 */
+
+    area = PRB480_GetCopyTargetArea(addr);                                               /* 根据地址判断数据页或配置页 */
+
+    if (area == PRB480_COPY_AREA_DATA)                                                   /* 判断是否为普通数据页 */
+    {
+        PRB480_GenerateCopyDataPageMAC(secret, rom, addr, page, scratchpad, mac);        /* 按表 3A 生成数据页 Copy MAC */
+        return 0;                                                                        /* 数据页 MAC 生成成功 */
+    }
+
+    if (area == PRB480_COPY_AREA_CONFIG)                                                 /* 判断是否为配置/寄存器页 */
+    {
+        return PRB480_GenerateCopyConfigPageMAC(secret, rom, addr, page, scratchpad, mac); /* 配置页必须走表 3B */
+    }
+
+    printf("Copy Scratchpad target address invalid\r\n");                              /* 打印非法地址提示 */
+    return 1;                                                                            /* 非法地址返回失败 */
+}
 /*******************************************************************************
 * 名    称         : PRB480_GenerateReadAuthPageMAC
 * 功    能         : 生成 Read Authenticated Page 的主机侧校验 MAC
@@ -1151,11 +1352,11 @@ u8 PRB480_VerifyScratchpadFilledAA(u8 *rom)
 /*******************************************************************************
 * 名    称         : PRB480_CopyScratchpad
 * 功    能         : 执行 Copy Scratchpad(0x55) 认证写入命令
-* 说    明         : 对应图 8b 中普通数据写入路径：
+* 说    明         : 对应图 8c 中 Copy Scratchpad[55h] 授权写入路径：
 *                    主机必须在发送 TA1/TA2/E/S 后，再发送正确的 20 字节 MAC，
-*                    然后等待 tPROG，忙时读 0，完成后读 1。
+*                    然后读取 AAh/00h/FFh loop 状态判断结果。
 * 输入参数         : rom  - 目标器件 ROM ID，NULL 则 Skip ROM
-*                    addr - 目标地址，必须在 0x0000~0x007F 且 8 字节对齐
+*                    addr - 目标地址，数据页 0x0000~0x007F 或配置页 0x0088~0x009F
 *                    es   - Read Scratchpad 读回的 E/S
 *                    mac  - 主机实时计算的 20 字节认证 MAC
 * 返 回 值         : 0 成功，1 失败
@@ -1163,9 +1364,13 @@ u8 PRB480_VerifyScratchpadFilledAA(u8 *rom)
 u8 PRB480_CopyScratchpad(u8 *rom, u16 addr, u8 es, u8 mac[20])
 {
     u8 i;                                                                              /* MAC 发送循环变量 */
+    u8 status;                                                                         /* 保存 Copy Scratchpad 返回的状态字节 */
+    u8 result;                                                                         /* 保存状态字节转换后的结果 */
+
+    PRB480_LastCopyStatus = 0xFF;                                                      /* 每次 Copy 开始前先清成 FFh 默认状态 */
 
     if (mac == 0) return 1;                                                            /* MAC 缓冲区为空则失败 */
-    if (addr > 0x007F) return 1;                                                       /* 只能写用户数据区 */
+    if (PRB480_GetCopyTargetArea(addr) == PRB480_COPY_AREA_INVALID) return 1;          /* 目标地址必须是数据页或配置页 */
     if (PRB480_CheckWriteAddress(addr)) return 1;                                      /* 地址必须满足 8 字节对齐 */
     if (PRB480_CheckScratchpadES(es)) return 1;                                        /* E/S 不符合完整写入条件则失败 */
     if (PRB480_CommandStart(rom)) return 1;                                            /* 重新开始命令事务 */
@@ -1175,17 +1380,42 @@ u8 PRB480_CopyScratchpad(u8 *rom, u16 addr, u8 es, u8 mac[20])
     PRB480_WriteByte((u8)(addr >> 8));                                                 /* 发送目标地址高字节 TA2 */
     PRB480_WriteByte(es);                                                              /* 发送 Read Scratchpad 验证得到的 E/S */
 
-    //if (PRB480_WaitReady(1000)) return 1;                                              /* 等待器件完成内部 MAC 计算，超时则失败 */
-    delay_ms(2);                                                                        /* 等待器件完成内部 MAC 计算，此处不读取总线避免打断 MAC 接收时序 */
+    delay_ms(PRB480_TCSHA_MS);                                                         /* 等待 tCSHA，期间不读取总线，避免打断 MAC 接收时序 */
 
     for (i = 0; i < 20; i++)                                                           /* 逐字节发送主机侧 20 字节 MAC */
     {
         PRB480_WriteByte(mac[i]);                                                      /* 发送第 i 个 MAC 字节 */
     }
 
-    if (PRB480_WaitReady(2000)) return 1;                                              /* 等待 tPROG，忙时读 0，完成读 1，超时则失败 */
+    delay_ms(PRB480_TPROG_MS);                                                         /* 等待 tPROG，让芯片完成 MAC 比较和 FRAM 复制 */
 
-    if (PRB480_Reset()) return 1;                                                      /* 图 8b 完成后由主机发送 Reset，失败则返回错误 */
+    result = PRB480_WaitCopyResult(&status);                                           /* 读取图 8c 规定的 AAh/00h/FFh 最终状态 */
+    PRB480_LastCopyStatus = status;                                                    /* 保存最近一次 Copy Scratchpad 原始状态 */
+
+    printf("Copy Scratchpad status=0x%02X\r\n", status);                               /* 打印芯片返回的原始状态字节 */
+
+    if (result == PRB480_COPY_MAC_ERR)                                                 /* 判断是否为 MAC 不匹配 */
+    {
+        printf("Copy Scratchpad rejected: MAC mismatch\r\n");                          /* 打印 MAC 不匹配原因 */
+        PRB480_Reset();                                                                /* 复位总线，结束当前失败命令 */
+        return 1;                                                                      /* 返回失败 */
+    }
+
+    if (result == PRB480_COPY_AUTH_ERR)                                                /* 判断是否为认证字节或地址错误 */
+    {
+        printf("Copy Scratchpad rejected: TA/E/S invalid, bad address or write protected\r\n"); /* 打印 FFh 失败原因 */
+        PRB480_Reset();                                                                /* 复位总线，结束当前失败命令 */
+        return 1;                                                                      /* 返回失败 */
+    }
+
+    if (result != PRB480_COPY_OK)                                                      /* 判断是否不是成功状态 */
+    {
+        printf("Copy Scratchpad rejected: timeout or unknown status\r\n");              /* 打印超时或未知状态原因 */
+        PRB480_Reset();                                                                /* 复位总线，结束当前异常命令 */
+        return 1;                                                                      /* 返回失败 */
+    }
+
+    if (PRB480_Reset()) return 1;                                                      /* 成功读取 AAh 后由主机发送 Reset，失败则返回错误 */
 
     if (PRB480_VerifyPostCopyScratchpad(rom, addr)) return 1;                          /* 重新读 scratchpad，确认 AA=1 表示授权复制已接受 */
 
@@ -1264,17 +1494,96 @@ u8 PRB480_ReadAuthenticatedPage(u8 *rom, u16 addr, u8 page[32], u8 mac[20])
     return (status1 == 0x00 && status2 == 0x01) ? 0 : 1;  /* 状态检查 */
 }
 
+/*******************************************************************************
+* 名    称         : PRB480_CopyScratchpadVerified
+* 功    能         : 按图 8c 完整执行 Copy Scratchpad(0x55) 授权写入流程
+* 说    明         : 函数内部完成 Write Scratchpad、Read Scratchpad 验证、
+*                    Copy Scratchpad MAC 计算、0x55 复制、状态判断和读回验证。
+* 输入参数         : rom       - 目标器件 ROM ID，Copy MAC 必须使用 ROM 前 7 字节
+*                    addr      - 目标写入地址，数据页 0x0000~0x007F，
+*                                配置页 0x0088~0x009F，必须 8 字节对齐
+*                    writeData - 待写入 scratchpad 的 8 字节数据
+*                    secret    - 当前 8 字节 secret
+*                    pageData  - 32 字节页面缓存，用于返回目标页原始数据
+* 输出参数         : pageData  - 数据页返回页首 32 字节；配置页返回 0x0080 起 32 字节
+*                    mac       - 返回主机侧计算出的 20 字节 Copy Scratchpad MAC
+*                    copyStatus- 返回 Copy Scratchpad 原始状态字节
+* 返 回 值         : 0 成功，1 失败
+*******************************************************************************/
+u8 PRB480_CopyScratchpadVerified(u8 *rom, u16 addr, u8 *writeData, u8 *secret, u8 *pageData, u8 mac[20], u8 *copyStatus)
+{
+    u8 ta1;                                                                            /* 保存 Read Scratchpad 返回的真实 TA1 */
+    u8 ta2;                                                                            /* 保存 Read Scratchpad 返回的真实 TA2 */
+    u8 es;                                                                             /* 保存 Read Scratchpad 返回的真实 E/S */
+    u8 scratchpad[PRB480_SCRATCHPAD_SIZE];                                             /* 保存 Read Scratchpad 读回的 8 字节暂存区数据 */
+    u8 readback[PRB480_SCRATCHPAD_SIZE];                                               /* 保存 Copy 成功后 Read Memory 读回的数据 */
+    u16 crc;                                                                           /* 保存 Read Scratchpad 返回的 CRC16 */
+    u8 i;                                                                              /* 通用循环变量 */
+
+    if (copyStatus) *copyStatus = 0xFF;                                                /* 如果调用者需要，先返回默认 FFh 状态 */
+    if (writeData == 0 || secret == 0 || pageData == 0 || mac == 0) return 1;          /* 任一关键指针为空则返回失败 */
+    if (rom == 0) return 1;                                                            /* Copy MAC 必须使用 ROM 前 7 字节，不能使用空 ROM */
+    if (PRB480_GetCopyTargetArea(addr) == PRB480_COPY_AREA_INVALID) return 1;                 /* 地址必须属于图 8a 允许的 Copy 目标窗口 */
+    if (PRB480_CheckWriteAddress(addr)) return 1;                                      /* 目标地址必须 8 字节对齐且小于 A0h */
+
+    if (PRB480_ReadMemory(rom, PRB480_PageStart(addr), pageData, 32)) return 1;        /* 读取目标页原始 32 字节数据 */
+    if (PRB480_WriteScratchpad(rom, addr, writeData, PRB480_SCRATCHPAD_SIZE, &crc)) return 1; /* 写入 8 字节待授权数据到 scratchpad */
+    if (PRB480_ReadScratchpad(rom, &ta1, &ta2, &es, scratchpad, PRB480_SCRATCHPAD_SIZE, &crc)) return 1; /* 读回真实 TA1/TA2/E/S 和暂存数据 */
+
+    printf("Scratchpad TA1=0x%02X TA2=0x%02X E/S=0x%02X PF=%d AA=%d\r\n", ta1, ta2, es, (es & PRB480_ES_PF) ? 1 : 0, (es & PRB480_ES_AA) ? 1 : 0); /* 打印真实认证字节和 PF/AA */
+    printf("Scratchpad data:");                                                       /* 打印 scratchpad 数据标题 */
+    for (i = 0; i < PRB480_SCRATCHPAD_SIZE; i++)                                      /* 遍历 scratchpad 8 字节 */
+    {
+        printf(" %02X", scratchpad[i]);                                                /* 打印第 i 个 scratchpad 字节 */
+    }
+    printf("\r\n");                                                                    /* scratchpad 数据打印结束 */
+
+    if (ta1 != (u8)(addr & 0xFF)) return 1;                                            /* 检查真实 TA1 是否匹配目标地址低字节 */
+    if (ta2 != (u8)(addr >> 8)) return 1;                                              /* 检查真实 TA2 是否匹配目标地址高字节 */
+    if (PRB480_CheckScratchpadES(es)) return 1;                                        /* 检查 PF=0、AA=0、E[2:0]=111b */
+    if (memcmp(scratchpad, writeData, PRB480_SCRATCHPAD_SIZE) != 0) return 1;          /* 检查 scratchpad 数据是否等于待写入数据 */
+
+    if (PRB480_GenerateCopyMAC(secret, rom, addr, pageData, scratchpad, mac)) return 1;       /* 按数据页表 3A 或配置页表 3B 生成 Copy MAC */
+
+    printf("Copy MAC:");                                                              /* 打印 Copy MAC 标题 */
+    for (i = 0; i < 20; i++)                                                          /* 遍历 20 字节 MAC */
+    {
+        printf(" %02X", mac[i]);                                                       /* 打印第 i 个 MAC 字节 */
+    }
+    printf("\r\n");                                                                    /* Copy MAC 打印结束 */
+
+    if (PRB480_CopyScratchpad(rom, ((u16)ta2 << 8) | ta1, es, mac))                    /* 用真实 TA1/TA2/E/S 执行 Copy Scratchpad 0x55 */
+    {
+        if (copyStatus) *copyStatus = PRB480_LastCopyStatus;                           /* 失败时也返回芯片原始状态 */
+        return 1;                                                                      /* Copy Scratchpad 失败则返回失败 */
+    }
+
+    if (copyStatus) *copyStatus = PRB480_LastCopyStatus;                               /* 成功时返回芯片原始 AAh 状态 */
+    if (PRB480_ReadMemory(rom, addr, readback, PRB480_SCRATCHPAD_SIZE)) return 1;      /* Copy 成功后读回目标地址数据 */
+
+    printf("Read Memory verify:");                                                    /* 打印读回验证标题 */
+    for (i = 0; i < PRB480_SCRATCHPAD_SIZE; i++)                                      /* 遍历读回的 8 字节数据 */
+    {
+        printf(" %02X", readback[i]);                                                  /* 打印第 i 个读回字节 */
+    }
+    printf("\r\n");                                                                    /* 读回数据打印结束 */
+
+    if (memcmp(readback, writeData, PRB480_SCRATCHPAD_SIZE) != 0) return 1;            /* 比较读回数据和写入数据是否一致 */
+
+    return 0;                                                                          /* 图 8c 授权写入完整流程成功 */
+}
+
 
 /*******************************************************************************
 * 名    称         : PRB480_WriteAuthorizedBlock
 * 功    能         : 执行完整的“认证写 8 字节块”流程
-* 说    明         : 对应 Figure 8a + Figure 8b 的组合流程：
+* 说    明         : 对应 Figure 8a + Figure 8c 的 Copy Scratchpad[55h] 组合流程：
 *                    1. 先读目标页旧数据
 *                    2. Write Scratchpad
 *                    3. Read Scratchpad 验证
 *                    4. 主机根据 secret / ROM / 页数据 / 新数据计算 MAC
-*                    5. Copy Scratchpad
-* 输入参数         : rom    - 目标器件 ROM ID，NULL 则 Skip ROM
+*                    5. Copy Scratchpad[55h] 并区分 AAh/00h/FFh
+* 输入参数         : rom    - 目标器件 ROM ID，Copy MAC 必须使用 ROM 前 7 字节
 *                    secret - 当前 8 字节 secret
 *                    addr   - 目标地址
 *                    data   - 待写入 8 字节数据
@@ -1285,29 +1594,24 @@ u8 PRB480_ReadAuthenticatedPage(u8 *rom, u16 addr, u8 page[32], u8 mac[20])
 u8 PRB480_WriteAuthorizedBlock(u8 *rom, u8 *secret, u16 addr, u8 *data, u8 *es, u8 mac[20])
 {
     u8 page[32];                                  /* 保存目标页当前旧数据 */
-    u8 localEs;                                   /* 保存验证通过后的 E/S */
+    u8 copyStatus;                                /* 保存 Copy Scratchpad 返回的原始状态字节 */
 
     /* -------- 执行流程说明 --------
      * 1. 检查输入参数和地址
      * 2. 读取目标页旧数据，因为写授权 MAC 需要它
      * 3. 走 Figure 8a：Write Scratchpad + Read Scratchpad 验证
      * 4. 生成主机侧 Copy Scratchpad 认证 MAC
-     * 5. 发送 Copy Scratchpad 命令
+     * 5. 按 Figure 8c 发送 Copy Scratchpad[55h] 并读取 AAh/00h/FFh
      * 6. 如成功则返回 E/S 和 MAC
      */
 
     if (secret == 0 || data == 0 || mac == 0) return 1; /* 任一必要指针为空都失败 */
-    if (addr > 0x007F) return 1;                        /* 认证写只允许写用户数据区 */
+    if (PRB480_GetCopyTargetArea(addr) == PRB480_COPY_AREA_INVALID) return 1; /* 地址必须属于 Copy Scratchpad 允许窗口 */
     if (PRB480_CheckWriteAddress(addr)) return 1;       /* 地址必须合法且 8 字节对齐 */
 
-    if (PRB480_ReadMemory(rom, PRB480_PageStart(addr), page, 32)) return 1;   /* 先读整页旧数据 */
-    if (PRB480_WriteAndVerifyScratchpad(rom, addr, data, &localEs)) return 1; /* 再按图 8a 写并验证 scratchpad */
+    if (PRB480_CopyScratchpadVerified(rom, addr, data, secret, page, mac, &copyStatus)) return 1; /* 复用图 8c 标准授权写流程 */
 
-    PRB480_GenerateCopyScratchpadMAC(secret, rom, addr, page, data, mac);     /* 生成写授权 MAC */
-
-    if (PRB480_CopyScratchpad(rom, addr, localEs, mac)) return 1;             /* 发送 Copy Scratchpad 完成认证写 */
-
-    if (es) *es = localEs;                        /* 如调用者需要，则返回 E/S */
+    if (es) *es = (PRB480_ES_AA | PRB480_ES_E_FULL); /* 成功后返回 AA=1、E=111b 的 E/S 状态 */
     return 0;                                     /* 整个认证写流程成功 */
 }
 
