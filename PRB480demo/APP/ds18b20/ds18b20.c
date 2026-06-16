@@ -33,7 +33,12 @@ static u8 PRB480_CommandStart(u8 *rom);      /* 发送 Reset + ROM 寻址命令 */
 static u8 PRB480_CheckWriteAddress(u16 addr);/* 检查写地址是否 8 字节对齐 */
 static u8 PRB480_CheckScratchpadES(u8 es);   /* 检查 E/S 状态是否合法 */
 static u8 PRB480_VerifyScratchpad(u8 *rom, u16 addr, u8 *expected, u8 *ta1, u8 *ta2, u8 *es); /* 读回并验证 scratchpad */
-
+static u8 PRB480_WaitReady(u16 timeout);                                             /* 等待 PRB480 忙状态结束，图 8b 中忙时读 0，完成读 1 */
+static u8 PRB480_CheckPostCopyES(u8 es);                                             /* 检查 Copy / Load First Secret 后的 E/S 状态 */
+static u8 PRB480_CheckDataPageAddress(u16 addr);                                     /* 检查 Compute Next Secret 使用的数据页地址 */
+u8 PRB480_LoadPartialSecretScratchpad(u8 *rom, u16 addr, u8 partial[8], u8 *es);      /* 把 8 字节 partial secret 写入 scratchpad 并验证 */
+u8 PRB480_VerifyScratchpadFilledAA(u8 *rom);                                           /* 验证 Compute Next Secret 后 scratchpad 是否为 0xAA */
+static u8 PRB480_VerifyPostCopyScratchpad(u8 *rom, u16 addr);                         /* Copy / Load First Secret 后验证 TA1/TA2/E/S，重点确认 AA=1 */
 
 /*******************************************************************************
 * 名    称         : PRB480_CheckWriteAddress
@@ -78,6 +83,29 @@ static u8 PRB480_CheckAlternatingResponse(u8 first, u8 second)
 
     /* 其他组合一律按失败处理 */
     return 1;                                     /* 返回 1 表示不是成功响应 */
+}
+
+/*******************************************************************************
+* 名    称         : PRB480_WaitReady
+* 功    能         : 等待 PRB480 内部编程或 SHA-1 计算完成
+* 说    明         : 对应图 8b 中 tPROG / tCSHA 等待阶段：
+*                    PRB480 忙时总线读出 0，完成后总线读出 1。
+* 输入参数         : timeout - 轮询超时次数，数值越大等待时间越长
+* 返 回 值         : 0 完成，1 超时
+*******************************************************************************/
+static u8 PRB480_WaitReady(u16 timeout)
+{
+    while (timeout--)                                                                  /* 在超时范围内循环等待芯片完成 */
+    {
+        if (PRB480_ReadBit())                                                          /* 读取 1-Wire 状态位，1 表示芯片已完成 */
+        {
+            return 0;                                                                  /* 读到 1，说明 tPROG/tCSHA 阶段结束 */
+        }
+
+        delay_us(10);                                                                  /* 每次轮询之间短暂延时，避免过密读取总线 */
+    }
+
+    return 1;                                                                          /* 超时仍未读到 1，认为芯片忙状态异常 */
 }
 
 /*******************************************************************************
@@ -453,6 +481,47 @@ static u8 PRB480_CheckScratchpadES(u8 es)     /* 检查 Read Scratchpad 读回的 E/S
     if (es & PRB480_ES_AA) return 1;                           /* AA=1 表示已复制授权，刚写完 scratchpad 时不应为 1 */
     return 0;                                                  /* E/S 状态正常 */
 }                                            
+
+/*******************************************************************************
+* 名    称         : PRB480_CheckPostCopyES
+* 功    能         : 检查 Copy / Load First Secret 后的 E/S 状态
+* 说    明         : 对应图 8b 中 AA = 1，表示授权复制动作已经被接受。
+* 输入参数         : es - Read Scratchpad 读回的 E/S 字节
+* 返 回 值         : 0 状态正确，1 状态异常
+*******************************************************************************/
+static u8 PRB480_CheckPostCopyES(u8 es)
+{
+    if ((es & PRB480_ES_E_MASK) != PRB480_ES_E_FULL) return 1;                         /* E[2:0] 应为 111b，表示完整 8 字节传输 */
+    if (es & PRB480_ES_PF) return 1;                                                   /* PF=1 表示部分字节写入，必须判失败 */
+    if ((es & PRB480_ES_AA) == 0) return 1;                                            /* AA=0 表示授权复制未被接受，必须判失败 */
+    return 0;                                                                          /* E/S 后置状态符合图 8b 要求 */
+}
+
+/*******************************************************************************
+* 名    称         : PRB480_VerifyPostCopyScratchpad
+* 功    能         : 验证 Copy / Load First Secret 后 scratchpad 授权状态
+* 说    明         : 对应图 8b 中 AA = 1 节点。
+*                    这里只检查 TA1、TA2 和 E/S，不再要求数据内容等于写入数据。
+* 输入参数         : rom  - 目标器件 ROM ID，NULL 表示 Skip ROM
+*                    addr - 目标地址
+* 返 回 值         : 0 成功，1 失败
+*******************************************************************************/
+static u8 PRB480_VerifyPostCopyScratchpad(u8 *rom, u16 addr)
+{
+    u8 ta1;                                                                            /* 保存 Read Scratchpad 返回的 TA1 */
+    u8 ta2;                                                                            /* 保存 Read Scratchpad 返回的 TA2 */
+    u8 es;                                                                             /* 保存 Read Scratchpad 返回的 E/S */
+    u8 buf[PRB480_SCRATCHPAD_SIZE];                                                    /* 保存 Read Scratchpad 返回的 8 字节数据 */
+    u16 crc;                                                                           /* 保存 Read Scratchpad 返回的 CRC16 */
+
+    if (PRB480_ReadScratchpad(rom, &ta1, &ta2, &es, buf, PRB480_SCRATCHPAD_SIZE, &crc)) return 1; /* 读取 scratchpad 并校验 CRC */
+
+    if (ta1 != (u8)(addr & 0xFF)) return 1;                                            /* 检查 TA1 是否仍为目标地址低字节 */
+    if (ta2 != (u8)(addr >> 8)) return 1;                                              /* 检查 TA2 是否仍为目标地址高字节 */
+    if (PRB480_CheckPostCopyES(es)) return 1;                                          /* 检查 AA=1、PF=0、E[2:0]=111b */
+
+    return 0;                                                                          /* 后置 scratchpad 状态验证成功 */
+}
 
 static u8 PRB480_VerifyScratchpad(u8 *rom, u16 addr, u8 *expected, u8 *ta1, u8 *ta2, u8 *es) /* 验证 scratchpad */
 {                                              
@@ -952,6 +1021,7 @@ u8 PRB480_WriteAndVerifyScratchpad(u8 *rom, u16 addr, u8 *dat, u8 *es)
 *                    1. 先把 8 字节 secret 写入 scratchpad
 *                    2. 再用 Read Scratchpad 读回 TA1/TA2/E/S 做授权验证
 *                    3. 最后发送 0x5A + TA1 + TA2 + E/S
+*                    4. 等待 tPROG，忙时读 0，完成后读 1
 * 输入参数         : rom    - 目标器件 ROM ID，NULL 则 Skip ROM
 *                    addr   - 必须为 0x0080
 *                    secret - 8 字节初始 secret
@@ -960,51 +1030,130 @@ u8 PRB480_WriteAndVerifyScratchpad(u8 *rom, u16 addr, u8 *dat, u8 *es)
 *******************************************************************************/
 u8 PRB480_LoadFirstSecret(u8 *rom, u16 addr, u8 *secret, u8 *es)
 {
-    u16 crc;                                      /* 保存 Write Scratchpad 返回的 CRC16 */
-    u8 ta1;                                       /* 保存 Read Scratchpad 返回的 TA1 */
-    u8 ta2;                                       /* 保存 Read Scratchpad 返回的 TA2 */
-    u8 localEs;                                   /* 保存 Read Scratchpad 返回的 E/S */
-    u8 ack1;                                      /* 保存成功后的第 1 个响应字节 */
-    u8 ack2;                                      /* 保存成功后的第 2 个响应字节 */
+    u16 crc;                                                                           /* 保存 Write Scratchpad 返回的 CRC16 */
+    u8 ta1;                                                                            /* 保存 Read Scratchpad 返回的 TA1 */
+    u8 ta2;                                                                            /* 保存 Read Scratchpad 返回的 TA2 */
+    u8 localEs;                                                                        /* 保存 Read Scratchpad 返回的 E/S */
 
-    /* -------- 执行流程说明 --------
-     * 1. 检查参数和地址
-     * 2. 把 secret 写入 scratchpad
-     * 3. 读回 scratchpad，验证 TA1 / TA2 / E/S / 数据
-     * 4. 重新发起总线事务
-     * 5. 发送 0x5A + TA1 + TA2 + E/S
-     * 6. 等待内部编程完成
-     * 7. 读取交替响应，判断是否成功
-     */
+    if (secret == 0) return 1;                                                         /* secret 指针为空，直接失败 */
+    if (addr != 0x0080) return 1;                                                      /* Load First Secret 只允许写入 secret 地址 */
+    if (PRB480_CheckWriteAddress(addr)) return 1;                                      /* 地址不合法则失败 */
 
-    if (secret == 0) return 1;                    /* secret 指针为空，直接失败 */
-    if (addr != 0x0080) return 1;                 /* Load First Secret 只允许写入 secret 地址 */
-    if (PRB480_CheckWriteAddress(addr)) return 1; /* 地址不合法则失败 */
+    if (PRB480_WriteScratchpad(rom, addr, secret, 8, &crc)) return 1;                  /* 第 1 步：把 8 字节 secret 写入 scratchpad */
+    if (PRB480_VerifyScratchpad(rom, addr, secret, &ta1, &ta2, &localEs)) return 1;    /* 第 2 步：读回验证 TA1 / TA2 / E/S / 数据 */
 
-    if (PRB480_WriteScratchpad(rom, addr, secret, 8, &crc)) return 1; /* 第 1 步：写 scratchpad */
-    if (PRB480_VerifyScratchpad(rom, addr, secret, &ta1, &ta2, &localEs)) return 1; /* 第 2 步：读回验证 */
+    if (es) *es = localEs;                                                             /* 如果调用者需要，就把验证得到的 E/S 返回出去 */
+    if (PRB480_CommandStart(rom)) return 1;                                            /* 重新开始一帧新的 1-Wire 命令事务 */
 
-    if (es) *es = localEs;                        /* 如果调用者需要，就把验证得到的 E/S 返回出去 */
-    if (PRB480_CommandStart(rom)) return 1;       /* 重新开始一帧新的命令事务 */
+    PRB480_WriteByte(0x5A);                                                            /* 发送 Load First Secret 命令 0x5A */
+    PRB480_WriteByte(ta1);                                                             /* 发送 Read Scratchpad 验证得到的 TA1 */
+    PRB480_WriteByte(ta2);                                                             /* 发送 Read Scratchpad 验证得到的 TA2 */
+    PRB480_WriteByte(localEs);                                                         /* 发送 Read Scratchpad 验证得到的 E/S */
 
-    PRB480_WriteByte(0x5A);                       /* 发送 Load First Secret 命令 */
-    PRB480_WriteByte(ta1);                        /* 发送授权地址低字节 TA1 */
-    PRB480_WriteByte(ta2);                        /* 发送授权地址高字节 TA2 */
-    PRB480_WriteByte(localEs);                    /* 发送授权状态字 E/S */
+    if (PRB480_WaitReady(2000)) return 1;                                              /* 等待 tPROG，忙时读 0，完成读 1，超时则失败 */
 
-    delay_ms(10);                                 /* 等待内部 secret 编程完成 */
+    if (PRB480_Reset()) return 1;                                                      /* 图 8b 完成后由主机发送 Reset，失败则返回错误 */
 
-    ack1 = PRB480_ReadByte();                     /* 读取第 1 个响应字节 */
-    ack2 = PRB480_ReadByte();                     /* 读取第 2 个响应字节 */
+    return 0;                                                                          /* Load First Secret 流程成功 */
+}                         
 
-    return PRB480_CheckAlternatingResponse(ack1, ack2); /* 用交替模式判断是否成功 */
-}                                     
+
+/*******************************************************************************
+* 名    称         : PRB480_CheckDataPageAddress
+* 功    能         : 检查 Compute Next Secret 使用的数据页地址是否合法
+* 说    明         : 对应图 8b 中 Valid Data Address? 节点。
+* 输入参数         : addr - 目标数据页地址
+* 返 回 值         : 0 合法，1 非法
+*******************************************************************************/
+static u8 PRB480_CheckDataPageAddress(u16 addr)
+{
+    if (addr > 0x007F) return 1;                                                       /* Compute Next Secret 只允许使用 0x0000~0x007F 数据区 */
+    if (addr & 0x001F) return 1;                                                       /* SHA-1 计算使用页数据，地址必须 32 字节页对齐 */
+    return 0;                                                                          /* 地址位于用户数据区且页对齐 */
+}
+
+/*******************************************************************************
+* 名    称         : PRB480_LoadPartialSecretScratchpad
+* 功    能         : 将 8 字节 partial secret 写入 scratchpad 并验证
+* 说    明         : 对应图 8b 中 Compute Next Secret 前置条件：
+*                    scratchpad 中必须已有 8 字节 partial secret。
+* 输入参数         : rom     - 目标器件 ROM ID，NULL 表示 Skip ROM
+*                    addr    - 参与 Compute Next Secret 的数据页地址
+*                    partial - 8 字节 partial secret
+* 输出参数         : es      - 返回 Read Scratchpad 验证通过后的 E/S
+* 返 回 值         : 0 成功，1 失败
+*******************************************************************************/
+u8 PRB480_LoadPartialSecretScratchpad(u8 *rom, u16 addr, u8 partial[8], u8 *es)
+{
+    if (partial == 0) return 1;                                                        /* partial secret 指针为空则失败 */
+    if (PRB480_CheckDataPageAddress(addr)) return 1;                                   /* 数据页地址非法则失败 */
+    if (PRB480_WriteAndVerifyScratchpad(rom, addr, partial, es)) return 1;             /* 写入 8 字节 partial secret 并按图 8a 读回验证 */
+    return 0;                                                                          /* partial secret 已经正确进入 scratchpad */
+}
+
+/*******************************************************************************
+* 名    称         : PRB480_ComputeNextSecret
+* 功    能         : 执行 Compute Next Secret(0x33) 流程
+* 说    明         : 对应图 8b 右侧流程：
+*                    1. 主机发送 0x33 + TA1 + TA2
+*                    2. PRB480 清除 EN_LFS
+*                    3. PRB480 使用当前 Secret、Page Data、scratchpad 中 8 字节 partial secret 计算 MAC
+*                    4. 等待 tCSHA 和 tPROG
+*                    5. 完成后 scratchpad 被填充为 0xAA
+* 输入参数         : rom  - 目标器件 ROM ID，NULL 表示 Skip ROM
+*                    addr - 目标数据页地址，必须为 0x0000~0x007F 内的页首地址
+* 返 回 值         : 0 成功，1 失败
+*******************************************************************************/
+u8 PRB480_ComputeNextSecret(u8 *rom, u16 addr)
+{
+    if (PRB480_CheckDataPageAddress(addr)) return 1;                                   /* 检查图 8b Valid Data Address 节点 */
+    if (PRB480_CommandStart(rom)) return 1;                                            /* 重新开始 1-Wire 命令事务 */
+
+    PRB480_WriteByte(0x33);                                                            /* 发送 Compute Next Secret 功能命令 0x33 */
+    PRB480_WriteByte((u8)(addr & 0xFF));                                               /* 发送目标数据页地址低字节 TA1 */
+    PRB480_WriteByte((u8)(addr >> 8));                                                 /* 发送目标数据页地址高字节 TA2 */
+
+    delay_ms(2);                                                                        /* 等待 tCSHA，让 PRB480 完成内部 SHA-1 计算 */
+
+    if (PRB480_WaitReady(6000)) return 1;                                              /* 等待 tPROG 完成，忙时读 0，完成读 1 */
+    
+    if (PRB480_Reset()) return 1;                                                      /* 图 8b 完成后主机发送 Reset，结束本次流程 */
+
+    return 0;                                                                          /* Compute Next Secret 流程成功 */
+}
+
+/*******************************************************************************
+* 名    称         : PRB480_VerifyScratchpadFilledAA
+* 功    能         : 验证 Compute Next Secret 后 scratchpad 是否被填充为 0xAA
+* 说    明         : 对应图 8b 中 “PRB480 用 AAh 填充暂存器” 节点。
+* 输入参数         : rom - 目标器件 ROM ID，NULL 表示 Skip ROM
+* 返 回 值         : 0 验证成功，1 验证失败
+*******************************************************************************/
+u8 PRB480_VerifyScratchpadFilledAA(u8 *rom)
+{
+    u8 ta1;                                                                            /* 保存 Read Scratchpad 返回的 TA1 */
+    u8 ta2;                                                                            /* 保存 Read Scratchpad 返回的 TA2 */
+    u8 es;                                                                             /* 保存 Read Scratchpad 返回的 E/S */
+    u8 buf[8];                                                                         /* 保存 Read Scratchpad 返回的 8 字节数据 */
+    u16 crc;                                                                           /* 保存 Read Scratchpad 返回的 CRC16 */
+    u8 i;                                                                              /* 循环变量 */
+
+    if (PRB480_ReadScratchpad(rom, &ta1, &ta2, &es, buf, 8, &crc)) return 1;           /* 读取 scratchpad 并校验 CRC16 */
+
+    for (i = 0; i < 8; i++)                                                            /* 遍历 8 字节 scratchpad 数据 */
+    {
+        if (buf[i] != 0xAA) return 1;                                                   /* 任一字节不是 0xAA，则验证失败 */
+    }
+
+    return 0;                                                                          /* scratchpad 已经全部填充为 0xAA */
+}
 
 /*******************************************************************************
 * 名    称         : PRB480_CopyScratchpad
 * 功    能         : 执行 Copy Scratchpad(0x55) 认证写入命令
-* 说    明         : 对应图 8b 中普通数据写入路径
-*                    主机必须在发送 TA1/TA2/E/S 后，再发送正确的 20 字节 MAC
+* 说    明         : 对应图 8b 中普通数据写入路径：
+*                    主机必须在发送 TA1/TA2/E/S 后，再发送正确的 20 字节 MAC，
+*                    然后等待 tPROG，忙时读 0，完成后读 1。
 * 输入参数         : rom  - 目标器件 ROM ID，NULL 则 Skip ROM
 *                    addr - 目标地址，必须在 0x0000~0x007F 且 8 字节对齐
 *                    es   - Read Scratchpad 读回的 E/S
@@ -1013,45 +1162,35 @@ u8 PRB480_LoadFirstSecret(u8 *rom, u16 addr, u8 *secret, u8 *es)
 *******************************************************************************/
 u8 PRB480_CopyScratchpad(u8 *rom, u16 addr, u8 es, u8 mac[20])
 {
-    u8 i;                                         /* MAC 发送循环变量 */
-    u8 ack1;                                      /* 器件返回的第 1 个响应字节 */
-    u8 ack2;                                      /* 器件返回的第 2 个响应字节 */
+    u8 i;                                                                              /* MAC 发送循环变量 */
 
-    /* -------- 执行流程说明 --------
-     * 1. 检查参数、地址、E/S
-     * 2. 发起新事务
-     * 3. 发送 0x55 + TA1 + TA2 + E/S
-     * 4. 等待器件先计算内部 MAC
-     * 5. 主机发送自己的 20 字节 MAC
-     * 6. 等待内部编程完成
-     * 7. 读取交替响应判断是否成功
-     */
+    if (mac == 0) return 1;                                                            /* MAC 缓冲区为空则失败 */
+    if (addr > 0x007F) return 1;                                                       /* 只能写用户数据区 */
+    if (PRB480_CheckWriteAddress(addr)) return 1;                                      /* 地址必须满足 8 字节对齐 */
+    if (PRB480_CheckScratchpadES(es)) return 1;                                        /* E/S 不符合完整写入条件则失败 */
+    if (PRB480_CommandStart(rom)) return 1;                                            /* 重新开始命令事务 */
 
-    if (mac == 0) return 1;                       /* MAC 缓冲区为空则失败 */
-    if (addr > 0x007F) return 1;                  /* 只能写用户数据区 */
-    if (PRB480_CheckWriteAddress(addr)) return 1; /* 地址必须满足 8 字节对齐 */
-    if (PRB480_CheckScratchpadES(es)) return 1;   /* E/S 不符合完整写入条件则失败 */
-    if (PRB480_CommandStart(rom)) return 1;       /* 重新开始命令事务 */
+    PRB480_WriteByte(0x55);                                                            /* 发送 Copy Scratchpad 命令 0x55 */
+    PRB480_WriteByte((u8)(addr & 0xFF));                                               /* 发送目标地址低字节 TA1 */
+    PRB480_WriteByte((u8)(addr >> 8));                                                 /* 发送目标地址高字节 TA2 */
+    PRB480_WriteByte(es);                                                              /* 发送 Read Scratchpad 验证得到的 E/S */
 
-    PRB480_WriteByte(0x55);                       /* 发送 Copy Scratchpad 命令 */
-    PRB480_WriteByte((u8)(addr & 0xFF));          /* 发送目标地址低字节 TA1 */
-    PRB480_WriteByte((u8)(addr >> 8));            /* 发送目标地址高字节 TA2 */
-    PRB480_WriteByte(es);                         /* 发送上一步验证得到的 E/S */
+    //if (PRB480_WaitReady(1000)) return 1;                                              /* 等待器件完成内部 MAC 计算，超时则失败 */
+    delay_ms(2);                                                                        /* 等待器件完成内部 MAC 计算，此处不读取总线避免打断 MAC 接收时序 */
 
-    delay_ms(2);                                  /* 等待器件先完成内部 MAC 计算 */
-
-    for (i = 0; i < 20; i++)                      /* 逐字节发送主机侧 20 字节 MAC */
+    for (i = 0; i < 20; i++)                                                           /* 逐字节发送主机侧 20 字节 MAC */
     {
-        PRB480_WriteByte(mac[i]);                 /* 发送第 i 个 MAC 字节 */
+        PRB480_WriteByte(mac[i]);                                                      /* 发送第 i 个 MAC 字节 */
     }
 
-    delay_ms(10);                                 /* 等待 FRAM / EEPROM 编程完成 */
+    if (PRB480_WaitReady(2000)) return 1;                                              /* 等待 tPROG，忙时读 0，完成读 1，超时则失败 */
 
-    ack1 = PRB480_ReadByte();                     /* 读取第 1 个响应字节 */
-    ack2 = PRB480_ReadByte();                     /* 读取第 2 个响应字节 */
+    if (PRB480_Reset()) return 1;                                                      /* 图 8b 完成后由主机发送 Reset，失败则返回错误 */
 
-    return PRB480_CheckAlternatingResponse(ack1, ack2); /* 用交替模式判断是否成功 */
-}                                                
+    if (PRB480_VerifyPostCopyScratchpad(rom, addr)) return 1;                          /* 重新读 scratchpad，确认 AA=1 表示授权复制已接受 */
+
+    return 0;                                                                          /* Copy Scratchpad 认证写入成功 */
+}                                     
 
 /**
  * @func PRB480_ReadAuthenticatedPage

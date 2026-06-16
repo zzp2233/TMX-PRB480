@@ -138,5 +138,10 @@ u8 PRB480_WriteAuthorizedBlock(u8 *rom, u8 *secret, u16 addr, u8 *data, u8 *es, 
 * 返 回 值         : 0 成功，1 失败
 *******************************************************************************/
 u8 PRB480_ReadAuthenticatedPageEx(u8 *rom, u8 *secret, u16 addr, u8 challenge[3], PRB480_AuthenticatedPagePacket *packet);
+
+u8 PRB480_LoadPartialSecretScratchpad(u8 *rom, u16 addr, u8 partial[8], u8 *es);       /* 写入 Compute Next Secret 使用的 8 字节 partial secret */
+u8 PRB480_ComputeNextSecret(u8 *rom, u16 addr);                                       /* 0x33 - Compute Next Secret，生成下一阶段密钥 */
+u8 PRB480_VerifyScratchpadFilledAA(u8 *rom);                                          /* 图 8b：验证 scratchpad 被 0xAA 填充 */
+
 #endif
 
