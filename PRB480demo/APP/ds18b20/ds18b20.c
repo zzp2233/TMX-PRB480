@@ -1,7 +1,7 @@
 /*******************************************************************************
  * PRB480 1-Wire 认证芯片驱动程序
  * 功能：实现 1-Wire 总线通信和 PRB480 命令协议
- * 硬件：PG9 (开漏输出，上拉到 3.3V)
+ * 硬件：PC1=IO3采样，PG10=IO1响应PMOS控制，PG11=IO2功率PMOS控制
  *******************************************************************************/
 
 #include "ds18b20.h"
@@ -27,9 +27,34 @@
 #define PRB480_COPY_AREA_DATA       0       /* Copy Scratchpad 目标类型：普通数据页 0x0000~0x007F */
 #define PRB480_COPY_AREA_CONFIG     1       /* Copy Scratchpad 目标类型：配置/寄存器页 0x0088~0x009F */
 #define PRB480_COPY_AREA_INVALID    2       /* Copy Scratchpad 目标类型：非法地址 */
+#define PRB480_TLOW_US              1       /* 图 12：短低脉冲，手册典型 1us */
+#define PRB480_TGAP_US              1       /* 图 12：写 0 两个低脉冲之间的间隔，手册典型 1us */
+#define PRB480_TSLOT_US             30      /* 图 12：单总线时隙，手册 125Kbits/s 典型 30us */
+#define PRB480_TRSTL_US             300     /* 图 11：复位低电平时间，手册典型 300us */
+#define PRB480_TSTD_US              200     /* 图 11：上电/复位后系统稳定时间 */
+#define PRB480_ADC_THRESHOLD_DEFAULT 2048     /* PC1/ADC 判 0/1 阈值，需要按实测 VDC0/VDC1 校准 */
+#define PRB480_ADC_LOG_SIZE        64       /* 调试：缓存一次 Read ROM 的 64 个读 bit ADC 值 */
+#define PRB480_TLOW_CYCLES 12   // 168MHz下约0.60us，按示波器微调
 
+static GPIO_TypeDef *PRB480_DqPort = GPIOC;                                           /* IO3/PC1：PRB480 返回信号采样端口 */
+static u32 PRB480_DqClock  = RCC_AHB1Periph_GPIOC;                                   /* IO3/PC1：GPIO 时钟 */
+static u16 PRB480_DqPin    = GPIO_Pin_1;                                             /* IO3/PC1：采样 PRB480 输出 */
+static u16 PRB480_RespPin  = GPIO_Pin_10;                                            /* IO1/PG10：响应 PMOS 控制，低有效 */
+static u16 PRB480_PowerPin = GPIO_Pin_11;                                           /* PG11：额外供电 PMOS 控制，低有效 */
+static u8 PRB480_ReadSampleDelayUs = 4;                                              /* 图 12：进入 tREAD0 窗口后采样 */
+static u16 PRB480_AdcThreshold = PRB480_ADC_THRESHOLD_DEFAULT;                       /* PC1 ADC 读 bit 阈值 */
+static u16 PRB480_LastReadAdc = 0;                                                   /* 最近一次 ReadBit 采样 ADC 值 */
+static u16 PRB480_AdcLog[PRB480_ADC_LOG_SIZE];                                      /* 调试：缓存每个读 bit 的 ADC 原始值 */
+static u8 PRB480_BitLog[PRB480_ADC_LOG_SIZE];                                       /* 调试：缓存每个读 bit 的判定结果 */
+static u8 PRB480_AdcLogIndex = 0;                                                   /* 调试：当前缓存写入位置 */
+static u8 PRB480_AdcLogEnabled = 0;                                                 /* 调试：是否记录读 bit 采样 */
 static u8 PRB480_LastCopyStatus = 0xFF;                                             /* 保存最近一次 Copy Scratchpad 原始状态字节 */
 
+static void PRB480_IO_ANALOG(void);                                                 /* 配置 PC1 为 ADC 模拟输入 */
+static void PRB480_ADC_Config(void);                                                /* 配置 ADC1 采样 PC1/ADC123_IN11 */
+static u16 PRB480_ReadAdcRaw(void);                                                 /* 读取一次 PC1 ADC 原始值 */
+static void PRB480_AdcLogStart(void);                                               /* 调试：开始缓存读 bit ADC */
+static void PRB480_AdcLogDump(void);                                                /* 调试：统一打印缓存的 ADC */
 static u8 PRB480_CheckAlternatingResponse(u8 first, u8 second);                       /* 检查成功后的交替响应 */
 static u8 PRB480_CalcCRC8(u8 *data, u8 len);                                          /* 计算 ROM 用 CRC8 */
 static u16 PRB480_PageStart(u16 addr);                                                /* 取得 32 字节页首地址 */
@@ -44,7 +69,6 @@ static void PRB480_GenerateReadAuthPageMAC(u8 *secret, u8 *rom, u16 addr, u8 *pa
 static u8 PRB480_LoadChallengeScratchpad(u8 *rom, u16 addr, u8 challenge[3], u8 *es); /* challenge 写入 scratchpad */
 static u8 PRB480_ReadAuthenticatedPageRaw(u8 *rom, u16 addr, u8 challenge[3], PRB480_AuthenticatedPagePacket *packet); /* 原始认证读流程 */
 
-static u8 PRB480_CheckPresence(void);        /* 检测 1-Wire presence 应答 */
 static u8 PRB480_CommandStart(u8 *rom);      /* 发送 Reset + ROM 寻址命令 */
 static u8 PRB480_CheckWriteAddress(u16 addr);/* 检查写地址是否 8 字节对齐 */
 static u8 PRB480_CheckScratchpadES(u8 es);   /* 检查 E/S 状态是否合法 */
@@ -56,6 +80,27 @@ static u8 PRB480_CheckDataPageAddress(u16 addr);                                
 u8 PRB480_LoadPartialSecretScratchpad(u8 *rom, u16 addr, u8 partial[8], u8 *es);      /* 把 8 字节 partial secret 写入 scratchpad 并验证 */
 u8 PRB480_VerifyScratchpadFilledAA(u8 *rom);                                           /* 验证 Compute Next Secret 后 scratchpad 是否为 0xAA */
 static u8 PRB480_VerifyPostCopyScratchpad(u8 *rom, u16 addr);                         /* Copy / Load First Secret 后验证 TA1/TA2/E/S，重点确认 AA=1 */
+
+static void PRB480_DelayTlow(void)
+{
+    volatile u32 i;
+
+    for(i = 0; i < PRB480_TLOW_CYCLES; i++)
+    {
+        __NOP();
+    }
+}
+
+static void PRB480_Delay_Read(u8 cycles)
+{
+    volatile u32 i;
+
+    for(i = 0; i < cycles; i++)
+    {
+        __NOP();
+    }
+}
+
 
 /*******************************************************************************
 * 名    称         : PRB480_CheckWriteAddress
@@ -742,195 +787,432 @@ static u8 PRB480_VerifyScratchpad(u8 *rom, u16 addr, u8 *expected, u8 *ta1, u8 *
 
 
 
-/* ========== PG9 引脚配置函数，不使用内部上拉是因为PG9已经外接了上拉电阻 ========== */
+/* ========== PC1 采样 + PG10/PG11 小板 MOS 控制 ========== */
 
-/**
- * @func PRB480_IO_IN
- * @brief 配置 PG9 为输入模式 (浮动，依靠外部上拉)
- * 1-Wire 总线是开漏/开集的，当不驱动时应释放总线，让上拉电阻拉高
- */
+//IO1
+static void PRB480_ResponsePMOS_On(void)
+{
+    PRB480_RESP_PMOS = 1;    
+}
+
+static void PRB480_ResponsePMOS_Off(void)
+{
+    PRB480_RESP_PMOS = 0;    
+}
+
+//IO2
+static void PRB480_PowerPMOS_On(void)
+{
+    PRB480_POWER_PMOS = 0;  
+}
+
+static void PRB480_PowerPMOS_Off(void)
+{
+    PRB480_POWER_PMOS = 1;  
+}
+
+void PRB480_SetPinRoles(u16 dqPin, u16 respPin, u16 powerPin)
+{
+    PRB480_DqPin = dqPin;
+    PRB480_DqPort = GPIOC;
+    PRB480_DqClock = RCC_AHB1Periph_GPIOC;
+    PRB480_RespPin = respPin;
+    PRB480_PowerPin = powerPin;
+}
+
+void PRB480_SetReadSampleDelay(u8 delayUs)
+{
+    PRB480_ReadSampleDelayUs = delayUs;
+}
+
+void PRB480_SetAdcThreshold(u16 threshold)
+{
+    PRB480_AdcThreshold = threshold;
+}
+
+u16 PRB480_GetLastReadAdc(void)
+{
+    return PRB480_LastReadAdc;
+}
+
+static void PRB480_AdcLogStart(void)
+{
+    u8 i;
+
+    PRB480_AdcLogIndex = 0;
+    PRB480_AdcLogEnabled = 1;
+    for (i = 0; i < PRB480_ADC_LOG_SIZE; i++)
+    {
+        PRB480_AdcLog[i] = 0;
+        PRB480_BitLog[i] = 0;
+    }
+}
+
+static void PRB480_AdcLogDump(void)
+{
+    u8 i;
+
+    PRB480_AdcLogEnabled = 0;
+    printf("ADC log threshold=%u count=%u\r\n", PRB480_AdcThreshold, PRB480_AdcLogIndex);
+    for (i = 0; i < PRB480_AdcLogIndex; i++)
+    {
+        printf("%02u: adc=%u bit=%u\r\n", i, PRB480_AdcLog[i], PRB480_BitLog[i]);
+    }
+}
+void PRB480_BoardInterfaceConfig(void)
+{
+    GPIO_InitTypeDef GPIO_InitStructure;
+
+    PRB480_DqPort   = GPIOC;
+    PRB480_DqClock  = RCC_AHB1Periph_GPIOC;
+    PRB480_DqPin    = GPIO_Pin_1;
+    PRB480_RespPin  = GPIO_Pin_10;
+    PRB480_PowerPin = GPIO_Pin_11;
+    PRB480_ReadSampleDelayUs = 4;
+
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOG, ENABLE);
+
+    GPIO_InitStructure.GPIO_Pin   = PRB480_RespPin | PRB480_PowerPin;
+    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
+    GPIO_Init(GPIOG, &GPIO_InitStructure);
+
+    PRB480_ResponsePMOS_Off();
+    PRB480_PowerPMOS_Off();
+    PRB480_IO_IN();
+    PRB480_ADC_Config();
+}
+
+static void PRB480_IO_ANALOG(void)
+{
+    GPIO_InitTypeDef GPIO_InitStructure;
+
+    GPIO_StructInit(&GPIO_InitStructure);
+    GPIO_InitStructure.GPIO_Pin = PRB480_DqPin;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+    GPIO_Init(PRB480_DqPort, &GPIO_InitStructure);
+}
+
+static void PRB480_ADC_Config(void)
+{
+    ADC_CommonInitTypeDef ADC_CommonInitStructure;
+    ADC_InitTypeDef ADC_InitStructure;
+
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+
+    ADC_CommonStructInit(&ADC_CommonInitStructure);
+    ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;
+    ADC_CommonInitStructure.ADC_Prescaler = ADC_Prescaler_Div4;
+    ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled;
+    ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles;
+    ADC_CommonInit(&ADC_CommonInitStructure);
+
+    ADC_StructInit(&ADC_InitStructure);
+    ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
+    ADC_InitStructure.ADC_ScanConvMode = DISABLE;
+    ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
+    ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
+    ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+    ADC_InitStructure.ADC_NbrOfConversion = 1;
+    ADC_Init(ADC1, &ADC_InitStructure);
+    ADC_Cmd(ADC1, ENABLE);
+}
+
+static u16 PRB480_ReadAdcRaw(void)
+{
+    ADC_RegularChannelConfig(ADC1, ADC_Channel_11, 1, ADC_SampleTime_3Cycles);
+    ADC_ClearFlag(ADC1, ADC_FLAG_EOC);
+    ADC_SoftwareStartConv(ADC1);
+    while (ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET)
+    {
+    }
+    return ADC_GetConversionValue(ADC1);
+}
+
+u16 PRB480_ReadAdcValue(void)
+{
+    u16 adc;
+
+    PRB480_IO_ANALOG();
+    adc = PRB480_ReadAdcRaw();
+    PRB480_IO_IN();
+    return adc;
+}
+
+void PRB480_DebugAdcLevels(void)
+{
+    u16 adcRespOn;
+    u16 adcRespOff;
+    u16 adcPowerOn;
+
+    PRB480_PowerPMOS_Off();
+
+    PRB480_ResponsePMOS_On();
+    delay_us(50);
+    adcRespOn = PRB480_ReadAdcValue();
+
+    PRB480_ResponsePMOS_Off();
+    delay_us(50);
+    adcRespOff = PRB480_ReadAdcValue();
+
+    PRB480_ResponsePMOS_On();
+    PRB480_PowerPMOS_On();
+    delay_us(50);
+    adcPowerOn = PRB480_ReadAdcValue();
+
+    PRB480_PowerPMOS_Off();
+    PRB480_ResponsePMOS_On();
+    PRB480_IO_IN();
+
+    printf("ADC debug PG10=0(resp on)=%u PG10=1(resp off)=%u PG11=0(power on)=%u\r\n",
+           adcRespOn, adcRespOff, adcPowerOn);
+}
+/* ========== PC1 采样 + PG10/PG11 单总线时序 ========== */
+
 void PRB480_IO_IN(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;     /* 输入浮动模式 */
+    GPIO_StructInit(&GPIO_InitStructure);
+    GPIO_InitStructure.GPIO_Pin = PRB480_DqPin;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-    GPIO_Init(GPIOG, &GPIO_InitStructure);
+    GPIO_Init(PRB480_DqPort, &GPIO_InitStructure);
 }
 
-/**
- * @func PRB480_IO_OUT
- * @brief 配置 PG9 为输出模式 (开漏输出)
- * 用于主机驱动总线拉低 (写 0)
- */
 void PRB480_IO_OUT(void)
 {
-    GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;    /* 输出模式 */
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;   // 开漏输出
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;    // 不启用内部上下拉
-    GPIO_Init(GPIOG, &GPIO_InitStructure);
+    PRB480_IO_IN();
 }
 
-/**
- * @func PRB480_Init
- * @brief PRB480 初始化
- * 1. 使能 GPIOG 时钟
- * 2. 配置 PG9 为开漏输出
- * 3. 执行复位命令并检测设备应答
- * @return 0=初始化成功, 1=设备无应答
- */
 u8 PRB480_Init(void)
 {
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
-    PRB480_IO_OUT();
-    PRB480_DQ_OUT = 1;  /* 初始状态：总线拉高 */
-    delay_us(10);
+    PRB480_IO_IN();
+    PRB480_ResponsePMOS_On();
+    PRB480_PowerPMOS_Off();
+    delay_ms(2);
     return PRB480_Reset();
 }
 
-/**
- * @func PRB480_Reset
- * @brief 1-Wire 复位时序
- * 时序：
- *   - 拉低 750us (主机初始化脉冲)
- *   - 释放 15us
- *   - 检测设备应答脉冲
- * @return 0=检测到应答, 1=无应答或超时
- */
 u8 PRB480_Reset(void)
 {
-    PRB480_IO_OUT();
-    PRB480_DQ_OUT = 0;  /* 主机拉低总线 750us */
-    delay_us(750);
-    PRB480_DQ_OUT = 1;  /* 释放总线，让上拉拉高 */
-    delay_us(15);
-    return PRB480_CheckPresence();  /* 检测设备应答 */
-}
+    PRB480_PowerPMOS_Off();
+    PRB480_ResponsePMOS_Off();
+    delay_us(PRB480_TRSTL_US);
 
-/**
- * @func PRB480_CheckPresence
- * @brief 检测 1-Wire 从设备的应答脉冲
- * 应答时序：设备在主机释放后的 15-240us 内拉低总线 60-240us
- * @return 0=检测到应答, 1=无应答
- */
-static u8 PRB480_CheckPresence(void)
-{
-    u8 retry = 0;
-
+    PRB480_ResponsePMOS_On();
     PRB480_IO_IN();
-    /* 等待总线释放 (最多 200us) */
-    while (PRB480_DQ_IN && retry < 200)
-    {
-        retry++;
-        delay_us(1);
-    }
-    if (retry >= 200) return 1;  /* 总线未被拉低，无应答 */
-
-    /* 等待总线恢复高电平 (最多 240us) */
-    retry = 0;
-    while (!PRB480_DQ_IN && retry < 240)
-    {
-        retry++;
-        delay_us(1);
-    }
-    if (retry >= 240) return 1;  /* 总线未释放，超时 */
-
-    return 0;  /* 正常应答 */
+    delay_us(PRB480_TSTD_US);
+    
+    return 0;
 }
 
-/* ========== 1-Wire 比特级通信函数 ========== */
-
-/**
- * @func PRB480_WriteBit
- * @brief 向 1-Wire 总线写一个比特
- * 写 0 时序：拉低 60us
- * 写 1 时序：拉低 2us，释放 60us (由上拉拉高)
- */
 void PRB480_WriteBit(u8 bit)
 {
-    PRB480_IO_OUT();
-    PRB480_DQ_OUT = 0;  /* 拉低总线 2us */
-    delay_us(2);
+    PRB480_PowerPMOS_Off();
+
     if (bit)
     {
-        /* 写 1：快速释放 */
-        PRB480_DQ_OUT = 1;  /* 释放总线，让上拉拉高 */
-        delay_us(60);       /* 等待恢复 */
+        PRB480_ResponsePMOS_Off();
+        //delay_us(PRB480_TLOW_US);
+        PRB480_DelayTlow();
+
+        PRB480_ResponsePMOS_On();
+        delay_us(PRB480_TSLOT_US - PRB480_TLOW_US);
     }
     else
     {
-        /* 写 0：继续拉低 60us */
-        delay_us(60);       /* 总线保持拉低 60us */
-        PRB480_DQ_OUT = 1;  /* 释放总线 */
+        PRB480_ResponsePMOS_Off();
+        //delay_us(PRB480_TLOW_US);
+        PRB480_DelayTlow();
+
+        PRB480_ResponsePMOS_On();
+        //delay_us(PRB480_TGAP_US);
+        PRB480_DelayTlow();
+
+        PRB480_ResponsePMOS_Off();
+        //delay_us(PRB480_TLOW_US);
+        PRB480_DelayTlow();
+        
+        PRB480_ResponsePMOS_On();
+        delay_us(PRB480_TSLOT_US - (PRB480_TLOW_US * 2) - PRB480_TGAP_US);
     }
 }
 
-/**
- * @func PRB480_ReadBit
- * @brief 从 1-Wire 总线读一个比特
- * 时序：
- *   - 拉低 2us 初始化
- *   - 释放总线
- *   - 等待 12us 后采样 (在此时间内，写 1 的从设备会拉低)
- *   - 继续等待 50us 恢复
- * @return 比特值 (0 或 1)
- */
+
 u8 PRB480_ReadBit(void)
 {
+    u16 adc;
     u8 data;
+    //大：IO1，小：IO2
+    //famg:大开小关    ling:关大开小
+    PRB480_ResponsePMOS_Off();
+    PRB480_PowerPMOS_On();
+    PRB480_IO_ANALOG();
 
-    PRB480_IO_OUT();
-    PRB480_DQ_OUT = 0;  /* 主机拉低 2us 作为读请求 */
-    delay_us(2);
-    PRB480_DQ_OUT = 1;  /* 释放总线 */
-    PRB480_IO_IN();     /* 切换为输入模式采样 */
-    delay_us(12);       /* 等待 12us 让从设备做出响应 */
+    
+    //delay_us(1);//t1+一半的tREAD 2+2=4
+    PRB480_Delay_Read(15);//2us
+    delay_us(5);
 
-    data = PRB480_DQ_IN ? 1 : 0;  /* 采样总线电平 */
-    delay_us(50);       /* 等待恢复到完整的时间槽 */
+    //ad采样大概要2.2us
+    adc = PRB480_ReadAdcRaw();
+    PRB480_LastReadAdc = adc;
+    data = (adc >= PRB480_AdcThreshold) ? 1 : 0;
+    if (PRB480_AdcLogEnabled && (PRB480_AdcLogIndex < PRB480_ADC_LOG_SIZE))
+    {
+        PRB480_AdcLog[PRB480_AdcLogIndex] = adc;
+        PRB480_BitLog[PRB480_AdcLogIndex] = data;
+        PRB480_AdcLogIndex++;
+    }
 
+    // //delay_us(1);
+    PRB480_Delay_Read(39);//3.7
+    
+    
+    //关大开小    关小开大
+    PRB480_PowerPMOS_Off();
+    PRB480_ResponsePMOS_On();
+    PRB480_IO_IN();
+    //delay_us(PRB480_TSLOT_US - PRB480_ReadSampleDelayUs/2 - 8);
+    delay_us(20);
     return data;
 }
 
-/* ========== 1-Wire 字节级通信函数 ========== */
 
-/**
- * @func PRB480_WriteByte
- * @brief 向 1-Wire 总线写一个字节 (LSB 优先)
- * @param dat 要写入的字节数据
- */
+
+// u8 PRB480_ReadBit(void)
+// {
+//     u16 adc;
+//     u8 data;
+//     //大：IO1，小：IO2
+//     //大开小关
+//     PRB480_ResponsePMOS_On();
+//     PRB480_PowerPMOS_Off();
+//     PRB480_IO_ANALOG();
+
+    
+//     //delay_us(1);//t1+一半的tREAD 2+2=4
+//     PRB480_Delay_Read(15);//2us
+
+//     //ad采样大概要2.2us
+//     adc = PRB480_ReadAdcRaw();
+//     PRB480_LastReadAdc = adc;
+//     data = (adc >= PRB480_AdcThreshold) ? 1 : 0;
+//     if (PRB480_AdcLogEnabled && (PRB480_AdcLogIndex < PRB480_ADC_LOG_SIZE))
+//     {
+//         PRB480_AdcLog[PRB480_AdcLogIndex] = adc;
+//         PRB480_BitLog[PRB480_AdcLogIndex] = data;
+//         PRB480_AdcLogIndex++;
+//     }
+
+//     // //delay_us(1);
+//     PRB480_Delay_Read(39);//3.7
+    
+//     //关大开小
+//     PRB480_ResponsePMOS_Off();
+//     PRB480_PowerPMOS_On();
+    
+//     PRB480_IO_IN();
+//     //delay_us(PRB480_TSLOT_US - PRB480_ReadSampleDelayUs/2 - 8);
+//     delay_us(20);
+//     return data;
+// }
+
+
+// u8 PRB480_ReadBit(void)
+// {
+//     u16 adc;
+//     u8 data;
+    
+//     PRB480_ResponsePMOS_Off();
+//     PRB480_PowerPMOS_Off();
+//     PRB480_IO_ANALOG();
+
+    
+//     //delay_us(1);//t1+一半的tREAD 2+2=4
+//     PRB480_Delay_Read(30);//4.1us
+
+//     //ad采样大概要2.2us
+//     adc = PRB480_ReadAdcRaw();
+//     PRB480_LastReadAdc = adc;
+//     data = (adc >= PRB480_AdcThreshold) ? 1 : 0;
+//     if (PRB480_AdcLogEnabled && (PRB480_AdcLogIndex < PRB480_ADC_LOG_SIZE))
+//     {
+//         PRB480_AdcLog[PRB480_AdcLogIndex] = adc;
+//         PRB480_BitLog[PRB480_AdcLogIndex] = data;
+//         PRB480_AdcLogIndex++;
+//     }
+
+//     // //delay_us(1);
+//     PRB480_Delay_Read(24);//1.7
+    
+//     PRB480_PowerPMOS_Off();
+//     PRB480_ResponsePMOS_On();
+//     PRB480_IO_IN();
+//     //delay_us(PRB480_TSLOT_US - PRB480_ReadSampleDelayUs/2 - 8);
+//     delay_us(20);
+//     return data;
+// }
+
+
+
+
+// u8 PRB480_ReadBit(void)
+// {
+//     u8 data;
+
+//     PRB480_PowerPMOS_Off();
+
+//     /* 启动读时隙 */
+//     PRB480_ResponsePMOS_Off();
+//     delay_us(2);
+
+//     /* 释放总线，让 PRB480 响应出现在 PC1 */
+//     PRB480_ResponsePMOS_On();
+
+//     /* 先试 1~3us，目标是落在 PC1 高脉冲中间 */
+//     delay_us(2);
+
+//     PRB480_IO_IN();
+//     data = GPIO_ReadInputDataBit(PRB480_DqPort, PRB480_DqPin) ? 1 : 0;
+
+//     delay_us(24);
+//     return data;
+// }
+
+
 void PRB480_WriteByte(u8 dat)
 {
     u8 j;
+
+    PRB480_ResponsePMOS_On();
+    PRB480_PowerPMOS_Off();
+
     for (j = 0; j < 8; j++)
     {
-        PRB480_WriteBit(dat & 0x01);  /* 写最低位 */
-        dat >>= 1;                     /* 右移准备下一位 */
+        PRB480_WriteBit(dat & 0x01);
+        dat >>= 1;
     }
 }
 
-/**
- * @func PRB480_ReadByte
- * @brief 从 1-Wire 总线读一个字节 (LSB 优先)
- * @return 读取的字节数据
- */
 u8 PRB480_ReadByte(void)
 {
-    u8 i, j;
+    u8 i;
     u8 dat = 0;
 
     for (i = 0; i < 8; i++)
     {
-        j = PRB480_ReadBit();           /* 读一个比特 */
-        dat = (j << 7) | (dat >> 1);    /* 放入最高位，整体右移 */
+        if (PRB480_ReadBit())
+        {
+            dat |= (1 << i);
+        }
     }
 
     return dat;
 }
-
 /* ========== 校验和计算函数 ========== */
 
 /**
@@ -970,17 +1252,37 @@ u8 PRB480_ReadROM(u8 rom[8])
 {
     u8 i;                                         /* ROM 字节读取循环变量 */
 
-    if (rom == 0) return 1;                       /* 缓冲区为空则直接失败 */
-    if (PRB480_Reset()) return 1;                 /* 复位失败则返回 1 */
+    for (i = 0; i < 8; i++)                       /* 清空缓冲区 */
+    {
+        rom[i] = 0;               
+    }
 
+    if (PRB480_Reset())
+    {
+        printf("Read ROM reset failed\r\n");
+        return 1;
+    }
+
+    printf("Read ROM send 0x33\r\n");
     PRB480_WriteByte(0x33);                       /* 发送 Read ROM 命令 */
 
+    PRB480_AdcLogStart();                         /* 只缓存后续 64 个读 bit 的 ADC 值 */
     for (i = 0; i < 8; i++)                       /* 连续读取 8 字节 ROM ID */
     {
         rom[i] = PRB480_ReadByte();               /* 读回第 i 个 ROM 字节 */
     }
 
-    return (PRB480_CalcCRC8(rom, 8) == 0) ? 0 : 1; /* 用 CRC8 校验整个 8 字节 ROM */
+    PRB480_AdcLogDump();                          /* 读完 64 bit 后再统一打印，避免扰乱时序 */
+
+    printf("Read ROM raw:");
+    for (i = 0; i < 8; i++)
+    {
+        printf(" %02X", rom[i]);
+    }
+    printf(" CRC8=0x%02X\r\n", PRB480_CalcCRC8(rom, 8));
+    if (PRB480_CalcCRC8(rom, 8) == 0) return 0;   /* 用 CRC8 校验整个 8 字节 ROM */
+
+    return 1;
 }
 
 /**
@@ -1022,7 +1324,7 @@ void PRB480_MatchROM(u8 rom[8])
  */
 static u8 PRB480_CommandStart(u8 *rom)
 {
-    if (PRB480_Reset()) return 1;  /* 复位并检测应答 */
+    if (PRB480_Reset()) return 1;  /* 发送 PRB480 复位时序 */
     if (rom)
     {
         PRB480_MatchROM(rom);  /* 使用 ROM ID 寻址特定设备 */
@@ -1251,9 +1553,13 @@ u8 PRB480_LoadFirstSecret(u8 *rom, u16 addr, u8 *secret, u8 *es)
     PRB480_WriteByte(ta2);                                                             /* 发送 Read Scratchpad 验证得到的 TA2 */
     PRB480_WriteByte(localEs);                                                         /* 发送 Read Scratchpad 验证得到的 E/S */
 
+    PRB480_ResponsePMOS_On();
+    PRB480_PowerPMOS_On();                                                          /* tPROG 期间打开功率 PMOS 给 PRB480 供电 */
+    delay_ms(PRB480_TPROG_MS);                                                         /* 先保持强上拉一段时间 */
+    PRB480_PowerPMOS_Off();
     if (PRB480_WaitReady(2000)) return 1;                                              /* 等待 tPROG，忙时读 0，完成读 1，超时则失败 */
 
-    if (PRB480_Reset()) return 1;                                                      /* 图 8b 完成后由主机发送 Reset，失败则返回错误 */
+    if (PRB480_Reset()) return 1;                                                      /* 图 8b 完成后由主机发送 Reset 结束当前流程 */
 
     return 0;                                                                          /* Load First Secret 流程成功 */
 }                         
@@ -1314,7 +1620,10 @@ u8 PRB480_ComputeNextSecret(u8 *rom, u16 addr)
     PRB480_WriteByte((u8)(addr & 0xFF));                                               /* 发送目标数据页地址低字节 TA1 */
     PRB480_WriteByte((u8)(addr >> 8));                                                 /* 发送目标数据页地址高字节 TA2 */
 
-    delay_ms(2);                                                                        /* 等待 tCSHA，让 PRB480 完成内部 SHA-1 计算 */
+    PRB480_ResponsePMOS_On();
+    PRB480_PowerPMOS_On();                                                          /* tCSHA/tPROG 期间打开功率 PMOS */
+    delay_ms(2 + PRB480_TPROG_MS);                                                      /* 等待内部 SHA-1 计算和写入 */
+    PRB480_PowerPMOS_Off();
 
     if (PRB480_WaitReady(6000)) return 1;                                              /* 等待 tPROG 完成，忙时读 0，完成读 1 */
     
@@ -1380,14 +1689,20 @@ u8 PRB480_CopyScratchpad(u8 *rom, u16 addr, u8 es, u8 mac[20])
     PRB480_WriteByte((u8)(addr >> 8));                                                 /* 发送目标地址高字节 TA2 */
     PRB480_WriteByte(es);                                                              /* 发送 Read Scratchpad 验证得到的 E/S */
 
+    PRB480_ResponsePMOS_On();
+    PRB480_PowerPMOS_On();                                                          /* tCSHA 期间打开功率 PMOS */
     delay_ms(PRB480_TCSHA_MS);                                                         /* 等待 tCSHA，期间不读取总线，避免打断 MAC 接收时序 */
+    PRB480_PowerPMOS_Off();
 
     for (i = 0; i < 20; i++)                                                           /* 逐字节发送主机侧 20 字节 MAC */
     {
         PRB480_WriteByte(mac[i]);                                                      /* 发送第 i 个 MAC 字节 */
     }
 
+    PRB480_ResponsePMOS_On();
+    PRB480_PowerPMOS_On();                                                          /* tPROG 期间打开功率 PMOS */
     delay_ms(PRB480_TPROG_MS);                                                         /* 等待 tPROG，让芯片完成 MAC 比较和 FRAM 复制 */
+    PRB480_PowerPMOS_Off();
 
     result = PRB480_WaitCopyResult(&status);                                           /* 读取图 8c 规定的 AAh/00h/FFh 最终状态 */
     PRB480_LastCopyStatus = status;                                                    /* 保存最近一次 Copy Scratchpad 原始状态 */
@@ -1415,7 +1730,7 @@ u8 PRB480_CopyScratchpad(u8 *rom, u16 addr, u8 es, u8 mac[20])
         return 1;                                                                      /* 返回失败 */
     }
 
-    if (PRB480_Reset()) return 1;                                                      /* 成功读取 AAh 后由主机发送 Reset，失败则返回错误 */
+    if (PRB480_Reset()) return 1;                                                      /* 成功读取 AAh 后由主机发送 Reset，结束当前命令 */
 
     if (PRB480_VerifyPostCopyScratchpad(rom, addr)) return 1;                          /* 重新读 scratchpad，确认 AA=1 表示授权复制已接受 */
 

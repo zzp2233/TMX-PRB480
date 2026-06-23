@@ -1,7 +1,7 @@
 /*******************************************************************************
  * PRB480 1-Wire 认证芯片测试程序
  * 功能：演示 PRB480 的完整认证流程
- * 硬件：STM32F407ZG + PRB480，1-Wire 总线接 PG9
+ * 硬件：PC1=IO3采样，PG10=IO1响应PMOS控制，PG11=IO2功率PMOS控制
  * 通信：USART1 115200bps 调试输出
  *******************************************************************************/
 
@@ -56,15 +56,19 @@ int main(void)
     USART1_Init(115200);                        /* 初始化 UART1，波特率 115200 */
     LED_Init();                                 /* 初始化 LED 指示灯 */
 
-    /* ========== Step 0: PRB480 初始化 ========== */
-    /* 初始化 PRB480，配置 PG9 为开漏输出，复位并检测设备应答 */
-    while(PRB480_Init())
-    {
-        printf("PRB480 not found, check PG9 connection!\r\n");
-        delay_ms(500);
-    }
-    printf("PRB480 init OK!\r\n");
+    /* ========== 固定当前单总线角色 ========== */
+    PRB480_BoardInterfaceConfig();
 
+    /* ========== Step 0: PRB480 初始化 ========== */
+    /* 初始化 PRB480：PC1 采样 IO3，PG10 控制响应 PMOS，PG11 控制额外供电 PMOS */
+    // while(PRB480_Init())
+    // {
+    //     printf("PRB480 not found, check PC1(IO3)/PG10(IO1)/PG11(IO2) connection!\r\n");
+    //     delay_ms(500);
+    // }
+    // printf("PRB480 init OK!\r\n");
+    PRB480_Init();
+    //PRB480_DebugAdcLevels();                  /* 调试 PC1 ADC 是否随 PG10/PG11 控制变化 */
     /* ========== Step 1: 读取并校验 ROM 地址 ========== */
     /* 这里不再退回 Skip ROM。
      * 因为后续认证算法要用到 ROM ID，本例要求 ROM 必须读对且 CRC8 正确。
@@ -88,6 +92,12 @@ int main(void)
             LED1 = !LED1;                          /* 快速闪灯表示错误 */
             delay_ms(120);                         /* 错误状态下短周期闪烁 */
         }
+    }
+
+    while(1)
+    {
+        LED1 = !LED1;                          
+        delay_ms(120);                        
     }
 
     printf("Secret:");                              /* 打印当前 first secret 标题 */
