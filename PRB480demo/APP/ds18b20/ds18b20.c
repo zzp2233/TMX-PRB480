@@ -32,7 +32,7 @@
 #define PRB480_TSLOT_US             30      /* 图 12：单总线时隙，手册 125Kbits/s 典型 30us */
 #define PRB480_TRSTL_US             300     /* 图 11：复位低电平时间，手册典型 300us */
 #define PRB480_TSTD_US              200     /* 图 11：上电/复位后系统稳定时间 */
-#define PRB480_ADC_THRESHOLD_DEFAULT 2048     /* PC1/ADC 判 0/1 阈值，需要按实测 VDC0/VDC1 校准 */
+#define PRB480_ADC_THRESHOLD_DEFAULT 1000     /* PC1/ADC 判 0/1 阈值，需要按实测 VDC0/VDC1 校准 */
 #define PRB480_ADC_LOG_SIZE        64       /* 调试：缓存一次 Read ROM 的 64 个读 bit ADC 值 */
 #define PRB480_TLOW_CYCLES 12   // 168MHz下约0.60us，按示波器微调
 
@@ -1044,11 +1044,14 @@ void PRB480_WriteBit(u8 bit)
 
 u8 PRB480_ReadBit(void)
 {
+#if 0
+
     u16 adc;
     u8 data;
     //大：IO1，小：IO2
     //famg:大开小关    ling:关大开小
     PRB480_ResponsePMOS_Off();
+    PRB480_Delay_Read(5);
     PRB480_PowerPMOS_On();
     PRB480_IO_ANALOG();
 
@@ -1079,7 +1082,121 @@ u8 PRB480_ReadBit(void)
     //delay_us(PRB480_TSLOT_US - PRB480_ReadSampleDelayUs/2 - 8);
     delay_us(20);
     return data;
+
+    
+#endif
+
+
+#if 0
+    u16 adc;
+    u8 data;
+    //大：IO1，小：IO2
+    //famg:大开小关    ling:关大开小
+    PRB480_PowerPMOS_Off();
+    //PRB480_Delay_Read(5);
+    PRB480_ResponsePMOS_On();
+
+    PRB480_IO_ANALOG();
+
+    
+    //delay_us(1);//t1+一半的tREAD 2+2=4
+    //PRB480_Delay_Read(15);//2us
+    delay_us(6);
+
+    //ad采样大概要2.2us
+    adc = PRB480_ReadAdcRaw();
+    PRB480_LastReadAdc = adc;
+    data = (adc >= PRB480_AdcThreshold) ? 1 : 0;
+    if (PRB480_AdcLogEnabled && (PRB480_AdcLogIndex < PRB480_ADC_LOG_SIZE))
+    {
+        PRB480_AdcLog[PRB480_AdcLogIndex] = adc;
+        PRB480_BitLog[PRB480_AdcLogIndex] = data;
+        PRB480_AdcLogIndex++;
+    }
+
+    delay_us(1);
+    //PRB480_Delay_Read(39);//3.7
+    
+    
+    //关大开小    关小开大
+    PRB480_PowerPMOS_On();
+    PRB480_ResponsePMOS_On();
+    PRB480_IO_IN();
+    //delay_us(PRB480_TSLOT_US - PRB480_ReadSampleDelayUs/2 - 8);
+    delay_us(18);
+    return data;
+#endif
+
+
+#if 1
+    u16 adc;
+    u8 data;
+    //大：IO1，小：IO2
+    //famg:大开小关    ling:关大开小
+    PRB480_ResponsePMOS_Off();
+    PRB480_PowerPMOS_On();
+
+    PRB480_IO_ANALOG();
+
+    
+    //delay_us(1);//t1+一半的tREAD 2+2=4
+    //PRB480_Delay_Read(15);//2us
+    delay_us(7);
+
+    //ad采样大概要2.2us
+    adc = PRB480_ReadAdcRaw();
+    PRB480_LastReadAdc = adc;
+    data = (adc >= PRB480_AdcThreshold) ? 1 : 0;
+    if (PRB480_AdcLogEnabled && (PRB480_AdcLogIndex < PRB480_ADC_LOG_SIZE))
+    {
+        PRB480_AdcLog[PRB480_AdcLogIndex] = adc;
+        PRB480_BitLog[PRB480_AdcLogIndex] = data;
+        PRB480_AdcLogIndex++;
+    }
+
+    delay_us(1);
+    //PRB480_Delay_Read(39);//3.7
+    
+    
+    //关大开小    关小开大
+    PRB480_PowerPMOS_Off();
+    PRB480_ResponsePMOS_On();
+    PRB480_IO_IN();
+    //delay_us(PRB480_TSLOT_US - PRB480_ReadSampleDelayUs/2 - 8);
+    delay_us(15);
+    return data;
+#endif
+
 }
+
+void PRB480_DebugReadSlotLoop(u16 count)
+{
+    u16 i = 0;
+
+    while ((count == 0) || (i < count))
+    {
+        /* 和 PRB480_ReadBit 保持同样的 Q5/Q6 读时隙动作，不发送任何命令 */
+        PRB480_ResponsePMOS_Off();
+        PRB480_PowerPMOS_On();
+        PRB480_IO_ANALOG();
+
+        PRB480_Delay_Read(15);
+        delay_us(5);
+
+        /* 保留 ADC 转换，让 PC1/ADC 负载和真实 ReadBit 一致 */
+        PRB480_LastReadAdc = PRB480_ReadAdcRaw();
+
+        PRB480_Delay_Read(39);
+
+        PRB480_PowerPMOS_Off();
+        PRB480_ResponsePMOS_On();
+        PRB480_IO_IN();
+        delay_us(20);
+
+        i++;
+    }
+}
+
 
 
 

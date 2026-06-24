@@ -68,6 +68,7 @@ int main(void)
     // }
     // printf("PRB480 init OK!\r\n");
     PRB480_Init();
+    //PRB480_DebugReadSlotLoop(100);  /* 调试用：循环产生 100 次 ReadBit 同款读时隙 */
     //PRB480_DebugAdcLevels();                  /* 调试 PC1 ADC 是否随 PG10/PG11 控制变化 */
     /* ========== Step 1: 读取并校验 ROM 地址 ========== */
     /* 这里不再退回 Skip ROM。
@@ -94,11 +95,6 @@ int main(void)
         }
     }
 
-    while(1)
-    {
-        LED1 = !LED1;                          
-        delay_ms(120);                        
-    }
 
     printf("Secret:");                              /* 打印当前 first secret 标题 */
     for(i = 0; i < 8; i++)                          /* 逐字节打印 8 字节 secret */

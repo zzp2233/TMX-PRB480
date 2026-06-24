@@ -3,18 +3,27 @@
 
 #include "system.h"
 
-/* ========== PRB480 1-Wire 总线引脚定义 ========== */
-/* PG9 用作开漏输出引脚，连接 PRB480 的 DQ 线 */
-#define PRB480_DQ_OUT PGout(9)  /* 写入 1-Wire 总线 (输出驱动) */
-#define PRB480_DQ_IN  PGin(9)   /* 读取 1-Wire 总线 (输入采样) */
+/* ========== PRB480 小板接口引脚定义 ========== */
+/* 默认连接：PC1=IO3/ADC采样，PG10=IO1响应PMOS控制，PG11=IO2功率PMOS控制 */
+#define PRB480_DQ_IN         PCin(1)    /* IO3/PC1：采集 PRB480 返回信号 */
+#define PRB480_RESP_PMOS     PGout(10)  /* IO1/PG10：响应 PMOS 控制 */
+#define PRB480_POWER_PMOS    PGout(11)  /* IO2/PG11：额外供电 PMOS 控制 */
 
 /* ========== 1-Wire 低层通信函数 ========== */
-void PRB480_IO_IN(void);        /* 配置 PG9 为输入模式（浮动，上拉释放） */
-void PRB480_IO_OUT(void);       /* 配置 PG9 为输出模式（开漏驱动） */
-u8 PRB480_Init(void);           /* PRB480 初始化：配置引脚，执行复位和应答检测 */
-u8 PRB480_Reset(void);          /* 复位命令：主机拉低总线 750us，从机应答 */
-u8 PRB480_ReadBit(void);        /* 从总线读一个比特 (时序: 2us低 + 12us采样 + 50us恢复) */
-void PRB480_WriteBit(u8 bit);   /* 向总线写一个比特 (0: 60us低, 1: 2us低+60us高) */
+void PRB480_IO_IN(void);        /* 配置 PC1/IO3 为输入模式 */
+void PRB480_IO_OUT(void);       /* 兼容旧接口，PC1 不再作为输出驱动 */
+void PRB480_BoardInterfaceConfig(void); /* 固定小板接口：PC1=IO3，PG10=IO1，PG11=IO2 */
+void PRB480_SetPinRoles(u16 dqPin, u16 respPin, u16 powerPin); /* 配置 IO3/IO1/IO2 引脚 */
+void PRB480_SetReadSampleDelay(u8 delayUs); /* 设置读 bit 时进入 tREAD0 的采样延时 */
+void PRB480_SetAdcThreshold(u16 threshold); /* 设置 PC1 ADC 的 0/1 阈值 */
+u16 PRB480_ReadAdcValue(void);  /* 调试用：读取一次 PC1/ADC123_IN11 原始 ADC 值 */
+u16 PRB480_GetLastReadAdc(void);/* 调试用：返回最近一次 ReadBit 的 ADC 原始值 */
+void PRB480_DebugAdcLevels(void); /* 调试用：打印 PG10/PG11 状态下的 PC1 ADC 电平 */
+u8 PRB480_Init(void);           /* PRB480 初始化：配置引脚，执行 tRSTL/tSTD 复位时序 */
+u8 PRB480_Reset(void);          /* 复位命令：总线低电平 tRSTL，释放后等待 tSTD */
+u8 PRB480_ReadBit(void);        /* 按读时序读取 1 bit：Q5/Q6 形成读窗口，在 tREAD0 内采样 */
+void PRB480_DebugReadSlotLoop(u16 count); /* 调试用：不发命令，只循环产生 ReadBit 同款读时隙，count=0 表示一直循环 */
+void PRB480_WriteBit(u8 bit);   /* 按写时序写 1 bit：1=一个低脉冲，0=两个低脉冲 */
 void PRB480_WriteByte(u8 dat);  /* 写一个字节 (LSB 优先，8个比特) */
 u8 PRB480_ReadByte(void);       /* 读一个字节 (LSB 优先，8个比特) */
 
