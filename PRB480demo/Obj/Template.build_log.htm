@@ -21,18 +21,22 @@ Target DLL:      CMSIS_AGDI.dll V1.28.3.0
 Dialog DLL:      TCM.DLL V1.32.0.0
  
 <h2>Project:</h2>
-C:\Users\wangy\Desktop\02\29-DS18B20温度传感器实验\Template.uvprojx
-Project File Date:  06/11/2026
+C:\Users\wangy\Desktop\TXM_PRB480\TMX-PRB480-main\TMX-PRB480-main\PRB480demo\Template.uvprojx
+Project File Date:  06/15/2026
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Target 1'
 compiling ds18b20.c...
-compiling main.c...
+APP\ds18b20\ds18b20.c(40): warning:  #550-D: variable "PRB480_DqClock"  was set but never used
+  static u32 PRB480_DqClock  = RCC_AHB1Periph_GPIOC;                                   /* IO3/PC1：GPIO 时钟 */
+APP\ds18b20\ds18b20.c(44): warning:  #550-D: variable "PRB480_ReadSampleDelayUs"  was set but never used
+  static u8 PRB480_ReadSampleDelayUs = 4;                                              /* 图 12：进入 tREAD0 窗口后采样 */
+APP\ds18b20\ds18b20.c: 2 warnings, 0 errors
 linking...
-Program Size: Code=6304 RO-data=424 RW-data=28 ZI-data=1228  
+Program Size: Code=11244 RO-data=572 RW-data=52 ZI-data=1420  
 FromELF: creating hex file...
-".\Obj\Template.axf" - 0 Error(s), 0 Warning(s).
+".\Obj\Template.axf" - 0 Error(s), 2 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -46,7 +50,7 @@ Package Vendor: ARM
   C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\Device\ARM\ARMCM4\Include
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>

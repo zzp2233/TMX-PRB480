@@ -79,7 +79,7 @@ static u8 PRB480_CheckPostCopyES(u8 es);                                        
 static u8 PRB480_CheckDataPageAddress(u16 addr);                                     /* 检查 Compute Next Secret 使用的数据页地址 */
 u8 PRB480_LoadPartialSecretScratchpad(u8 *rom, u16 addr, u8 partial[8], u8 *es);      /* 把 8 字节 partial secret 写入 scratchpad 并验证 */
 u8 PRB480_VerifyScratchpadFilledAA(u8 *rom);                                           /* 验证 Compute Next Secret 后 scratchpad 是否为 0xAA */
-static u8 PRB480_VerifyPostCopyScratchpad(u8 *rom, u16 addr);                         /* Copy / Load First Secret 后验证 TA1/TA2/E/S，重点确认 AA=1 */
+static u8 PRB480_VerifyPostCopyScratchpad(u8 *rom, u16 addr, u8 *verifiedEs);         /* Copy / Load First Secret 后验证 TA1/TA2/E/S，重点确认 AA=1 */
 
 static void PRB480_DelayTlow(void)
 {
@@ -127,24 +127,19 @@ static u8 PRB480_CheckWriteAddress(u16 addr)
 /*******************************************************************************
 * 名    称         : PRB480_CheckAlternatingResponse
 * 功    能         : 检查器件是否返回成功时的交替位型
-* 说    明         : PRB480 / DS28E01 系列在某些命令成功后，不一定返回两个 0xAA，
-*                    而是返回交替位型，对应按字节读通常表现为 0xAA / 0x55 或
-*                    0x55 / 0xAA
+* 说    明         : PRB480 在某些命令成功后逐读时隙返回 0、1、0、1……
+*                    每连续读取 8 位通常得到 0xAA 或 0x55。由于 8 是偶数，
+*                    下一个字节通常保持相同相位；为兼容读时隙起始相位，
+*                    这里只要求两个字节各自都是 0xAA 或 0x55。
 * 输入参数         : first  - 第 1 个读回字节
 *                    second - 第 2 个读回字节
 * 返 回 值         : 0 成功模式，1 非成功模式
 *******************************************************************************/
 static u8 PRB480_CheckAlternatingResponse(u8 first, u8 second)
 {
-    /* 判断是否是 0xAA 后跟 0x55 */
-    if ((first == 0xAA && second == 0x55) ||      /* 第一种成功模式 */
-        (first == 0x55 && second == 0xAA))        /* 第二种成功模式 */
-    {
-        return 0;                                 /* 返回 0 表示交替响应正确 */
-    }
-
-    /* 其他组合一律按失败处理 */
-    return 1;                                     /* 返回 1 表示不是成功响应 */
+    if (first != 0xAA && first != 0x55) return 1;  /* 第 1 个字节内部必须为严格交替位型 */
+    if (second != 0xAA && second != 0x55) return 1;/* 第 2 个字节内部也必须为严格交替位型 */
+    return 0;                                      /* 两个字节均为交替位型，判定响应成功 */
 }
 
 /*******************************************************************************
@@ -748,11 +743,12 @@ static u8 PRB480_CheckPostCopyES(u8 es)
 * 功    能         : 验证 Copy / Load First Secret 后 scratchpad 授权状态
 * 说    明         : 对应图 8b 中 AA = 1 节点。
 *                    这里只检查 TA1、TA2 和 E/S，不再要求数据内容等于写入数据。
-* 输入参数         : rom  - 目标器件 ROM ID，NULL 表示 Skip ROM
-*                    addr - 目标地址
+* 输入参数         : rom        - 目标器件 ROM ID，NULL 表示 Skip ROM
+*                    addr       - 目标地址
+* 输出参数         : verifiedEs - 可选；返回操作完成后重新读到的 E/S
 * 返 回 值         : 0 成功，1 失败
 *******************************************************************************/
-static u8 PRB480_VerifyPostCopyScratchpad(u8 *rom, u16 addr)
+static u8 PRB480_VerifyPostCopyScratchpad(u8 *rom, u16 addr, u8 *verifiedEs)
 {
     u8 ta1;                                                                            /* 保存 Read Scratchpad 返回的 TA1 */
     u8 ta2;                                                                            /* 保存 Read Scratchpad 返回的 TA2 */
@@ -766,6 +762,7 @@ static u8 PRB480_VerifyPostCopyScratchpad(u8 *rom, u16 addr)
     if (ta2 != (u8)(addr >> 8)) return 1;                                              /* 检查 TA2 是否仍为目标地址高字节 */
     if (PRB480_CheckPostCopyES(es)) return 1;                                          /* 检查 AA=1、PF=0、E[2:0]=111b */
 
+    if (verifiedEs) *verifiedEs = es;                                                   /* 把真正的操作后 E/S 返回给调用者 */
     return 0;                                                                          /* 后置 scratchpad 状态验证成功 */
 }
 
@@ -1641,11 +1638,13 @@ u8 PRB480_WriteAndVerifyScratchpad(u8 *rom, u16 addr, u8 *dat, u8 *es)
 *                    1. 先把 8 字节 secret 写入 scratchpad
 *                    2. 再用 Read Scratchpad 读回 TA1/TA2/E/S 做授权验证
 *                    3. 最后发送 0x5A + TA1 + TA2 + E/S
-*                    4. 等待 tPROG，忙时读 0，完成后读 1
+*                    4. 等待 tPROG，并读取芯片返回的 0/1 交替成功响应
+*                    5. 主机发送 Reset 结束状态循环
+*                    6. 再读 scratchpad，确认 AA=1 后才判定加载成功
 * 输入参数         : rom    - 目标器件 ROM ID，NULL 则 Skip ROM
 *                    addr   - 必须为 0x0080
 *                    secret - 8 字节初始 secret
-* 输出参数         : es     - 返回验证通过的 E/S
+* 输出参数         : es     - 返回 Load First Secret 完成后、AA=1 的 E/S
 * 返 回 值         : 0 成功，1 失败
 *******************************************************************************/
 u8 PRB480_LoadFirstSecret(u8 *rom, u16 addr, u8 *secret, u8 *es)
@@ -1654,6 +1653,10 @@ u8 PRB480_LoadFirstSecret(u8 *rom, u16 addr, u8 *secret, u8 *es)
     u8 ta1;                                                                            /* 保存 Read Scratchpad 返回的 TA1 */
     u8 ta2;                                                                            /* 保存 Read Scratchpad 返回的 TA2 */
     u8 localEs;                                                                        /* 保存 Read Scratchpad 返回的 E/S */
+    u8 response1;                                                                      /* 保存 5Ah 完成后的第 1 个交替响应字节 */
+    u8 response2;                                                                      /* 保存 5Ah 完成后的第 2 个交替响应字节 */
+    u8 postEs;                                                                         /* 保存 Load First Secret 完成后重新读到的 E/S */
+    u8 retry;                                                                          /* 交替响应循环重试计数 */
 
     if (secret == 0) return 1;                                                         /* secret 指针为空，直接失败 */
     if (addr != 0x0080) return 1;                                                      /* Load First Secret 只允许写入 secret 地址 */
@@ -1661,25 +1664,82 @@ u8 PRB480_LoadFirstSecret(u8 *rom, u16 addr, u8 *secret, u8 *es)
 
     if (PRB480_WriteScratchpad(rom, addr, secret, 8, &crc)) return 1;                  /* 第 1 步：把 8 字节 secret 写入 scratchpad */
     if (PRB480_VerifyScratchpad(rom, addr, secret, &ta1, &ta2, &localEs)) return 1;    /* 第 2 步：读回验证 TA1 / TA2 / E/S / 数据 */
+    printf("LFS auth: TA1=%02X TA2=%02X E/S=%02X PF=%d AA=%d\r\n",
+        ta1,
+        ta2,
+        localEs,
+        (localEs & PRB480_ES_PF) ? 1 : 0,
+        (localEs & PRB480_ES_AA) ? 1 : 0);
+    delay_us(500);
 
-    if (es) *es = localEs;                                                             /* 如果调用者需要，就把验证得到的 E/S 返回出去 */
+
     if (PRB480_CommandStart(rom)) return 1;                                            /* 重新开始一帧新的 1-Wire 命令事务 */
 
-    PRB480_WriteByte(0x5A);                                                            /* 发送 Load First Secret 命令 0x5A */
-    PRB480_WriteByte(ta1);                                                             /* 发送 Read Scratchpad 验证得到的 TA1 */
-    PRB480_WriteByte(ta2);                                                             /* 发送 Read Scratchpad 验证得到的 TA2 */
-    PRB480_WriteByte(localEs);                                                         /* 发送 Read Scratchpad 验证得到的 E/S */
+
+
+
+    PRB480_WriteByte(0x5A);                                                            /* 流程图：发送 Load First Secret 命令 5Ah */
+    PRB480_WriteByte(ta1);                                                             /* 流程图：发送认证字节 TA1，必须来自刚才的 Read Scratchpad */
+    PRB480_WriteByte(ta2);                                                             /* 流程图：发送认证字节 TA2，必须来自刚才的 Read Scratchpad */
+    PRB480_WriteByte(localEs);                                                         /* 流程图：发送认证字节 E/S，必须与 scratchpad 当前状态一致 */
 
     PRB480_ResponsePMOS_On();
-    PRB480_PowerPMOS_On();                                                          /* tPROG 期间打开功率 PMOS 给 PRB480 供电 */
-    delay_ms(PRB480_TPROG_MS);                                                         /* 先保持强上拉一段时间 */
-    PRB480_PowerPMOS_Off();
-    if (PRB480_WaitReady(2000)) return 1;                                              /* 等待 tPROG，忙时读 0，完成读 1，超时则失败 */
+    PRB480_PowerPMOS_On();                                                             /* 流程图：tPROG 期间保持 1-Wire 空闲高电平并给芯片供电 */
+    delay_us(10); 
+//    PRB480_PowerPMOS_Off();
 
-    if (PRB480_Reset()) return 1;                                                      /* 图 8b 完成后由主机发送 Reset 结束当前流程 */
+    /*
+     * 图 8b 成功路径中，PRB480 在 tPROG 后持续发送交替的 0、1。
+     * 每个连续读取的字节通常表现为 AAh 或 55h。
+     * 失败路径会持续发送 1，因此不能使用“只读到一个 1 就成功”的
+     * PRB480_WaitReady()，否则认证字节错误、地址错误或写保护也会误判成功。
+     */
+    
 
+    for (retry = 0; retry < 20; retry++)
+    {
+        response1 = PRB480_ReadByte();
+        response2 = PRB480_ReadByte();
+
+        printf("LFS response[%u]: %02X %02X\r\n",
+            retry, response1, response2);
+
+        if (PRB480_CheckAlternatingResponse(response1, response2) == 0)
+        {
+            break;  /* 收到AA或55交替位型 */
+        }
+
+        if (response1 == 0xFF && response2 == 0xFF)
+        {
+            break;  /* 连续1，芯片明确拒绝 */
+        }
+    }
+
+
+    if (PRB480_CheckAlternatingResponse(response1, response2))
+    {
+        printf("Load First Secret rejected: response is not alternating 0/1\r\n");
+        PRB480_Reset();                                                                /* 无论成功或失败，主机都用 Reset 退出芯片的状态循环 */
+        return 1;
+    }
+
+    if (PRB480_Reset()) return 1;                                                      /* 流程图：主机发送 Reset，结束 0/1 交替响应循环 */
+
+    /*
+     * 流程图在真正复制前会把 AA 位置 1。
+     * Reset 后重新执行 Read Scratchpad，确认 TA1/TA2 未变化、PF=0、
+     * E[2:0]=111 且 AA=1。只有此检查通过，才证明 Secret 已被芯片接受。
+     */
+    if (PRB480_VerifyPostCopyScratchpad(rom, addr, &postEs))
+    {
+        printf("Load First Secret post-check failed: AA is not set or TA/E/S invalid\r\n");
+        return 1;
+    }
+
+    if (es) *es = postEs;                                                             /* 返回操作后的 E/S，而不是操作前 AA=0 的 0x5F */
+    
     return 0;                                                                          /* Load First Secret 流程成功 */
-}                         
+}
 
 
 /*******************************************************************************
@@ -1849,7 +1909,7 @@ u8 PRB480_CopyScratchpad(u8 *rom, u16 addr, u8 es, u8 mac[20])
 
     if (PRB480_Reset()) return 1;                                                      /* 成功读取 AAh 后由主机发送 Reset，结束当前命令 */
 
-    if (PRB480_VerifyPostCopyScratchpad(rom, addr)) return 1;                          /* 重新读 scratchpad，确认 AA=1 表示授权复制已接受 */
+    if (PRB480_VerifyPostCopyScratchpad(rom, addr, 0)) return 1;                       /* 重新读 scratchpad，确认 AA=1 表示授权复制已接受 */
 
     return 0;                                                                          /* Copy Scratchpad 认证写入成功 */
 }                                     

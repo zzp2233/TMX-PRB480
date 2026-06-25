@@ -39,4 +39,5 @@
 .\obj\ds18b20.o: .\Public\SysTick.h
 .\obj\ds18b20.o: APP\ds18b20\CRC16.h
 .\obj\ds18b20.o: APP\ds18b20\SHA1.h
+.\obj\ds18b20.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 .\obj\ds18b20.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
