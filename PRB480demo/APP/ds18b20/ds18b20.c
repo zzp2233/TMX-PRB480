@@ -640,11 +640,11 @@ static void PRB480_GenerateReadAuthPageMAC(u8 *secret, u8 *rom, u16 addr, u8 *pa
     for (i = 0; i < 32; i++)
         msg[4 + i] = page[i];
 
-    /* 表 4：M9 = SP2, SP3, FFh, FFh */
+    /* 表 4：M9 = SP2, SP3, SP4, SP5 */
     msg[36] = challenge[0];                       /* SP2 */
     msg[37] = challenge[1];                       /* SP3 */
-    msg[38] = 0xFF;
-    msg[39] = 0xFF;
+    msg[38] = challenge[2];                       /* SP4 */
+    msg[39] = challenge[3];                       /* SP5 */
 
     /* 表 4：M10[31:24] = MP；Read Authenticated Page 为 01000b + T[7:5] */
     msg[40] = (u8)(0x40 | ((pageStart >> 5) & 0x07));
@@ -657,8 +657,8 @@ static void PRB480_GenerateReadAuthPageMAC(u8 *secret, u8 *rom, u16 addr, u8 *pa
     for (i = 0; i < 4; i++)
         msg[48 + i] = secret[4 + i];
 
-    /* 测试历程/表 4：M13[31:8] = FFh, FFh, FFh；challenge 只体现在 M9 */
-    msg[52] = 0xFF;
+    /* 表 4：M13[31:24] = SP6，随后是固定 FFh, FFh */
+    msg[52] = challenge[4];                       /* SP6 */
     msg[53] = 0xFF;
     msg[54] = 0xFF;
 
@@ -702,14 +702,27 @@ static u8 PRB480_LoadChallengeScratchpad(u8 *rom, u16 addr, u8 challenge[5], u8 
     u8 result;                                    /* 保存 challenge 装载结果 */
     u8 i;                                         /* 循环变量 */
 
-    /* 测试历程第四步的 MAC 输入要求 scratchpad 参与字节为 FF。 */
+    /* 表 4 使用 SP2..SP6 作为 5 字节 challenge，其余字节保持 FF。 */
     for (i = 0; i < PRB480_SCRATCHPAD_SIZE; i++)
     {
         frame[i] = 0xFF;
     }
 
-    printf("RAP challenge load: page=0x%04X scratchpad=FF FF FF FF FF FF FF FF\r\n",
-           PRB480_PageStart(addr));
+    for (i = 0; i < 5; i++)
+    {
+        frame[2 + i] = challenge[i];
+    }
+
+    printf("RAP challenge load: page=0x%04X scratchpad=%02X %02X %02X %02X %02X %02X %02X %02X\r\n",
+           PRB480_PageStart(addr),
+           frame[0],
+           frame[1],
+           frame[2],
+           frame[3],
+           frame[4],
+           frame[5],
+           frame[6],
+           frame[7]);
 
     result = PRB480_WriteAndVerifyScratchpad(rom, PRB480_PageStart(addr), frame, es); /* 走图 8a 写入并读回验证一次 */
     if (result)
@@ -1690,9 +1703,10 @@ u8 PRB480_LoadFirstSecret(u8 *rom, u16 addr, u8 *secret, u8 *es)
     PRB480_WriteByte(ta2);                                                             /* 流程图：发送认证字节 TA2，必须来自刚才的 Read Scratchpad */
     PRB480_WriteByte(localEs);                                                         /* 流程图：发送认证字节 E/S，必须与 scratchpad 当前状态一致 */
 
-    PRB480_ResponsePMOS_On();
-    PRB480_PowerPMOS_On();                                                             /* 流程图：tPROG 期间保持 1-Wire 空闲高电平并给芯片供电 */
-    delay_us(10); 
+    // PRB480_ResponsePMOS_On();
+    // PRB480_PowerPMOS_On();                                                             /* 流程图：tPROG 期间保持 1-Wire 空闲高电平并给芯片供电 */
+    //delay_us(500);
+    delay_ms(11);  
 //    PRB480_PowerPMOS_Off();
 
     /*
@@ -1720,6 +1734,7 @@ u8 PRB480_LoadFirstSecret(u8 *rom, u16 addr, u8 *secret, u8 *es)
         {
             break;  /* 连续1，芯片明确拒绝 */
         }
+        delay_ms(1); 
     }
 
 
@@ -2251,11 +2266,12 @@ static u8 PRB480_ReadAuthenticatedPageRaw(u8 *rom, u16 addr, u8 challenge[5], PR
      * 注意：这里只等待，不调用 PRB480_WaitReady()，因为 WaitReady 会读总线，
      * 可能吃掉后续 MAC 数据流的起始 bit，导致 MAC CRC16 错误。
      */
-    PRB480_ResponsePMOS_On();                     /* 保持响应/上拉路径 */
-    PRB480_PowerPMOS_On();                        /* tCSHA 期间保持供电 */
+    // PRB480_ResponsePMOS_On();                     /* 保持响应/上拉路径 */
+    // PRB480_PowerPMOS_On();                        /* tCSHA 期间保持供电 */
     
-    delay_ms(20);                                /* 保守等待，排查 SHA 计算供电/时间边界问题 */
+    delay_ms(5);                                /* 保守等待，排查 SHA 计算供电/时间边界问题 */
 
+    // PRB480_PowerPMOS_Off();
     /* ========== 8. 读取 20 字节 device MAC ========== */
 
     for (i = 0; i < 20; i++)
@@ -2298,7 +2314,7 @@ static u8 PRB480_ReadAuthenticatedPageRaw(u8 *rom, u16 addr, u8 challenge[5], PR
             break;                                /* 连续 1，芯片明确拒绝 */
         }
     }
-    printf("RAP wait tCSHA 20ms\r\n");             /* 调试：确认 A5 SHA 等待使用保守时间 */
+
     /*
      * 无论成功还是失败，都用 Reset 退出 A5 末尾状态循环。
      * 这和 Load First Secret 成功后 Reset 退出 0/1 loop 的思路一致。
