@@ -1,5 +1,5 @@
 Dependencies for Project 'Template', Target 'Target 1': (DO NOT MODIFY !)
-F (.\User\main.c)(0x6A3CDB0E)(-c --cpu Cortex-M4.fp -D__MICROLIB --li -g -O0 --apcs=interwork --split_sections -I .\User -I .\Libraries\CMSIS -I .\Libraries\STM32F4xx_StdPeriph_Driver\inc -I .\APP\led -I .\Public -I .\APP\beep -I .\APP\key -I .\APP\exti -I .\APP\time -I .\APP\pwm -I .\APP\iwdg -I .\APP\wwdg -I .\APP\input -I .\APP\touch_key -I .\APP\rng -I .\APP\wkup -I .\APP\adc -I .\APP\adc_temp -I .\APP\dac -I .\APP\pwm_dac -I .\APP\dma -I .\APP\rtc -I .\APP\24Cxx -I .\APP\iic -I .\APP\ds18b20-I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\Device\ARM\ARMCM4\Include-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DARMCM4_FP -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o .\obj\main.o --omf_browse .\obj\main.crf --depend .\obj\main.d)
+F (.\User\main.c)(0x6A424512)(-c --cpu Cortex-M4.fp -D__MICROLIB --li -g -O0 --apcs=interwork --split_sections -I .\User -I .\Libraries\CMSIS -I .\Libraries\STM32F4xx_StdPeriph_Driver\inc -I .\APP\led -I .\Public -I .\APP\beep -I .\APP\key -I .\APP\exti -I .\APP\time -I .\APP\pwm -I .\APP\iwdg -I .\APP\wwdg -I .\APP\input -I .\APP\touch_key -I .\APP\rng -I .\APP\wkup -I .\APP\adc -I .\APP\adc_temp -I .\APP\dac -I .\APP\pwm_dac -I .\APP\dma -I .\APP\rtc -I .\APP\24Cxx -I .\APP\iic -I .\APP\ds18b20-I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\Device\ARM\ARMCM4\Include-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DARMCM4_FP -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o .\obj\main.o --omf_browse .\obj\main.crf --depend .\obj\main.d)
 I (.\Public\system.h)(0x6A2FCA05)
 I (.\User\stm32f4xx.h)(0x6A2FCA05)
 I (.\Libraries\CMSIS\core_cm4.h)(0x6A2FCA04)
@@ -39,7 +39,7 @@ I (.\Public\SysTick.h)(0x6A2FCA05)
 I (.\APP\led\led.h)(0x6A2FCA04)
 I (.\Public\usart.h)(0x6A2FCA05)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x588B8344)
-I (.\APP\ds18b20\ds18b20.h)(0x6A3A49AB)
+I (.\APP\ds18b20\ds18b20.h)(0x6A41E0DF)
 F (.\User\stm32f4xx_it.c)(0x6A2FCA05)(-c --cpu Cortex-M4.fp -D__MICROLIB --li -g -O0 --apcs=interwork --split_sections -I .\User -I .\Libraries\CMSIS -I .\Libraries\STM32F4xx_StdPeriph_Driver\inc -I .\APP\led -I .\Public -I .\APP\beep -I .\APP\key -I .\APP\exti -I .\APP\time -I .\APP\pwm -I .\APP\iwdg -I .\APP\wwdg -I .\APP\input -I .\APP\touch_key -I .\APP\rng -I .\APP\wkup -I .\APP\adc -I .\APP\adc_temp -I .\APP\dac -I .\APP\pwm_dac -I .\APP\dma -I .\APP\rtc -I .\APP\24Cxx -I .\APP\iic -I .\APP\ds18b20-I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\Device\ARM\ARMCM4\Include-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DARMCM4_FP -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o .\obj\stm32f4xx_it.o --omf_browse .\obj\stm32f4xx_it.crf --depend .\obj\stm32f4xx_it.d)
 I (User\stm32f4xx_it.h)(0x6A2FCA05)
 I (User\stm32f4xx.h)(0x6A2FCA05)
@@ -785,8 +785,8 @@ I (.\Libraries\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_can.h)(0x6A2FCA04)
 I (.\Libraries\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_dac.h)(0x6A2FCA04)
 I (.\Libraries\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_dcmi.h)(0x6A2FCA04)
 I (.\Libraries\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_fsmc.h)(0x6A2FCA04)
-F (.\APP\ds18b20\ds18b20.c)(0x6A3CE578)(-c --cpu Cortex-M4.fp -D__MICROLIB --li -g -O0 --apcs=interwork --split_sections -I .\User -I .\Libraries\CMSIS -I .\Libraries\STM32F4xx_StdPeriph_Driver\inc -I .\APP\led -I .\Public -I .\APP\beep -I .\APP\key -I .\APP\exti -I .\APP\time -I .\APP\pwm -I .\APP\iwdg -I .\APP\wwdg -I .\APP\input -I .\APP\touch_key -I .\APP\rng -I .\APP\wkup -I .\APP\adc -I .\APP\adc_temp -I .\APP\dac -I .\APP\pwm_dac -I .\APP\dma -I .\APP\rtc -I .\APP\24Cxx -I .\APP\iic -I .\APP\ds18b20-I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\Device\ARM\ARMCM4\Include-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DARMCM4_FP -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o .\obj\ds18b20.o --omf_browse .\obj\ds18b20.crf --depend .\obj\ds18b20.d)
-I (APP\ds18b20\ds18b20.h)(0x6A3A49AB)
+F (.\APP\ds18b20\ds18b20.c)(0x6A4466E3)(-c --cpu Cortex-M4.fp -D__MICROLIB --li -g -O0 --apcs=interwork --split_sections -I .\User -I .\Libraries\CMSIS -I .\Libraries\STM32F4xx_StdPeriph_Driver\inc -I .\APP\led -I .\Public -I .\APP\beep -I .\APP\key -I .\APP\exti -I .\APP\time -I .\APP\pwm -I .\APP\iwdg -I .\APP\wwdg -I .\APP\input -I .\APP\touch_key -I .\APP\rng -I .\APP\wkup -I .\APP\adc -I .\APP\adc_temp -I .\APP\dac -I .\APP\pwm_dac -I .\APP\dma -I .\APP\rtc -I .\APP\24Cxx -I .\APP\iic -I .\APP\ds18b20-I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\Device\ARM\ARMCM4\Include-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DARMCM4_FP -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o .\obj\ds18b20.o --omf_browse .\obj\ds18b20.crf --depend .\obj\ds18b20.d)
+I (APP\ds18b20\ds18b20.h)(0x6A41E0DF)
 I (.\Public\system.h)(0x6A2FCA05)
 I (.\User\stm32f4xx.h)(0x6A2FCA05)
 I (.\Libraries\CMSIS\core_cm4.h)(0x6A2FCA04)

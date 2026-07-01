@@ -65,9 +65,9 @@ static u8 PRB480_GetCopyTargetArea(u16 addr);                                   
 static u8 PRB480_GenerateCopyMAC(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 *scratchpad, u8 mac[20]); /* 按目标类型生成写授权 MAC */
 static void PRB480_GenerateCopyDataPageMAC(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 *scratchpad, u8 mac[20]); /* 生成数据页写授权 MAC */
 static u8 PRB480_GenerateCopyConfigPageMAC(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 *scratchpad, u8 mac[20]); /* 生成配置页写授权 MAC */
-static void PRB480_GenerateReadAuthPageMAC(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 challenge[3], u8 mac[20]);  /* 生成认证读校验 MAC */
-static u8 PRB480_LoadChallengeScratchpad(u8 *rom, u16 addr, u8 challenge[3], u8 *es); /* challenge 写入 scratchpad */
-static u8 PRB480_ReadAuthenticatedPageRaw(u8 *rom, u16 addr, u8 challenge[3], PRB480_AuthenticatedPagePacket *packet); /* 原始认证读流程 */
+static void PRB480_GenerateReadAuthPageMAC(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 challenge[5], u8 mac[20]);  /* CODEX: 图 8d 使用 5 字节 challenge 生成认证读校验 MAC */
+static u8 PRB480_LoadChallengeScratchpad(u8 *rom, u16 addr, u8 challenge[5], u8 *es); /* CODEX: 5 字节 challenge 写入 scratchpad */
+static u8 PRB480_ReadAuthenticatedPageRaw(u8 *rom, u16 addr, u8 challenge[5], PRB480_AuthenticatedPagePacket *packet); /* CODEX: 原始认证读流程，5 字节 challenge */
 
 static u8 PRB480_CommandStart(u8 *rom);      /* 发送 Reset + ROM 寻址命令 */
 static u8 PRB480_CheckWriteAddress(u16 addr);/* 检查写地址是否 8 字节对齐 */
@@ -306,7 +306,7 @@ static u8 PRB480_VerifyReadAuthPageCRC(u8 *prefix, u8 prefix_len, u8 *payload, u
 * 名    称         : PRB480_RunMacCompression
 * 功    能         : 按 PRB480/DS28E01 规则计算单个 64 字节块的 SHA-1 压缩结果
 * 说    明         : 这里不是普通 SHA1(message) 的最终摘要输出，
-*                    而是器件认证算法使用的单块压缩后 A/B/C/D/E 原始状态值
+*                    而是器件认证算法使用的单块压缩后 A/B/C/D/E 状态值
 * 输入参数         : message - 64 字节输入块
 * 输出参数         : state   - 5 个 32 位状态字
 * 返 回 值         : 无
@@ -365,7 +365,7 @@ static void PRB480_RunMacCompression(const u8 message[64], u32 state[5])
         a = t;                                    /* 计算结果写回 A */
     }
 
-    /* 输出最终压缩状态 */
+    /* 输出最终压缩状态，PRB480/DS28E01 MAC 使用 80 轮后的 A/B/C/D/E */
     state[0] = a;                                 /* 保存 A */
     state[1] = b;                                 /* 保存 B */
     state[2] = c;                                 /* 保存 C */
@@ -413,14 +413,7 @@ static void PRB480_StateToBusMAC(const u32 state[5], u8 mac[20])
 /*******************************************************************************
 * 名    称         : PRB480_GenerateCopyDataPageMAC
 * 功    能         : 生成 Copy Scratchpad 写授权 MAC
-* 说    明         : 输入块由以下部分组成：
-*                    1. 当前 secret 前 4 字节
-*                    2. 目标页前 28 字节旧数据
-*                    3. scratchpad 中待写入的 8 字节新数据
-*                    4. 页面选择字节
-*                    5. ROM 前 7 字节
-*                    6. 当前 secret 后 4 字节
-*                    7. 固定尾巴
+* 说    明         : 按手册表 3A 拼接数据页 Copy Scratchpad 的 SHA-1 输入块。
 * 输入参数         : secret     - 当前 8 字节 secret
 *                    rom        - 8 字节 ROM ID
 *                    addr       - 目标地址
@@ -620,100 +613,114 @@ static u8 PRB480_GenerateCopyMAC(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 *sc
 /*******************************************************************************
 * 名    称         : PRB480_GenerateReadAuthPageMAC
 * 功    能         : 生成 Read Authenticated Page 的主机侧校验 MAC
-* 说    明         : 输入块由以下部分组成：
-*                    1. 当前 secret 前 4 字节
-*                    2. 32 字节页数据
-*                    3. 4 个 0xFF
-*                    4. 页面选择字节（高 4 位固定 0x4）
-*                    5. ROM 前 7 字节
-*                    6. 当前 secret 后 4 字节
-*                    7. 3 字节 challenge
-*                    8. 固定尾巴
+* 说    明         : 按手册表 4 拼接 Read Authenticated Page 的 SHA-1 输入块。
+*                    按测试历程生成 Read Authenticated Page MAC 输入块；M13[31:8] 固定为 FFh。
 * 输入参数         : secret    - 当前 8 字节 secret
 *                    rom       - 8 字节 ROM ID
 *                    addr      - 目标页首地址
 *                    page      - 32 字节页数据
-*                    challenge - 3 字节 challenge
+*                    challenge - 5 字节 challenge
 * 输出参数         : mac       - 20 字节 MAC
 * 返 回 值         : 无
 *******************************************************************************/
-static void PRB480_GenerateReadAuthPageMAC(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 challenge[3], u8 mac[20])
+static void PRB480_GenerateReadAuthPageMAC(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 challenge[5], u8 mac[20])
 {
     u8 msg[64] = {0};                             /* 认证读使用的 64 字节输入块 */
     u32 state[5];                                 /* 压缩后的内部状态 */
     u8 i;                                         /* 循环变量 */
+    u16 pageStart;                                /* 认证读页首地址 */
 
-    /* 填入 secret 前 4 字节 */
-    for (i = 0; i < 4; i++)                       /* i = 0~3 */
-        msg[i] = secret[i];                       /* msg[0..3] <- secret[0..3] */
+    pageStart = PRB480_PageStart(addr);           /* 表 4 的 MP 使用页首地址 T[7:5] */
 
-    /* 填入 32 字节页数据 */
-    for (i = 0; i < 32; i++)                      /* i = 0~31 */
-        msg[4 + i] = page[i];                     /* msg[4..35] <- page[0..31] */
+    /* 表 4：M0 = SS0..SS3 */
+    for (i = 0; i < 4; i++)
+        msg[i] = secret[i];
 
-    /* 填入 4 个 0xFF */
-    msg[36] = 0xFF;                               /* 固定 FF 1 */
-    msg[37] = 0xFF;                               /* 固定 FF 2 */
-    msg[38] = 0xFF;                               /* 固定 FF 3 */
-    msg[39] = 0xFF;                               /* 固定 FF 4 */
+    /* 表 4：M1..M8 = PP0..PP31 */
+    for (i = 0; i < 32; i++)
+        msg[4 + i] = page[i];
 
-    /* 填入页面选择字节，认证读命令的高 4 位固定为 0x4 */
-    msg[40] = (u8)(0x40 | ((PRB480_PageStart(addr) >> 5) & 0x0F)); /* 0x40 + 页号 */
+    /* 表 4：M9 = SP2, SP3, FFh, FFh */
+    msg[36] = challenge[0];                       /* SP2 */
+    msg[37] = challenge[1];                       /* SP3 */
+    msg[38] = 0xFF;
+    msg[39] = 0xFF;
 
-    /* 填入 ROM 前 7 字节 */
-    for (i = 0; i < 7; i++)                       /* i = 0~6 */
-        msg[41 + i] = rom[i];                     /* msg[41..47] <- rom[0..6] */
+    /* 表 4：M10[31:24] = MP；Read Authenticated Page 为 01000b + T[7:5] */
+    msg[40] = (u8)(0x40 | ((pageStart >> 5) & 0x07));
 
-    /* 填入 secret 后 4 字节 */
-    for (i = 0; i < 4; i++)                       /* i = 0~3 */
-        msg[48 + i] = secret[4 + i];              /* msg[48..51] <- secret[4..7] */
+    /* 表 4：M10/M11 = RN0..RN6，不使用 ROM CRC 字节 */
+    for (i = 0; i < 7; i++)
+        msg[41 + i] = rom[i];
 
-    /* 填入 3 字节 challenge */
-    msg[52] = challenge[0];                       /* challenge 第 1 字节 */
-    msg[53] = challenge[1];                       /* challenge 第 2 字节 */
-    msg[54] = challenge[2];                       /* challenge 第 3 字节 */
+    /* 表 4：M12 = SS4..SS7 */
+    for (i = 0; i < 4; i++)
+        msg[48 + i] = secret[4 + i];
 
-    /* 填入 SHA-1 padding 和长度尾巴 */
-    msg[55] = 0x80;                               /* SHA-1 padding 起始 */
-    msg[56] = 0x00;                               /* 固定 0 */
-    msg[57] = 0x00;                               /* 固定 0 */
-    msg[58] = 0x00;                               /* 固定 0 */
-    msg[59] = 0x00;                               /* 固定 0 */
-    msg[60] = 0x00;                               /* 固定 0 */
-    msg[61] = 0x00;                               /* 固定 0 */
-    msg[62] = 0x01;                               /* 长度高字节 */
-    msg[63] = 0xB8;                               /* 长度低字节 */
+    /* 测试历程/表 4：M13[31:8] = FFh, FFh, FFh；challenge 只体现在 M9 */
+    msg[52] = 0xFF;
+    msg[53] = 0xFF;
+    msg[54] = 0xFF;
 
-    /* 执行单块压缩运算 */
+    /* 表 4：M13[7:0]、M14、M15 为 SHA-1 padding 和 440-bit 长度 */
+    msg[55] = 0x80;
+    msg[56] = 0x00;
+    msg[57] = 0x00;
+    msg[58] = 0x00;
+    msg[59] = 0x00;
+    msg[60] = 0x00;
+    msg[61] = 0x00;
+    msg[62] = 0x01;
+    msg[63] = 0xB8;
+
+    printf("RAP host MAC block:");
+    for (i = 0; i < 64; i++)
+    {
+        printf(" %02X", msg[i]);
+    }
+    printf("\r\n");
+
     PRB480_RunMacCompression(msg, state);         /* 计算内部状态 */
-
-    /* 按器件总线格式导出 MAC */
-    PRB480_StateToBusMAC(state, mac);             /* 输出 20 字节 MAC */
+    PRB480_StateToBusMAC(state, mac);             /* 按器件总线格式导出 MAC */
 }
 
 /*******************************************************************************
 * 名    称         : PRB480_LoadChallengeScratchpad
-* 功    能         : 将 3 字节 challenge 按器件要求装入 scratchpad
-* 说    明         : Read Authenticated Page 使用 scratchpad 的第 4、5、6 号字节
-*                    作为 challenge，因此这里仍走 Figure 8a 的
-*                    Write Scratchpad + Read Scratchpad 验证流程
+* 功    能         : 将 5 字节 challenge 按器件要求装入 scratchpad
+* 说    明         : 按手册表 4，Read Authenticated Page 使用 SP2..SP6
+*                    作为 5 字节 challenge，因此这里通过 Figure 8a
+*                    Write Scratchpad + Read Scratchpad 把它们装入暂存器。
 * 输入参数         : rom       - 目标器件 ROM ID
 *                    addr      - 目标页地址
-*                    challenge - 3 字节 challenge
+*                    challenge - 5 字节 challenge
 * 输出参数         : es        - 验证通过后的 E/S
 * 返 回 值         : 0 成功，1 失败
 *******************************************************************************/
-static u8 PRB480_LoadChallengeScratchpad(u8 *rom, u16 addr, u8 challenge[3], u8 *es)
+static u8 PRB480_LoadChallengeScratchpad(u8 *rom, u16 addr, u8 challenge[5], u8 *es)
 {
     u8 frame[8] = {0};                            /* scratchpad 8 字节临时数据 */
+    u8 result;                                    /* 保存 challenge 装载结果 */
+    u8 i;                                         /* 循环变量 */
 
-    frame[4] = challenge[0];                      /* 第 5 个字节放 challenge[0] */
-    frame[5] = challenge[1];                      /* 第 6 个字节放 challenge[1] */
-    frame[6] = challenge[2];                      /* 第 7 个字节放 challenge[2] */
+    /* 测试历程第四步的 MAC 输入要求 scratchpad 参与字节为 FF。 */
+    for (i = 0; i < PRB480_SCRATCHPAD_SIZE; i++)
+    {
+        frame[i] = 0xFF;
+    }
 
-    return PRB480_WriteAndVerifyScratchpad(rom, PRB480_PageStart(addr), frame, es); /* 走图 8a 验证写流程 */
+    printf("RAP challenge load: page=0x%04X scratchpad=FF FF FF FF FF FF FF FF\r\n",
+           PRB480_PageStart(addr));
+
+    result = PRB480_WriteAndVerifyScratchpad(rom, PRB480_PageStart(addr), frame, es); /* 走图 8a 写入并读回验证一次 */
+    if (result)
+    {
+        printf("RAP FAIL[1]: challenge Write/Read Scratchpad verify failed\r\n");
+        return 1;
+    }
+
+    printf("RAP challenge verified once, keep scratchpad for A5: E/S=0x%02X\r\n", es ? *es : 0xFF);
+    return 0;
 }
-
 
 static u8 PRB480_CheckScratchpadES(u8 es)     /* 检查 Read Scratchpad 读回的 E/S 字节 */
 {                                              
@@ -787,23 +794,23 @@ static u8 PRB480_VerifyScratchpad(u8 *rom, u16 addr, u8 *expected, u8 *ta1, u8 *
 /* ========== PC1 采样 + PG10/PG11 小板 MOS 控制 ========== */
 
 //IO1
-static void PRB480_ResponsePMOS_On(void)
+void PRB480_ResponsePMOS_On(void)
 {
     PRB480_RESP_PMOS = 1;    
 }
 
-static void PRB480_ResponsePMOS_Off(void)
+void PRB480_ResponsePMOS_Off(void)
 {
     PRB480_RESP_PMOS = 0;    
 }
 
 //IO2
-static void PRB480_PowerPMOS_On(void)
+void PRB480_PowerPMOS_On(void)
 {
     PRB480_POWER_PMOS = 0;  
 }
 
-static void PRB480_PowerPMOS_Off(void)
+void PRB480_PowerPMOS_Off(void)
 {
     PRB480_POWER_PMOS = 1;  
 }
@@ -1653,8 +1660,8 @@ u8 PRB480_LoadFirstSecret(u8 *rom, u16 addr, u8 *secret, u8 *es)
     u8 ta1;                                                                            /* 保存 Read Scratchpad 返回的 TA1 */
     u8 ta2;                                                                            /* 保存 Read Scratchpad 返回的 TA2 */
     u8 localEs;                                                                        /* 保存 Read Scratchpad 返回的 E/S */
-    u8 response1;                                                                      /* 保存 5Ah 完成后的第 1 个交替响应字节 */
-    u8 response2;                                                                      /* 保存 5Ah 完成后的第 2 个交替响应字节 */
+    u8 response1 = 0;                                                                      /* 保存 5Ah 完成后的第 1 个交替响应字节 */
+    u8 response2 = 0;                                                                      /* 保存 5Ah 完成后的第 2 个交替响应字节 */
     u8 postEs;                                                                         /* 保存 Load First Secret 完成后重新读到的 E/S */
     u8 retry;                                                                          /* 交替响应循环重试计数 */
 
@@ -2110,89 +2117,266 @@ u8 PRB480_WriteAuthorizedBlock(u8 *rom, u8 *secret, u16 addr, u8 *data, u8 *es, 
 /*******************************************************************************
 * 名    称         : PRB480_ReadAuthenticatedPageRaw
 * 功    能         : 按器件真实总线流程读取认证页原始返回包
-* 说    明         : 该函数只负责：
-*                    1. 装载 challenge 到 scratchpad
-*                    2. 发送 A5h 命令
-*                    3. 接收 page / CRC / device MAC / CRC / trailer
-*                    4. 完成两段 CRC 校验和末尾交替响应检查
-*                    不负责主机侧 MAC 重算
-* 输入参数         : rom       - 目标器件 ROM ID
-*                    addr      - 页首地址，必须 32 字节对齐
-*                    challenge - 3 字节 challenge
-* 输出参数         : packet    - 原始返回包
+* 说    明         : 对应手册 Figure 8d 的 Read Authenticated Page [A5h] 流程。
+*
+*                    重要原则：
+*                    1. A5 命令发出后，先连续读完整个返回包；
+*                    2. 中途不要插入大量 printf；
+*                    3. tCSHA 阶段只等待，不读总线；
+*                    4. MAC 和 MAC CRC 读完后，再读取末尾 0/1 loop；
+*                    5. 读到 AA/55 交替响应后，用 Reset 退出状态循环。
+*
+*                    完整读取顺序：
+*                    1. 装载 5 字节 challenge 到 scratchpad
+*                    2. Reset + ROM 选择
+*                    3. 发送 A5h + TA1 + TA2
+*                    4. 读取 32 字节 page data
+*                    5. 读取 1 字节 FFh separator
+*                    6. 读取 2 字节 page CRC16
+*                    7. 等待 tCSHA，不读总线
+*                    8. 读取 20 字节 device MAC
+*                    9. 读取 2 字节 MAC CRC16
+*                    10. 读取末尾 AA/55 交替响应
+*                    11. Reset 退出状态循环
+*                    12. 打印并校验 page CRC、MAC CRC、trailer
+*
+* 输入参数         : rom       - 目标器件 ROM ID，NULL 表示 Skip ROM
+*                    addr      - 页首地址，必须 32 字节对齐，范围 0x0000~0x007F
+*                    challenge - 5 字节 challenge，来自 scratchpad contents
+*
+* 输出参数         : packet    - 原始认证读返回包
+*
 * 返 回 值         : 0 成功，1 失败
 *******************************************************************************/
-static u8 PRB480_ReadAuthenticatedPageRaw(u8 *rom, u16 addr, u8 challenge[3], PRB480_AuthenticatedPagePacket *packet)
+static u8 PRB480_ReadAuthenticatedPageRaw(u8 *rom, u16 addr, u8 challenge[5], PRB480_AuthenticatedPagePacket *packet)
 {
-    u8 req[3];                                    /* 保存 A5h + TA1 + TA2，用于第一段 CRC 校验 */
-    u8 page_crc_buf[33];                          /* 保存 32 字节页数据 + 分隔字节 0xFF */
-    u8 i;                                         /* 循环变量 */
-    u8 separator;                                 /* 页面数据和 CRC 之间的固定分隔字节 */
-    u8 scratchpadEs;                              /* challenge 写入 scratchpad 后返回的 E/S */
+    u8 req[3];                                    /* 保存 A5h + TA1 + TA2，用于 page CRC16 校验 */
+    u8 page_crc_buf[33];                          /* 保存 32 字节 page data + 1 字节 FFh separator */
+    u8 separator = 0;                             /* page data 后面的固定 FFh 分隔字节 */
+    u8 scratchpadEs = 0;                          /* challenge 写入 scratchpad 后返回的 E/S */
+    u8 response1 = 0;                             /* A5 末尾 0/1 loop 第 1 个状态字节 */
+    u8 response2 = 0;                             /* A5 末尾 0/1 loop 第 2 个状态字节 */
+    u8 retry = 0;                                 /* 读取 0/1 loop 的重试计数 */
+    u8 i = 0;
+    
+    /* ========== 1. 参数检查 ========== */
 
-    /* -------- 执行流程说明 --------
-     * 1. 检查参数与页地址
-     * 2. 把 3 字节 challenge 先写进 scratchpad
-     * 3. 发起新的事务，发送 0xA5 + TA1 + TA2
-     * 4. 接收 32 字节页数据
-     * 5. 接收 0xFF 分隔字节和第 1 段 CRC16
-     * 6. 接收 20 字节 device MAC 和第 2 段 CRC16
-     * 7. 接收末尾交替响应字节
-     * 8. 逐段校验 CRC 和 trailer
+    if (challenge == 0 || packet == 0)
+    {
+        printf("RAP FAIL[0]: null challenge/packet parameter\r\n");
+        return 1;
+    }
+
+    /*
+     * Read Authenticated Page 针对用户数据页：
+     * Page 0: 0x0000~0x001F
+     * Page 1: 0x0020~0x003F
+     * Page 2: 0x0040~0x005F
+     * Page 3: 0x0060~0x007F
+     */
+    if (addr > 0x007F)
+    {
+        printf("RAP FAIL[0]: address 0x%04X is outside user pages\r\n", addr);
+        return 1;
+    }
+
+    /*
+     * A5 读认证页要求从页首开始。
+     * 每页 32 字节，所以页首地址必须 32 字节对齐。
+     */
+    if (addr & 0x001F)
+    {
+        printf("RAP FAIL[0]: address 0x%04X is not 32-byte aligned\r\n", addr);
+        return 1;
+    }
+
+    memset(packet, 0, sizeof(PRB480_AuthenticatedPagePacket)); /* 清空返回包结构体 */
+    memcpy(packet->challenge, challenge, 5);                   /* 记录 5 字节 challenge，便于后续打印和主机 MAC 计算 */
+
+    /* ========== 2. 测试历程模式：A5 前把 scratchpad 明确置为 FF ========== */
+
+    /*
+     * 测试历程第四步的 MAC 输入块中，scratchpad/challenge 相关字节均为 FF。
+     * 当前程序刚执行过 Load First Secret，scratchpad 可能不是上电后的 FF 状态，
+     * 因此这里主动写入 8 字节 FF，确保芯片实际 MAC 输入和测试历程一致。
+     */
+    if (PRB480_LoadChallengeScratchpad(rom, addr, challenge, &scratchpadEs))
+    {
+        return 1;
+    }
+
+
+    // /* ========== 3. 开始 A5 认证读事务 ========== */
+    if (PRB480_CommandStart(rom))
+    {
+        printf("RAP FAIL[2]: Reset/ROM selection failed before A5h\r\n");
+        return 1;
+    }
+
+//    printf("RAP prefix: Reset + ROM selection, then ReadAuth A5\r\n");
+
+    // PRB480_Reset();  /* 复位总线，准备发送 A5h 命令 */
+    // PRB480_SkipROM();  /* 广播方式，寻址所有设备 */
+    
+
+    PRB480_WriteByte(0xA5);                       /* 发送 Read Authenticated Page 命令码 A5h */
+    PRB480_WriteByte((u8)(addr & 0xFF));          /* 发送 TA1：页首地址低字节 */
+    PRB480_WriteByte((u8)(addr >> 8));            /* 发送 TA2：页首地址高字节 */
+
+    /*
+     * A5 命令发出后，先尽量连续读完整个返回包。
+     * 不在这里插入大量 printf，避免 UART 打印造成额外长延时。
      */
 
-    if (challenge == 0 || packet == 0) return 1;  /* challenge 或 packet 为空则失败 */
-    if (addr > 0x007F) return 1;                  /* 认证读页只能读用户数据页 */
-    if (addr & 0x001F) return 1;                  /* 地址必须 32 字节页对齐 */
+    /* ========== 4. 读取 32 字节 page data ========== */
 
-    memset(packet, 0, sizeof(PRB480_AuthenticatedPagePacket)); /* 清空整个返回包结构体 */
-    memcpy(packet->challenge, challenge, 3);                   /* 先把 challenge 记录进返回包，便于调试打印 */
-
-    if (PRB480_LoadChallengeScratchpad(rom, addr, challenge, &scratchpadEs)) return 1; /* 先把 challenge 写入 scratchpad */
-    if (PRB480_CommandStart(rom)) return 1;       /* 再开始新的认证读命令事务 */
-
-    PRB480_WriteByte(0xA5);                       /* 发送 Read Authenticated Page 命令 */
-    PRB480_WriteByte((u8)(addr & 0xFF));          /* 发送页首地址低字节 TA1 */
-    PRB480_WriteByte((u8)(addr >> 8));            /* 发送页首地址高字节 TA2 */
-
-    for (i = 0; i < 32; i++)                      /* 连续读取 32 字节页数据 */
+    for (i = 0; i < 32; i++)
     {
-        packet->page[i] = PRB480_ReadByte();      /* 保存第 i 个页面字节 */
+        packet->page[i] = PRB480_ReadByte();      /* 保存第 i 个页面数据字节 */
     }
 
-    separator = PRB480_ReadByte();                /* 读取页数据后面的固定 0xFF 分隔字节 */
-    if (separator != 0xFF) return 1;              /* 如果不是 0xFF，则总线数据异常 */
+    /* ========== 5. 读取 FFh separator ========== */
 
-    packet->page_crc16 = PRB480_ReadByte();       /* 读取页数据段 CRC16 低字节 */
-    packet->page_crc16 |= ((u16)PRB480_ReadByte() << 8); /* 读取页数据段 CRC16 高字节 */
+    separator = PRB480_ReadByte();                /* page data 后面的固定 FFh 分隔字节 */
 
-    req[0] = 0xA5;                                /* req[0] 保存命令字节 */
-    req[1] = (u8)(addr & 0xFF);                   /* req[1] 保存 TA1 */
-    req[2] = (u8)(addr >> 8);                     /* req[2] 保存 TA2 */
+    /* ========== 6. 读取 page CRC16 ========== */
 
-    memcpy(page_crc_buf, packet->page, 32);       /* 先复制 32 字节页数据 */
-    page_crc_buf[32] = 0xFF;                      /* 再补上分隔字节 0xFF 参与 CRC 校验 */
+    packet->page_crc16 = PRB480_ReadByte();       /* 读取 page CRC16 低字节 */
+    packet->page_crc16 |= ((u16)PRB480_ReadByte() << 8); /* 读取 page CRC16 高字节 */
 
-    if (PRB480_VerifyReadAuthPageCRC(req, 3, page_crc_buf, 33, packet->page_crc16)) return 1; /* 校验第 1 段 CRC16 */
+    /* ========== 7. 等待 tCSHA ========== */
 
-    delay_ms(2);                                  /* 等待器件完成内部 MAC 计算 */
+    /*
+     * Figure 8d 中这里是 BUS MASTER WAITS FOR PRB480 TO COMPUTE。
+     * 注意：这里只等待，不调用 PRB480_WaitReady()，因为 WaitReady 会读总线，
+     * 可能吃掉后续 MAC 数据流的起始 bit，导致 MAC CRC16 错误。
+     */
+    PRB480_ResponsePMOS_On();                     /* 保持响应/上拉路径 */
+    PRB480_PowerPMOS_On();                        /* tCSHA 期间保持供电 */
+    
+    delay_ms(20);                                /* 保守等待，排查 SHA 计算供电/时间边界问题 */
 
-    for (i = 0; i < 20; i++)                      /* 连续读取 20 字节 device MAC */
+    /* ========== 8. 读取 20 字节 device MAC ========== */
+
+    for (i = 0; i < 20; i++)
     {
-        packet->device_mac[i] = PRB480_ReadByte();/* 保存第 i 个 MAC 字节 */
+        packet->device_mac[i] = PRB480_ReadByte();/* 保存器件返回的第 i 个 MAC 字节 */
     }
 
-    packet->mac_crc16 = PRB480_ReadByte();        /* 读取 MAC 段 CRC16 低字节 */
-    packet->mac_crc16 |= ((u16)PRB480_ReadByte() << 8); /* 读取 MAC 段 CRC16 高字节 */
+    /* ========== 9. 读取 MAC CRC16 ========== */
 
-    if (PRB480_VerifyReadAuthPageCRC(packet->device_mac, 20, 0, 0, packet->mac_crc16)) return 1; /* 校验第 2 段 CRC16 */
+    packet->mac_crc16 = PRB480_ReadByte();        /* 读取 MAC CRC16 低字节 */
+    packet->mac_crc16 |= ((u16)PRB480_ReadByte() << 8); /* 读取 MAC CRC16 高字节 */
 
-    packet->trailer[0] = PRB480_ReadByte();       /* 读取末尾第 1 个交替响应字节 */
-    packet->trailer[1] = PRB480_ReadByte();       /* 读取末尾第 2 个交替响应字节 */
+    /* ========== 10. 读取末尾 0/1 loop ========== */
 
-    if (PRB480_CheckAlternatingResponse(packet->trailer[0], packet->trailer[1])) return 1; /* 检查 trailer 是否成功 */
+    /*
+     * A5 成功路径末尾会进入 0/1 loop。
+     * 连续读取 8 bit 通常表现为 AAh 或 55h。
+     * 这里参考 Load First Secret 的处理方式：
+     * - 读到 AA/55 交替位型：认为 A5 流程成功
+     * - 读到 FF FF：认为芯片明确拒绝
+     * - 多次都不是：认为状态异常
+     */
 
-    (void)scratchpadEs;                           /* 当前只保留 challenge 写入已成功这一事实，不再单独使用其值 */
+
+    for (retry = 0; retry < 20; retry++)
+    {
+        response1 = PRB480_ReadByte();            /* 读取 0/1 loop 第 1 个状态字节 */
+        response2 = PRB480_ReadByte();            /* 读取 0/1 loop 第 2 个状态字节 */
+
+        packet->trailer[0] = response1;           /* 保存最近一次状态字节，便于打印 */
+        packet->trailer[1] = response2;           /* 保存最近一次状态字节，便于打印 */
+
+        if (PRB480_CheckAlternatingResponse(response1, response2) == 0)
+        {
+            break;                                /* 收到 AA/55 交替位型，成功 */
+        }
+
+        if (response1 == 0xFF && response2 == 0xFF)
+        {
+            break;                                /* 连续 1，芯片明确拒绝 */
+        }
+    }
+    printf("RAP wait tCSHA 20ms\r\n");             /* 调试：确认 A5 SHA 等待使用保守时间 */
+    /*
+     * 无论成功还是失败，都用 Reset 退出 A5 末尾状态循环。
+     * 这和 Load First Secret 成功后 Reset 退出 0/1 loop 的思路一致。
+     */
+    PRB480_Reset();
+
+    /* ========== 11. 打印 page data ========== */
+
+    printf("RAP page:");
+    for (i = 0; i < 32; i++)
+    {
+        printf(" %02X", packet->page[i]);
+    }
+    printf("\r\n");
+
+    /* ========== 12. 检查 FFh separator ========== */
+
+    printf("RAP separator=0x%02X\r\n", separator);
+
+    if (separator != 0xFF)
+    {
+        printf("RAP FAIL[3]: separator expected FF, got %02X\r\n", separator);
+        return 1;
+    }
+
+    /* ========== 13. 校验 page CRC16 ========== */
+
+    printf("RAP page CRC16(bus)=0x%04X\r\n", packet->page_crc16);
+
+    req[0] = 0xA5;                                /* CRC 输入：命令字节 */
+    req[1] = (u8)(addr & 0xFF);                   /* CRC 输入：TA1 */
+    req[2] = (u8)(addr >> 8);                     /* CRC 输入：TA2 */
+
+    memcpy(page_crc_buf, packet->page, 32);       /* CRC 输入：32 字节 page data */
+    page_crc_buf[32] = 0xFF;                      /* CRC 输入：FFh separator */
+
+    if (PRB480_VerifyReadAuthPageCRC(req, 3, page_crc_buf, 33, packet->page_crc16))
+    {
+        printf("RAP FAIL[4]: page CRC16 mismatch\r\n");
+        return 1;
+    }
+
+    printf("RAP page CRC16 OK\r\n");
+
+    /* ========== 14. 打印并校验 device MAC CRC16 ========== */
+
+    printf("RAP device MAC:");
+    for (i = 0; i < 20; i++)
+    {
+        printf(" %02X", packet->device_mac[i]);
+    }
+    printf("\r\n");
+
+    printf("RAP MAC CRC16(bus)=0x%04X\r\n", packet->mac_crc16);
+
+    if (PRB480_VerifyReadAuthPageCRC(packet->device_mac, 20, 0, 0, packet->mac_crc16))
+    {
+        printf("RAP FAIL[5]: MAC CRC16 mismatch\r\n");
+        return 1;
+    }
+
+    printf("RAP MAC CRC16 OK\r\n");
+
+    /* ========== 15. 检查 A5 末尾 0/1 loop ========== */
+
+    printf("RAP trailer: %02X %02X\r\n",
+           packet->trailer[0], packet->trailer[1]);
+
+    if (PRB480_CheckAlternatingResponse(packet->trailer[0], packet->trailer[1]))
+    {
+        printf("RAP FAIL[6]: trailer/status loop invalid\r\n");
+        return 1;
+    }
+
+    printf("RAP trailer OK\r\n");
+
+    (void)scratchpadEs;                           /* 当前只保留 challenge 写入成功这一事实，不再单独使用 E/S */
+
     return 0;                                     /* 原始认证读总线流程成功 */
 }
 
@@ -2204,22 +2388,52 @@ static u8 PRB480_ReadAuthenticatedPageRaw(u8 *rom, u16 addr, u8 challenge[3], PR
 * 输入参数         : rom       - 目标器件 ROM ID
 *                    secret    - 当前 8 字节 secret
 *                    addr      - 页首地址
-*                    challenge - 3 字节 challenge
+*                    challenge - 5 字节 challenge
 * 输出参数         : packet    - 完整返回包
 * 返 回 值         : 0 成功，1 失败
 *******************************************************************************/
-u8 PRB480_ReadAuthenticatedPageEx(u8 *rom, u8 *secret, u16 addr, u8 challenge[3], PRB480_AuthenticatedPagePacket *packet)
+u8 PRB480_ReadAuthenticatedPageEx(u8 *rom, u8 *secret, u16 addr, u8 challenge[5], PRB480_AuthenticatedPagePacket *packet)
 {
+    u8 i;                                                                                       /* 调试打印循环变量 */
     /* -------- 执行流程说明 --------
      * 1. 先执行原始总线认证读流程
      * 2. 再由主机用同样输入重算 20 字节 MAC
      * 3. 比较 host_mac 与 device_mac 是否完全一致
      */
 
-    if (secret == 0 || challenge == 0 || packet == 0) return 1;                                  /* 参数为空直接失败 */
+    /* CODEX DEBUG BEGIN: Step 3 MAC comparison diagnostics */
+    if (secret == 0 || challenge == 0 || packet == 0)
+    {
+        printf("RAP FAIL[0]: null secret/challenge/packet parameter\r\n");
+        return 1;
+    }
     if (PRB480_ReadAuthenticatedPageRaw(rom, addr, challenge, packet)) return 1;                 /* 先走原始认证读流程 */   
 
     PRB480_GenerateReadAuthPageMAC(secret, rom, addr, packet->page, challenge, packet->host_mac); /* 主机侧重算 MAC */
 
-    return (memcmp(packet->host_mac, packet->device_mac, 20) == 0) ? 0 : 1;                       /* 对比主机和器件 MAC */
+    printf("RAP host MAC:  ");
+    for (i = 0; i < 20; i++)
+    {
+        printf(" %02X", packet->host_mac[i]);
+    }
+    printf("\r\n");
+
+    if (memcmp(packet->host_mac, packet->device_mac, 20) != 0)
+    {
+        printf("RAP FAIL[7]: host MAC != device MAC\r\n");
+        for (i = 0; i < 20; i++)
+        {
+            if (packet->host_mac[i] != packet->device_mac[i])
+            {
+                printf("RAP first MAC diff: index=%u device=%02X host=%02X\r\n",
+                       i, packet->device_mac[i], packet->host_mac[i]);
+                break;
+            }
+        }
+        return 1;
+    }
+
+    printf("RAP MAC compare OK\r\n");
+    return 0;
+    /* CODEX DEBUG END */
 }

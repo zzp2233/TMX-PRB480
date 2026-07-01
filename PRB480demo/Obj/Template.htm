@@ -3,9 +3,9 @@
 <title>Static Call Graph - [.\Obj\Template.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Obj\Template.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Thu Jun 25 16:23:30 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Wed Jul 01 09:01:30 2026
 <BR><P>
-<H3>Maximum Stack Usage =        784 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =        976 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
 main &rArr; PRB480_CopyScratchpadVerified &rArr; PRB480_GenerateCopyMAC &rArr; PRB480_GenerateCopyDataPageMAC &rArr; PRB480_RunMacCompression
 <P>
@@ -607,18 +607,18 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 228<LI>Call Chain = PRB480_CopyScratchpad &rArr; PRB480_VerifyPostCopyScratchpad &rArr; PRB480_ReadScratchpad &rArr; PRB480_ReadByte &rArr; PRB480_ReadBit &rArr; PRB480_IO_ANALOG &rArr; GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[88]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_ms
+<LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PowerPMOS_Off
 <LI><a href="#[89]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WaitCopyResult
 <LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_VerifyPostCopyScratchpad
-<LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_On
-<LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PowerPMOS_On
-<LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PowerPMOS_Off
 <LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_GetCopyTargetArea
 <LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CommandStart
 <LI><a href="#[83]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CheckWriteAddress
 <LI><a href="#[84]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CheckScratchpadES
 <LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 <LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteByte
+<LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_On
 <LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
+<LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PowerPMOS_On
 </UL>
 <BR>[Called By]<UL><LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CopyScratchpadVerified
 </UL>
@@ -657,8 +657,8 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 52<LI>Call Chain = PRB480_Init &rArr; PRB480_Reset &rArr; PRB480_IO_IN &rArr; GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[88]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_ms
-<LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_On
 <LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PowerPMOS_Off
+<LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_On
 <LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
 <LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_IO_IN
 </UL>
@@ -670,8 +670,6 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_VerifyScratchpad
 <LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_VerifyPostCopyScratchpad
-<LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_On
-<LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PowerPMOS_On
 <LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CommandStart
 <LI><a href="#[83]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CheckWriteAddress
 <LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CheckAlternatingResponse
@@ -679,8 +677,10 @@ Global Symbols
 <LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 <LI><a href="#[8e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteScratchpad
 <LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteByte
+<LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_On
 <LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
 <LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
+<LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PowerPMOS_On
 </UL>
 <BR>[Called By]<UL><LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -693,11 +693,29 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CommandStart
 </UL>
 
-<P><STRONG><a name="[a8]"></a>PRB480_ReadAuthenticatedPageEx</STRONG> (Thumb, 88 bytes, Stack size 32 bytes, ds18b20.o(i.PRB480_ReadAuthenticatedPageEx))
-<BR><BR>[Stack]<UL><LI>Max Depth = 504<LI>Call Chain = PRB480_ReadAuthenticatedPageEx &rArr; PRB480_GenerateReadAuthPageMAC &rArr; PRB480_RunMacCompression
+<P><STRONG><a name="[7a]"></a>PRB480_PowerPMOS_Off</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, ds18b20.o(i.PRB480_PowerPMOS_Off))
+<BR><BR>[Called By]<UL><LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Init
+<LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_BoardInterfaceConfig
+<LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
+<LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteByte
+<LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteBit
+<LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
+<LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadBit
+<LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CopyScratchpad
+</UL>
+
+<P><STRONG><a name="[87]"></a>PRB480_PowerPMOS_On</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, ds18b20.o(i.PRB480_PowerPMOS_On))
+<BR><BR>[Called By]<UL><LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_LoadFirstSecret
+<LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadBit
+<LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CopyScratchpad
+</UL>
+
+<P><STRONG><a name="[a8]"></a>PRB480_ReadAuthenticatedPageEx</STRONG> (Thumb, 192 bytes, Stack size 40 bytes, ds18b20.o(i.PRB480_ReadAuthenticatedPageEx))
+<BR><BR>[Stack]<UL><LI>Max Depth = 512<LI>Call Chain = PRB480_ReadAuthenticatedPageEx &rArr; PRB480_GenerateReadAuthPageMAC &rArr; PRB480_RunMacCompression
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadAuthenticatedPageRaw
 <LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_GenerateReadAuthPageMAC
+<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 <LI><a href="#[90]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;memcmp
 </UL>
 <BR>[Called By]<UL><LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
@@ -706,13 +724,13 @@ Global Symbols
 <P><STRONG><a name="[ac]"></a>PRB480_ReadBit</STRONG> (Thumb, 116 bytes, Stack size 16 bytes, ds18b20.o(i.PRB480_ReadBit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 52<LI>Call Chain = PRB480_ReadBit &rArr; PRB480_IO_ANALOG &rArr; GPIO_Init
 </UL>
-<BR>[Calls]<UL><LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_On
-<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_Off
-<LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadAdcRaw
-<LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PowerPMOS_On
+<BR>[Calls]<UL><LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_Off
 <LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PowerPMOS_Off
+<LI><a href="#[a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadAdcRaw
 <LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_IO_ANALOG
 <LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_us
+<LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_On
+<LI><a href="#[87]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PowerPMOS_On
 <LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_IO_IN
 </UL>
 <BR>[Called By]<UL><LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
@@ -773,16 +791,35 @@ Global Symbols
 <P><STRONG><a name="[7e]"></a>PRB480_Reset</STRONG> (Thumb, 36 bytes, Stack size 8 bytes, ds18b20.o(i.PRB480_Reset))
 <BR><BR>[Stack]<UL><LI>Max Depth = 44<LI>Call Chain = PRB480_Reset &rArr; PRB480_IO_IN &rArr; GPIO_Init
 </UL>
-<BR>[Calls]<UL><LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_On
-<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_Off
+<BR>[Calls]<UL><LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_Off
 <LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PowerPMOS_Off
 <LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_us
+<LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_On
 <LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_IO_IN
 </UL>
 <BR>[Called By]<UL><LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadROM
 <LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_LoadFirstSecret
 <LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Init
+<LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadAuthenticatedPageRaw
 <LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CommandStart
+<LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CopyScratchpad
+</UL>
+
+<P><STRONG><a name="[79]"></a>PRB480_ResponsePMOS_Off</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, ds18b20.o(i.PRB480_ResponsePMOS_Off))
+<BR><BR>[Called By]<UL><LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_BoardInterfaceConfig
+<LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
+<LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteBit
+<LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
+<LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadBit
+</UL>
+
+<P><STRONG><a name="[86]"></a>PRB480_ResponsePMOS_On</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, ds18b20.o(i.PRB480_ResponsePMOS_On))
+<BR><BR>[Called By]<UL><LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_LoadFirstSecret
+<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Init
+<LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteByte
+<LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteBit
+<LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
+<LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadBit
 <LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CopyScratchpad
 </UL>
 
@@ -806,11 +843,11 @@ Global Symbols
 <P><STRONG><a name="[b1]"></a>PRB480_WriteBit</STRONG> (Thumb, 66 bytes, Stack size 8 bytes, ds18b20.o(i.PRB480_WriteBit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = PRB480_WriteBit &rArr; PRB480_DelayTlow
 </UL>
-<BR>[Calls]<UL><LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_On
-<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_Off
+<BR>[Calls]<UL><LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_Off
 <LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PowerPMOS_Off
 <LI><a href="#[b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_DelayTlow
 <LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_us
+<LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_On
 </UL>
 <BR>[Called By]<UL><LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteByte
 </UL>
@@ -818,9 +855,9 @@ Global Symbols
 <P><STRONG><a name="[85]"></a>PRB480_WriteByte</STRONG> (Thumb, 36 bytes, Stack size 16 bytes, ds18b20.o(i.PRB480_WriteByte))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = PRB480_WriteByte &rArr; PRB480_WriteBit &rArr; PRB480_DelayTlow
 </UL>
-<BR>[Calls]<UL><LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_On
-<LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PowerPMOS_Off
+<BR>[Calls]<UL><LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PowerPMOS_Off
 <LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteBit
+<LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_On
 </UL>
 <BR>[Called By]<UL><LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadROM
 <LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadMemory
@@ -969,9 +1006,13 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = __2printf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadROM
+<LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadAuthenticatedPageEx
 <LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_LoadFirstSecret
 <LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CopyScratchpadVerified
 <LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
+<LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadAuthenticatedPageRaw
+<LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_LoadChallengeScratchpad
+<LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_GenerateReadAuthPageMAC
 <LI><a href="#[91]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_GenerateCopyMAC
 <LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_AdcLogDump
 <LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CopyScratchpad
@@ -1014,15 +1055,17 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> printf8.o(i.__0printf$8)
 </UL>
-<P><STRONG><a name="[5c]"></a>main</STRONG> (Thumb, 644 bytes, Stack size 192 bytes, main.o(i.main))
-<BR><BR>[Stack]<UL><LI>Max Depth = 784<LI>Call Chain = main &rArr; PRB480_CopyScratchpadVerified &rArr; PRB480_GenerateCopyMAC &rArr; PRB480_GenerateCopyDataPageMAC &rArr; PRB480_RunMacCompression
+<P><STRONG><a name="[5c]"></a>main</STRONG> (Thumb, 814 bytes, Stack size 384 bytes, main.o(i.main))
+<BR><BR>[Stack]<UL><LI>Max Depth = 976<LI>Call Chain = main &rArr; PRB480_CopyScratchpadVerified &rArr; PRB480_GenerateCopyMAC &rArr; PRB480_GenerateCopyDataPageMAC &rArr; PRB480_RunMacCompression
 </UL>
 <BR>[Calls]<UL><LI><a href="#[88]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_ms
 <LI><a href="#[b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART1_Init
 <LI><a href="#[b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SysTick_Init
+<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_Off
 <LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadROM
 <LI><a href="#[8d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadMemory
 <LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadAuthenticatedPageEx
+<LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PowerPMOS_Off
 <LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_LoadFirstSecret
 <LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Init
 <LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CopyScratchpadVerified
@@ -1150,12 +1193,13 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CopyScratchpadVerified
 </UL>
 
-<P><STRONG><a name="[97]"></a>PRB480_GenerateReadAuthPageMAC</STRONG> (Thumb, 230 bytes, Stack size 120 bytes, ds18b20.o(i.PRB480_GenerateReadAuthPageMAC))
+<P><STRONG><a name="[97]"></a>PRB480_GenerateReadAuthPageMAC</STRONG> (Thumb, 270 bytes, Stack size 120 bytes, ds18b20.o(i.PRB480_GenerateReadAuthPageMAC))
 <BR><BR>[Stack]<UL><LI>Max Depth = 472<LI>Call Chain = PRB480_GenerateReadAuthPageMAC &rArr; PRB480_RunMacCompression
 </UL>
 <BR>[Calls]<UL><LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_StateToBusMAC
 <LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_RunMacCompression
 <LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PageStart
+<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 <LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
 <BR>[Called By]<UL><LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadAuthenticatedPageEx
@@ -1177,10 +1221,11 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadBit
 </UL>
 
-<P><STRONG><a name="[9b]"></a>PRB480_LoadChallengeScratchpad</STRONG> (Thumb, 60 bytes, Stack size 32 bytes, ds18b20.o(i.PRB480_LoadChallengeScratchpad))
-<BR><BR>[Stack]<UL><LI>Max Depth = 276<LI>Call Chain = PRB480_LoadChallengeScratchpad &rArr; PRB480_WriteAndVerifyScratchpad &rArr; PRB480_VerifyScratchpad &rArr; PRB480_ReadScratchpad &rArr; PRB480_ReadByte &rArr; PRB480_ReadBit &rArr; PRB480_IO_ANALOG &rArr; GPIO_Init
+<P><STRONG><a name="[9b]"></a>PRB480_LoadChallengeScratchpad</STRONG> (Thumb, 108 bytes, Stack size 40 bytes, ds18b20.o(i.PRB480_LoadChallengeScratchpad))
+<BR><BR>[Stack]<UL><LI>Max Depth = 284<LI>Call Chain = PRB480_LoadChallengeScratchpad &rArr; PRB480_WriteAndVerifyScratchpad &rArr; PRB480_VerifyScratchpad &rArr; PRB480_ReadScratchpad &rArr; PRB480_ReadByte &rArr; PRB480_ReadBit &rArr; PRB480_IO_ANALOG &rArr; GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[8c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PageStart
+<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 <LI><a href="#[9c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteAndVerifyScratchpad
 </UL>
 <BR>[Called By]<UL><LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadAuthenticatedPageRaw
@@ -1191,22 +1236,6 @@ Local Symbols
 <LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_LoadChallengeScratchpad
 <LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_GenerateReadAuthPageMAC
 <LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_GenerateCopyDataPageMAC
-</UL>
-
-<P><STRONG><a name="[7a]"></a>PRB480_PowerPMOS_Off</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, ds18b20.o(i.PRB480_PowerPMOS_Off))
-<BR><BR>[Called By]<UL><LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Init
-<LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_BoardInterfaceConfig
-<LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteByte
-<LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteBit
-<LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
-<LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadBit
-<LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CopyScratchpad
-</UL>
-
-<P><STRONG><a name="[87]"></a>PRB480_PowerPMOS_On</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, ds18b20.o(i.PRB480_PowerPMOS_On))
-<BR><BR>[Called By]<UL><LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_LoadFirstSecret
-<LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadBit
-<LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CopyScratchpad
 </UL>
 
 <P><STRONG><a name="[a2]"></a>PRB480_ReadAdcRaw</STRONG> (Thumb, 50 bytes, Stack size 8 bytes, ds18b20.o(i.PRB480_ReadAdcRaw))
@@ -1221,37 +1250,22 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadBit
 </UL>
 
-<P><STRONG><a name="[a9]"></a>PRB480_ReadAuthenticatedPageRaw</STRONG> (Thumb, 336 bytes, Stack size 80 bytes, ds18b20.o(i.PRB480_ReadAuthenticatedPageRaw))
-<BR><BR>[Stack]<UL><LI>Max Depth = 356<LI>Call Chain = PRB480_ReadAuthenticatedPageRaw &rArr; PRB480_LoadChallengeScratchpad &rArr; PRB480_WriteAndVerifyScratchpad &rArr; PRB480_VerifyScratchpad &rArr; PRB480_ReadScratchpad &rArr; PRB480_ReadByte &rArr; PRB480_ReadBit &rArr; PRB480_IO_ANALOG &rArr; GPIO_Init
+<P><STRONG><a name="[a9]"></a>PRB480_ReadAuthenticatedPageRaw</STRONG> (Thumb, 596 bytes, Stack size 104 bytes, ds18b20.o(i.PRB480_ReadAuthenticatedPageRaw))
+<BR><BR>[Stack]<UL><LI>Max Depth = 388<LI>Call Chain = PRB480_ReadAuthenticatedPageRaw &rArr; PRB480_LoadChallengeScratchpad &rArr; PRB480_WriteAndVerifyScratchpad &rArr; PRB480_VerifyScratchpad &rArr; PRB480_ReadScratchpad &rArr; PRB480_ReadByte &rArr; PRB480_ReadBit &rArr; PRB480_IO_ANALOG &rArr; GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[88]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_ms
 <LI><a href="#[ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_VerifyReadAuthPageCRC
 <LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_LoadChallengeScratchpad
 <LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CommandStart
 <LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CheckAlternatingResponse
+<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 <LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr
 <LI><a href="#[aa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 <LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteByte
+<LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
 <LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
 </UL>
 <BR>[Called By]<UL><LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadAuthenticatedPageEx
-</UL>
-
-<P><STRONG><a name="[79]"></a>PRB480_ResponsePMOS_Off</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, ds18b20.o(i.PRB480_ResponsePMOS_Off))
-<BR><BR>[Called By]<UL><LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_BoardInterfaceConfig
-<LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteBit
-<LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
-<LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadBit
-</UL>
-
-<P><STRONG><a name="[86]"></a>PRB480_ResponsePMOS_On</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, ds18b20.o(i.PRB480_ResponsePMOS_On))
-<BR><BR>[Called By]<UL><LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_LoadFirstSecret
-<LI><a href="#[9a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Init
-<LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteByte
-<LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteBit
-<LI><a href="#[7e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
-<LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadBit
-<LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CopyScratchpad
 </UL>
 
 <P><STRONG><a name="[94]"></a>PRB480_RunMacCompression</STRONG> (Thumb, 336 bytes, Stack size 352 bytes, ds18b20.o(i.PRB480_RunMacCompression))

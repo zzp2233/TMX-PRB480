@@ -23,8 +23,8 @@ int main(void)
     u8 writeData[8] = {0x18, 0x29, 0x3F, 0x4E, 0x5D, 0x6C, 0x7B, 0x8A};
     /* 准备写入地址 0x0000 的 8 字节用户数据 */
 
-    u8 challenge[3] = {0xAB, 0xCD, 0xEF};
-    /* Read Authenticated Page 使用的 3 字节 challenge */
+    u8 challenge[5] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+    /* CODEX: 测试历程第四步使用全 FF scratchpad/challenge，MP=0x43 由地址 0x0060 生成 */
 
     u8 copyMac[20] = {0};
     /* 主机侧实时计算得到的 Copy Scratchpad 认证 MAC */
@@ -49,6 +49,12 @@ int main(void)
 
     PRB480_AuthenticatedPagePacket authPacket;
     /* 保存认证读页返回的完整结果包 */
+
+    u8 config[24];
+    /* 保存从 0x0088~0x009F 配置页读出的 24 字节数据 */
+
+    u8 chipData[160];
+    u16 addr;
 
     /* ========== 系统初始化 ========== */
     SysTick_Init(168);                          /* 初始化系统滴答定时器 (168MHz) */
@@ -103,6 +109,45 @@ int main(void)
     }
     printf("\r\n");                                 /* secret 打印结束换行 */
 
+
+    /* ========== Step 1.5: 读取配置页 0x0088~0x009F ========== */
+    if (PRB480_ReadMemory(useRom, 0x0088, config, 24) == 0)
+    {
+        printf("Config 0x0088-0x009F:");
+        for (i = 0; i < 24; i++)
+            printf(" %02X", config[i]);
+        printf("\r\n");
+    }
+    else
+    {
+        printf("Read config failed\r\n");
+    }
+
+    if (PRB480_ReadMemory(useRom, 0x0000, chipData, 160) == 0)
+    {
+        printf("Read Memory 0x0000-0x009F:\r\n");
+
+        for (addr = 0; addr < 160; addr++)
+        {
+            if ((addr & 0x07) == 0)
+            {
+                printf("0x%04X:", addr);
+            }
+
+            printf(" %02X", chipData[addr]);
+
+            if ((addr & 0x07) == 0x07)
+            {
+                printf("\r\n");
+            }
+        }
+    }
+    else
+    {
+        printf("Read Memory 0x0000-0x009F failed\r\n");
+    }
+
+
     /* ========== Step 2: 加载第一密钥 ========== */
     /* 流程：
      * 1. WriteScratchpad 0x0080 地址写入密钥数据
@@ -110,6 +155,13 @@ int main(void)
      * 3. LoadFirstSecret 加载密钥到内部存储
      * 验证器返回 E/S 字节表示操作状态
      */
+    printf("PRB480 useRom ID:");                  /* 打印 ROM 头 */
+    for(i = 0; i < 8; i++)                     /* 逐字节打印 8 字节 ROM */
+    {
+        printf(" %02X", useRom[i]);               /* 打印第 i 个字节 */
+    }
+    printf("\r\n");                            /* 换行结束 */
+
     if(PRB480_LoadFirstSecret(useRom, 0x0080, secret, &es) == 0)
     {
         printf("Load First Secret OK, E/S=0x%02X\r\n", es);
@@ -119,10 +171,10 @@ int main(void)
         printf("Load First Secret failed\r\n");
     }
 
-    /* ========== Step 3: 认证读页面 ========== */
+    /* ========== Step 3: 认证读页面（手册 Figure 8a + Figure 8d） ========== */
     /* 完整流程：
-     * 1. 先把 challenge 写入 scratchpad 指定字节
-     * 2. 执行 Read Authenticated Page (0xA5)
+     * 1. 按 Figure 8a 把 challenge 写入 scratchpad 并读回验证
+     * 2. 按 Figure 8d 执行 Read Authenticated Page (0xA5) 分支
      * 3. 读取 page / CRC16 / device MAC / CRC16 / trailer
      * 4. 主机侧用相同输入重算 MAC，与器件返回的 MAC 比较
      */
@@ -131,7 +183,7 @@ int main(void)
         printf("Read Authenticated Page OK\r\n");  /* 认证读成功 */
 
         printf("Challenge:");                      /* 打印 challenge 标题 */
-        for(i = 0; i < 3; i++)                     /* 逐字节打印 3 字节 challenge */
+        for(i = 0; i < 5; i++)                     /* CODEX: 逐字节打印 5 字节 challenge */
             printf(" %02X", authPacket.challenge[i]); /* 打印第 i 个 challenge 字节 */
         printf("\r\n");                            /* challenge 打印结束换行 */
 
@@ -219,6 +271,9 @@ int main(void)
     }
 
     /* ========== 完成，进入死循环闪灯 ========== */
+    PRB480_ResponsePMOS_Off();
+    PRB480_PowerPMOS_Off();
+
     while(1)
     {
         LED1 = !LED1;  /* 切换 LED1 状态 */

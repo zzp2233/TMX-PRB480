@@ -9,6 +9,16 @@
 #define PRB480_RESP_PMOS     PGout(10)  /* IO1/PG10：响应 PMOS 控制 */
 #define PRB480_POWER_PMOS    PGout(11)  /* IO2/PG11：额外供电 PMOS 控制 */
 
+
+void PRB480_ResponsePMOS_On(void);        /* 打开响应 PMOS，PC1 可采样 IO3 */
+void PRB480_ResponsePMOS_Off(void);       /* 关闭响应 PMOS，PC1 采样 IO3 为高阻态 */
+void PRB480_PowerPMOS_On(void);           /* 打开功率 PMOS，PC1 采样 IO3 为高阻态 */
+void PRB480_PowerPMOS_Off(void);          /* 关闭功率 PMOS，PC1 采样 IO3 为高阻态 */
+
+
+void TMX_Delay_us(u32 us);
+void TMX_Delay_ms(u32 ms);
+
 /* ========== 1-Wire 低层通信函数 ========== */
 void PRB480_IO_IN(void);        /* 配置 PC1/IO3 为输入模式 */
 void PRB480_IO_OUT(void);       /* 兼容旧接口，PC1 不再作为输出驱动 */
@@ -127,7 +137,7 @@ u8 PRB480_ReadAuthenticatedPage(u8 *rom, u16 addr, u8 page[32], u8 mac[20]);
 typedef struct
 {
     u8 page[32];           /* 认证读命令返回的 32 字节页面数据 */
-    u8 challenge[3];       /* 主机在认证读前写入 scratchpad 的 3 字节 challenge */
+    u8 challenge[5];       /* CODEX: 图 8d 使用 scratchpad 中的 5 字节 challenge */
     u8 device_mac[20];     /* 器件返回的 20 字节 MAC */
     u8 host_mac[20];       /* 主机用同样输入重算得到的 20 字节 MAC */
     u16 page_crc16;        /* 页面数据段返回的 CRC16 */
@@ -154,11 +164,11 @@ u8 PRB480_WriteAuthorizedBlock(u8 *rom, u8 *secret, u16 addr, u8 *data, u8 *es, 
 * 输入参数         : rom       - 目标器件 ROM ID，NULL 表示 Skip ROM
 *                    secret    - 当前 8 字节 secret
 *                    addr      - 目标页首地址，必须 32 字节对齐
-*                    challenge - 3 字节 challenge
+*                    challenge - 5 字节 challenge，来自 scratchpad contents
 * 输出参数         : packet    - 完整返回包
 * 返 回 值         : 0 成功，1 失败
 *******************************************************************************/
-u8 PRB480_ReadAuthenticatedPageEx(u8 *rom, u8 *secret, u16 addr, u8 challenge[3], PRB480_AuthenticatedPagePacket *packet);
+u8 PRB480_ReadAuthenticatedPageEx(u8 *rom, u8 *secret, u16 addr, u8 challenge[5], PRB480_AuthenticatedPagePacket *packet);
 
 u8 PRB480_LoadPartialSecretScratchpad(u8 *rom, u16 addr, u8 partial[8], u8 *es);       /* 写入 Compute Next Secret 使用的 8 字节 partial secret */
 u8 PRB480_ComputeNextSecret(u8 *rom, u16 addr);                                       /* 0x33 - Compute Next Secret，生成下一阶段密钥 */

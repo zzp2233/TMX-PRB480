@@ -11,13 +11,15 @@ Section Cross References
     main.o(i.main) refers to led.o(i.LED_Init) for LED_Init
     main.o(i.main) refers to ds18b20.o(i.PRB480_BoardInterfaceConfig) for PRB480_BoardInterfaceConfig
     main.o(i.main) refers to ds18b20.o(i.PRB480_Init) for PRB480_Init
-    main.o(i.main) refers to printf8.o(i.__0printf$8) for __2printf
     main.o(i.main) refers to ds18b20.o(i.PRB480_ReadROM) for PRB480_ReadROM
+    main.o(i.main) refers to printf8.o(i.__0printf$8) for __2printf
     main.o(i.main) refers to systick.o(i.delay_ms) for delay_ms
+    main.o(i.main) refers to ds18b20.o(i.PRB480_ReadMemory) for PRB480_ReadMemory
     main.o(i.main) refers to ds18b20.o(i.PRB480_LoadFirstSecret) for PRB480_LoadFirstSecret
     main.o(i.main) refers to ds18b20.o(i.PRB480_ReadAuthenticatedPageEx) for PRB480_ReadAuthenticatedPageEx
     main.o(i.main) refers to ds18b20.o(i.PRB480_CopyScratchpadVerified) for PRB480_CopyScratchpadVerified
-    main.o(i.main) refers to ds18b20.o(i.PRB480_ReadMemory) for PRB480_ReadMemory
+    main.o(i.main) refers to ds18b20.o(i.PRB480_ResponsePMOS_Off) for PRB480_ResponsePMOS_Off
+    main.o(i.main) refers to ds18b20.o(i.PRB480_PowerPMOS_Off) for PRB480_PowerPMOS_Off
     startup_stm32f40_41xxx.o(RESET) refers to startup_stm32f40_41xxx.o(STACK) for __initial_sp
     startup_stm32f40_41xxx.o(RESET) refers to startup_stm32f40_41xxx.o(.text) for Reset_Handler
     startup_stm32f40_41xxx.o(RESET) refers to stm32f4xx_it.o(i.NMI_Handler) for NMI_Handler
@@ -210,6 +212,7 @@ Section Cross References
     ds18b20.o(i.PRB480_GenerateCopyMAC) refers to printf8.o(i.__0printf$8) for __2printf
     ds18b20.o(i.PRB480_GenerateReadAuthPageMAC) refers to memseta.o(.text) for __aeabi_memclr4
     ds18b20.o(i.PRB480_GenerateReadAuthPageMAC) refers to ds18b20.o(i.PRB480_PageStart) for PRB480_PageStart
+    ds18b20.o(i.PRB480_GenerateReadAuthPageMAC) refers to printf8.o(i.__0printf$8) for __2printf
     ds18b20.o(i.PRB480_GenerateReadAuthPageMAC) refers to ds18b20.o(i.PRB480_RunMacCompression) for PRB480_RunMacCompression
     ds18b20.o(i.PRB480_GenerateReadAuthPageMAC) refers to ds18b20.o(i.PRB480_StateToBusMAC) for PRB480_StateToBusMAC
     ds18b20.o(i.PRB480_GetLastReadAdc) refers to ds18b20.o(.data) for PRB480_LastReadAdc
@@ -226,7 +229,9 @@ Section Cross References
     ds18b20.o(i.PRB480_Init) refers to systick.o(i.delay_ms) for delay_ms
     ds18b20.o(i.PRB480_Init) refers to ds18b20.o(i.PRB480_Reset) for PRB480_Reset
     ds18b20.o(i.PRB480_LoadChallengeScratchpad) refers to ds18b20.o(i.PRB480_PageStart) for PRB480_PageStart
+    ds18b20.o(i.PRB480_LoadChallengeScratchpad) refers to printf8.o(i.__0printf$8) for __2printf
     ds18b20.o(i.PRB480_LoadChallengeScratchpad) refers to ds18b20.o(i.PRB480_WriteAndVerifyScratchpad) for PRB480_WriteAndVerifyScratchpad
+    ds18b20.o(i.PRB480_LoadChallengeScratchpad) refers to ds18b20.o(.conststring) for .conststring
     ds18b20.o(i.PRB480_LoadFirstSecret) refers to ds18b20.o(i.PRB480_CheckWriteAddress) for PRB480_CheckWriteAddress
     ds18b20.o(i.PRB480_LoadFirstSecret) refers to ds18b20.o(i.PRB480_WriteScratchpad) for PRB480_WriteScratchpad
     ds18b20.o(i.PRB480_LoadFirstSecret) refers to ds18b20.o(i.PRB480_VerifyScratchpad) for PRB480_VerifyScratchpad
@@ -256,18 +261,21 @@ Section Cross References
     ds18b20.o(i.PRB480_ReadAuthenticatedPage) refers to ds18b20.o(i.PRB480_WriteByte) for PRB480_WriteByte
     ds18b20.o(i.PRB480_ReadAuthenticatedPage) refers to ds18b20.o(i.PRB480_ReadByte) for PRB480_ReadByte
     ds18b20.o(i.PRB480_ReadAuthenticatedPage) refers to systick.o(i.delay_ms) for delay_ms
+    ds18b20.o(i.PRB480_ReadAuthenticatedPageEx) refers to printf8.o(i.__0printf$8) for __2printf
     ds18b20.o(i.PRB480_ReadAuthenticatedPageEx) refers to ds18b20.o(i.PRB480_ReadAuthenticatedPageRaw) for PRB480_ReadAuthenticatedPageRaw
     ds18b20.o(i.PRB480_ReadAuthenticatedPageEx) refers to ds18b20.o(i.PRB480_GenerateReadAuthPageMAC) for PRB480_GenerateReadAuthPageMAC
     ds18b20.o(i.PRB480_ReadAuthenticatedPageEx) refers to memcmp.o(.text) for memcmp
+    ds18b20.o(i.PRB480_ReadAuthenticatedPageRaw) refers to printf8.o(i.__0printf$8) for __2printf
     ds18b20.o(i.PRB480_ReadAuthenticatedPageRaw) refers to memseta.o(.text) for __aeabi_memclr
     ds18b20.o(i.PRB480_ReadAuthenticatedPageRaw) refers to ds18b20.o(i.PRB480_LoadChallengeScratchpad) for PRB480_LoadChallengeScratchpad
     ds18b20.o(i.PRB480_ReadAuthenticatedPageRaw) refers to ds18b20.o(i.PRB480_CommandStart) for PRB480_CommandStart
     ds18b20.o(i.PRB480_ReadAuthenticatedPageRaw) refers to ds18b20.o(i.PRB480_WriteByte) for PRB480_WriteByte
     ds18b20.o(i.PRB480_ReadAuthenticatedPageRaw) refers to ds18b20.o(i.PRB480_ReadByte) for PRB480_ReadByte
-    ds18b20.o(i.PRB480_ReadAuthenticatedPageRaw) refers to memcpya.o(.text) for __aeabi_memcpy
-    ds18b20.o(i.PRB480_ReadAuthenticatedPageRaw) refers to ds18b20.o(i.PRB480_VerifyReadAuthPageCRC) for PRB480_VerifyReadAuthPageCRC
     ds18b20.o(i.PRB480_ReadAuthenticatedPageRaw) refers to systick.o(i.delay_ms) for delay_ms
     ds18b20.o(i.PRB480_ReadAuthenticatedPageRaw) refers to ds18b20.o(i.PRB480_CheckAlternatingResponse) for PRB480_CheckAlternatingResponse
+    ds18b20.o(i.PRB480_ReadAuthenticatedPageRaw) refers to ds18b20.o(i.PRB480_Reset) for PRB480_Reset
+    ds18b20.o(i.PRB480_ReadAuthenticatedPageRaw) refers to memcpya.o(.text) for __aeabi_memcpy
+    ds18b20.o(i.PRB480_ReadAuthenticatedPageRaw) refers to ds18b20.o(i.PRB480_VerifyReadAuthPageCRC) for PRB480_VerifyReadAuthPageCRC
     ds18b20.o(i.PRB480_ReadBit) refers to ds18b20.o(i.PRB480_ResponsePMOS_Off) for PRB480_ResponsePMOS_Off
     ds18b20.o(i.PRB480_ReadBit) refers to ds18b20.o(i.PRB480_PowerPMOS_On) for PRB480_PowerPMOS_On
     ds18b20.o(i.PRB480_ReadBit) refers to ds18b20.o(i.PRB480_IO_ANALOG) for PRB480_IO_ANALOG
@@ -1088,30 +1096,30 @@ Image Symbol Table
     RESET                                    0x00000000   Section      392  startup_stm32f40_41xxx.o(RESET)
     ../clib/microlib/division.c              0x00000000   Number         0  uidiv.o ABSOLUTE
     ../clib/microlib/division.c              0x00000000   Number         0  uldiv.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10a.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry2.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry7b.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry7a.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11b.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11a.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10b.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry5.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9b.o ABSOLUTE
-    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9a.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry7a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry5.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry2.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry7b.o ABSOLUTE
     ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8a.o ABSOLUTE
     ../clib/microlib/longlong.c              0x00000000   Number         0  llushr.o ABSOLUTE
-    ../clib/microlib/longlong.c              0x00000000   Number         0  llsshr.o ABSOLUTE
     ../clib/microlib/longlong.c              0x00000000   Number         0  llshl.o ABSOLUTE
+    ../clib/microlib/longlong.c              0x00000000   Number         0  llsshr.o ABSOLUTE
+    ../clib/microlib/printf/printf.c         0x00000000   Number         0  printf8.o ABSOLUTE
     ../clib/microlib/printf/printf.c         0x00000000   Number         0  printfb.o ABSOLUTE
+    ../clib/microlib/printf/printf.c         0x00000000   Number         0  printfa.o ABSOLUTE
     ../clib/microlib/printf/printf.c         0x00000000   Number         0  printf7.o ABSOLUTE
     ../clib/microlib/printf/printf.c         0x00000000   Number         0  printf6.o ABSOLUTE
     ../clib/microlib/printf/printf.c         0x00000000   Number         0  printf5.o ABSOLUTE
     ../clib/microlib/printf/printf.c         0x00000000   Number         0  printf4.o ABSOLUTE
     ../clib/microlib/printf/printf.c         0x00000000   Number         0  printf3.o ABSOLUTE
-    ../clib/microlib/printf/printf.c         0x00000000   Number         0  printfa.o ABSOLUTE
-    ../clib/microlib/printf/printf.c         0x00000000   Number         0  printf8.o ABSOLUTE
     ../clib/microlib/printf/printf.c         0x00000000   Number         0  printf2.o ABSOLUTE
     ../clib/microlib/printf/printf.c         0x00000000   Number         0  printf1.o ABSOLUTE
     ../clib/microlib/printf/printf.c         0x00000000   Number         0  printf0.o ABSOLUTE
@@ -1255,93 +1263,89 @@ Image Symbol Table
     i.PRB480_GenerateCopyMAC                 0x00000f90   Section        0  ds18b20.o(i.PRB480_GenerateCopyMAC)
     PRB480_GenerateCopyMAC                   0x00000f91   Thumb Code    80  ds18b20.o(i.PRB480_GenerateCopyMAC)
     i.PRB480_GenerateReadAuthPageMAC         0x0000100c   Section        0  ds18b20.o(i.PRB480_GenerateReadAuthPageMAC)
-    PRB480_GenerateReadAuthPageMAC           0x0000100d   Thumb Code   230  ds18b20.o(i.PRB480_GenerateReadAuthPageMAC)
-    i.PRB480_GetCopyTargetArea               0x000010f2   Section        0  ds18b20.o(i.PRB480_GetCopyTargetArea)
-    PRB480_GetCopyTargetArea                 0x000010f3   Thumb Code    26  ds18b20.o(i.PRB480_GetCopyTargetArea)
-    i.PRB480_IO_ANALOG                       0x0000110c   Section        0  ds18b20.o(i.PRB480_IO_ANALOG)
-    PRB480_IO_ANALOG                         0x0000110d   Thumb Code    38  ds18b20.o(i.PRB480_IO_ANALOG)
-    i.PRB480_IO_IN                           0x0000113c   Section        0  ds18b20.o(i.PRB480_IO_IN)
-    i.PRB480_Init                            0x00001168   Section        0  ds18b20.o(i.PRB480_Init)
-    i.PRB480_LoadChallengeScratchpad         0x00001182   Section        0  ds18b20.o(i.PRB480_LoadChallengeScratchpad)
-    PRB480_LoadChallengeScratchpad           0x00001183   Thumb Code    60  ds18b20.o(i.PRB480_LoadChallengeScratchpad)
-    i.PRB480_LoadFirstSecret                 0x000011c0   Section        0  ds18b20.o(i.PRB480_LoadFirstSecret)
-    i.PRB480_MatchROM                        0x000013a4   Section        0  ds18b20.o(i.PRB480_MatchROM)
-    i.PRB480_PageStart                       0x000013c2   Section        0  ds18b20.o(i.PRB480_PageStart)
-    PRB480_PageStart                         0x000013c3   Thumb Code    10  ds18b20.o(i.PRB480_PageStart)
-    i.PRB480_PowerPMOS_Off                   0x000013cc   Section        0  ds18b20.o(i.PRB480_PowerPMOS_Off)
-    PRB480_PowerPMOS_Off                     0x000013cd   Thumb Code     8  ds18b20.o(i.PRB480_PowerPMOS_Off)
-    i.PRB480_PowerPMOS_On                    0x000013d8   Section        0  ds18b20.o(i.PRB480_PowerPMOS_On)
-    PRB480_PowerPMOS_On                      0x000013d9   Thumb Code     8  ds18b20.o(i.PRB480_PowerPMOS_On)
-    i.PRB480_ReadAdcRaw                      0x000013e4   Section        0  ds18b20.o(i.PRB480_ReadAdcRaw)
-    PRB480_ReadAdcRaw                        0x000013e5   Thumb Code    50  ds18b20.o(i.PRB480_ReadAdcRaw)
-    i.PRB480_ReadAuthenticatedPageEx         0x0000141c   Section        0  ds18b20.o(i.PRB480_ReadAuthenticatedPageEx)
-    i.PRB480_ReadAuthenticatedPageRaw        0x00001474   Section        0  ds18b20.o(i.PRB480_ReadAuthenticatedPageRaw)
-    PRB480_ReadAuthenticatedPageRaw          0x00001475   Thumb Code   336  ds18b20.o(i.PRB480_ReadAuthenticatedPageRaw)
-    i.PRB480_ReadBit                         0x000015c4   Section        0  ds18b20.o(i.PRB480_ReadBit)
-    i.PRB480_ReadByte                        0x00001650   Section        0  ds18b20.o(i.PRB480_ReadByte)
-    i.PRB480_ReadMemory                      0x00001672   Section        0  ds18b20.o(i.PRB480_ReadMemory)
-    i.PRB480_ReadROM                         0x000016b4   Section        0  ds18b20.o(i.PRB480_ReadROM)
-    i.PRB480_ReadScratchpad                  0x00001794   Section        0  ds18b20.o(i.PRB480_ReadScratchpad)
-    i.PRB480_Reset                           0x0000185a   Section        0  ds18b20.o(i.PRB480_Reset)
-    i.PRB480_ResponsePMOS_Off                0x00001880   Section        0  ds18b20.o(i.PRB480_ResponsePMOS_Off)
-    PRB480_ResponsePMOS_Off                  0x00001881   Thumb Code     8  ds18b20.o(i.PRB480_ResponsePMOS_Off)
-    i.PRB480_ResponsePMOS_On                 0x0000188c   Section        0  ds18b20.o(i.PRB480_ResponsePMOS_On)
-    PRB480_ResponsePMOS_On                   0x0000188d   Thumb Code     8  ds18b20.o(i.PRB480_ResponsePMOS_On)
-    i.PRB480_RunMacCompression               0x00001898   Section        0  ds18b20.o(i.PRB480_RunMacCompression)
-    PRB480_RunMacCompression                 0x00001899   Thumb Code   336  ds18b20.o(i.PRB480_RunMacCompression)
-    i.PRB480_SkipROM                         0x00001a04   Section        0  ds18b20.o(i.PRB480_SkipROM)
-    i.PRB480_StateToBusMAC                   0x00001a0e   Section        0  ds18b20.o(i.PRB480_StateToBusMAC)
-    PRB480_StateToBusMAC                     0x00001a0f   Thumb Code    72  ds18b20.o(i.PRB480_StateToBusMAC)
-    i.PRB480_VerifyPostCopyScratchpad        0x00001a56   Section        0  ds18b20.o(i.PRB480_VerifyPostCopyScratchpad)
-    PRB480_VerifyPostCopyScratchpad          0x00001a57   Thumb Code    96  ds18b20.o(i.PRB480_VerifyPostCopyScratchpad)
-    i.PRB480_VerifyReadAuthPageCRC           0x00001ab6   Section        0  ds18b20.o(i.PRB480_VerifyReadAuthPageCRC)
-    PRB480_VerifyReadAuthPageCRC             0x00001ab7   Thumb Code    96  ds18b20.o(i.PRB480_VerifyReadAuthPageCRC)
-    i.PRB480_VerifyScratchpad                0x00001b16   Section        0  ds18b20.o(i.PRB480_VerifyScratchpad)
-    PRB480_VerifyScratchpad                  0x00001b17   Thumb Code   110  ds18b20.o(i.PRB480_VerifyScratchpad)
-    i.PRB480_WaitCopyResult                  0x00001b84   Section        0  ds18b20.o(i.PRB480_WaitCopyResult)
-    PRB480_WaitCopyResult                    0x00001b85   Thumb Code    66  ds18b20.o(i.PRB480_WaitCopyResult)
-    i.PRB480_WriteAndVerifyScratchpad        0x00001bc6   Section        0  ds18b20.o(i.PRB480_WriteAndVerifyScratchpad)
-    i.PRB480_WriteBit                        0x00001c16   Section        0  ds18b20.o(i.PRB480_WriteBit)
-    i.PRB480_WriteByte                       0x00001c58   Section        0  ds18b20.o(i.PRB480_WriteByte)
-    i.PRB480_WriteScratchpad                 0x00001c7c   Section        0  ds18b20.o(i.PRB480_WriteScratchpad)
-    i.PendSV_Handler                         0x00001d28   Section        0  stm32f4xx_it.o(i.PendSV_Handler)
-    i.RCC_AHB1PeriphClockCmd                 0x00001d2c   Section        0  stm32f4xx_rcc.o(i.RCC_AHB1PeriphClockCmd)
-    i.RCC_APB2PeriphClockCmd                 0x00001d4c   Section        0  stm32f4xx_rcc.o(i.RCC_APB2PeriphClockCmd)
-    i.RCC_GetClocksFreq                      0x00001d6c   Section        0  stm32f4xx_rcc.o(i.RCC_GetClocksFreq)
-    i.SVC_Handler                            0x00001e54   Section        0  stm32f4xx_it.o(i.SVC_Handler)
-    i.SetSysClock                            0x00001e58   Section        0  system_stm32f4xx.o(i.SetSysClock)
-    SetSysClock                              0x00001e59   Thumb Code   220  system_stm32f4xx.o(i.SetSysClock)
-    i.SysTick_CLKSourceConfig                0x00001f44   Section        0  misc.o(i.SysTick_CLKSourceConfig)
-    i.SysTick_Handler                        0x00001f6c   Section        0  stm32f4xx_it.o(i.SysTick_Handler)
-    i.SysTick_Init                           0x00001f70   Section        0  systick.o(i.SysTick_Init)
-    i.SystemInit                             0x00001fac   Section        0  system_stm32f4xx.o(i.SystemInit)
-    i.USART1_IRQHandler                      0x00002014   Section        0  usart.o(i.USART1_IRQHandler)
-    i.USART1_Init                            0x0000209c   Section        0  usart.o(i.USART1_Init)
-    i.USART_ClearFlag                        0x00002150   Section        0  stm32f4xx_usart.o(i.USART_ClearFlag)
-    i.USART_Cmd                              0x00002162   Section        0  stm32f4xx_usart.o(i.USART_Cmd)
-    i.USART_GetFlagStatus                    0x0000217a   Section        0  stm32f4xx_usart.o(i.USART_GetFlagStatus)
-    i.USART_GetITStatus                      0x00002194   Section        0  stm32f4xx_usart.o(i.USART_GetITStatus)
-    i.USART_ITConfig                         0x000021e8   Section        0  stm32f4xx_usart.o(i.USART_ITConfig)
-    i.USART_Init                             0x00002234   Section        0  stm32f4xx_usart.o(i.USART_Init)
-    i.USART_ReceiveData                      0x00002308   Section        0  stm32f4xx_usart.o(i.USART_ReceiveData)
-    i.USART_SendData                         0x00002312   Section        0  stm32f4xx_usart.o(i.USART_SendData)
-    i.UsageFault_Handler                     0x0000231a   Section        0  stm32f4xx_it.o(i.UsageFault_Handler)
-    i.__0printf$8                            0x00002320   Section        0  printf8.o(i.__0printf$8)
-    i.__scatterload_copy                     0x00002340   Section       14  handlers.o(i.__scatterload_copy)
-    i.__scatterload_null                     0x0000234e   Section        2  handlers.o(i.__scatterload_null)
-    i.__scatterload_zeroinit                 0x00002350   Section       14  handlers.o(i.__scatterload_zeroinit)
-    i._printf_core                           0x00002360   Section        0  printf8.o(i._printf_core)
-    _printf_core                             0x00002361   Thumb Code   996  printf8.o(i._printf_core)
-    i._printf_post_padding                   0x00002770   Section        0  printf8.o(i._printf_post_padding)
-    _printf_post_padding                     0x00002771   Thumb Code    36  printf8.o(i._printf_post_padding)
-    i._printf_pre_padding                    0x00002794   Section        0  printf8.o(i._printf_pre_padding)
-    _printf_pre_padding                      0x00002795   Thumb Code    46  printf8.o(i._printf_pre_padding)
-    i.delay_ms                               0x000027c2   Section        0  systick.o(i.delay_ms)
-    i.delay_nms                              0x000027fc   Section        0  systick.o(i.delay_nms)
-    i.delay_us                               0x00002848   Section        0  systick.o(i.delay_us)
-    i.fputc                                  0x00002894   Section        0  usart.o(i.fputc)
-    i.main                                   0x000028b8   Section        0  main.o(i.main)
-    .conststring                             0x00002d74   Section      147  ds18b20.o(.conststring)
+    PRB480_GenerateReadAuthPageMAC           0x0000100d   Thumb Code   270  ds18b20.o(i.PRB480_GenerateReadAuthPageMAC)
+    i.PRB480_GetCopyTargetArea               0x0000113c   Section        0  ds18b20.o(i.PRB480_GetCopyTargetArea)
+    PRB480_GetCopyTargetArea                 0x0000113d   Thumb Code    26  ds18b20.o(i.PRB480_GetCopyTargetArea)
+    i.PRB480_IO_ANALOG                       0x00001158   Section        0  ds18b20.o(i.PRB480_IO_ANALOG)
+    PRB480_IO_ANALOG                         0x00001159   Thumb Code    38  ds18b20.o(i.PRB480_IO_ANALOG)
+    i.PRB480_IO_IN                           0x00001188   Section        0  ds18b20.o(i.PRB480_IO_IN)
+    i.PRB480_Init                            0x000011b4   Section        0  ds18b20.o(i.PRB480_Init)
+    i.PRB480_LoadChallengeScratchpad         0x000011d0   Section        0  ds18b20.o(i.PRB480_LoadChallengeScratchpad)
+    PRB480_LoadChallengeScratchpad           0x000011d1   Thumb Code   108  ds18b20.o(i.PRB480_LoadChallengeScratchpad)
+    i.PRB480_LoadFirstSecret                 0x00001284   Section        0  ds18b20.o(i.PRB480_LoadFirstSecret)
+    i.PRB480_MatchROM                        0x00001468   Section        0  ds18b20.o(i.PRB480_MatchROM)
+    i.PRB480_PageStart                       0x00001486   Section        0  ds18b20.o(i.PRB480_PageStart)
+    PRB480_PageStart                         0x00001487   Thumb Code    10  ds18b20.o(i.PRB480_PageStart)
+    i.PRB480_PowerPMOS_Off                   0x00001490   Section        0  ds18b20.o(i.PRB480_PowerPMOS_Off)
+    i.PRB480_PowerPMOS_On                    0x0000149c   Section        0  ds18b20.o(i.PRB480_PowerPMOS_On)
+    i.PRB480_ReadAdcRaw                      0x000014a8   Section        0  ds18b20.o(i.PRB480_ReadAdcRaw)
+    PRB480_ReadAdcRaw                        0x000014a9   Thumb Code    50  ds18b20.o(i.PRB480_ReadAdcRaw)
+    i.PRB480_ReadAuthenticatedPageEx         0x000014e0   Section        0  ds18b20.o(i.PRB480_ReadAuthenticatedPageEx)
+    i.PRB480_ReadAuthenticatedPageRaw        0x0000166c   Section        0  ds18b20.o(i.PRB480_ReadAuthenticatedPageRaw)
+    PRB480_ReadAuthenticatedPageRaw          0x0000166d   Thumb Code   596  ds18b20.o(i.PRB480_ReadAuthenticatedPageRaw)
+    i.PRB480_ReadBit                         0x00001b20   Section        0  ds18b20.o(i.PRB480_ReadBit)
+    i.PRB480_ReadByte                        0x00001bac   Section        0  ds18b20.o(i.PRB480_ReadByte)
+    i.PRB480_ReadMemory                      0x00001bce   Section        0  ds18b20.o(i.PRB480_ReadMemory)
+    i.PRB480_ReadROM                         0x00001c10   Section        0  ds18b20.o(i.PRB480_ReadROM)
+    i.PRB480_ReadScratchpad                  0x00001cf0   Section        0  ds18b20.o(i.PRB480_ReadScratchpad)
+    i.PRB480_Reset                           0x00001db6   Section        0  ds18b20.o(i.PRB480_Reset)
+    i.PRB480_ResponsePMOS_Off                0x00001ddc   Section        0  ds18b20.o(i.PRB480_ResponsePMOS_Off)
+    i.PRB480_ResponsePMOS_On                 0x00001de8   Section        0  ds18b20.o(i.PRB480_ResponsePMOS_On)
+    i.PRB480_RunMacCompression               0x00001df4   Section        0  ds18b20.o(i.PRB480_RunMacCompression)
+    PRB480_RunMacCompression                 0x00001df5   Thumb Code   336  ds18b20.o(i.PRB480_RunMacCompression)
+    i.PRB480_SkipROM                         0x00001f60   Section        0  ds18b20.o(i.PRB480_SkipROM)
+    i.PRB480_StateToBusMAC                   0x00001f6a   Section        0  ds18b20.o(i.PRB480_StateToBusMAC)
+    PRB480_StateToBusMAC                     0x00001f6b   Thumb Code    72  ds18b20.o(i.PRB480_StateToBusMAC)
+    i.PRB480_VerifyPostCopyScratchpad        0x00001fb2   Section        0  ds18b20.o(i.PRB480_VerifyPostCopyScratchpad)
+    PRB480_VerifyPostCopyScratchpad          0x00001fb3   Thumb Code    96  ds18b20.o(i.PRB480_VerifyPostCopyScratchpad)
+    i.PRB480_VerifyReadAuthPageCRC           0x00002012   Section        0  ds18b20.o(i.PRB480_VerifyReadAuthPageCRC)
+    PRB480_VerifyReadAuthPageCRC             0x00002013   Thumb Code    96  ds18b20.o(i.PRB480_VerifyReadAuthPageCRC)
+    i.PRB480_VerifyScratchpad                0x00002072   Section        0  ds18b20.o(i.PRB480_VerifyScratchpad)
+    PRB480_VerifyScratchpad                  0x00002073   Thumb Code   110  ds18b20.o(i.PRB480_VerifyScratchpad)
+    i.PRB480_WaitCopyResult                  0x000020e0   Section        0  ds18b20.o(i.PRB480_WaitCopyResult)
+    PRB480_WaitCopyResult                    0x000020e1   Thumb Code    66  ds18b20.o(i.PRB480_WaitCopyResult)
+    i.PRB480_WriteAndVerifyScratchpad        0x00002122   Section        0  ds18b20.o(i.PRB480_WriteAndVerifyScratchpad)
+    i.PRB480_WriteBit                        0x00002172   Section        0  ds18b20.o(i.PRB480_WriteBit)
+    i.PRB480_WriteByte                       0x000021b4   Section        0  ds18b20.o(i.PRB480_WriteByte)
+    i.PRB480_WriteScratchpad                 0x000021d8   Section        0  ds18b20.o(i.PRB480_WriteScratchpad)
+    i.PendSV_Handler                         0x00002284   Section        0  stm32f4xx_it.o(i.PendSV_Handler)
+    i.RCC_AHB1PeriphClockCmd                 0x00002288   Section        0  stm32f4xx_rcc.o(i.RCC_AHB1PeriphClockCmd)
+    i.RCC_APB2PeriphClockCmd                 0x000022a8   Section        0  stm32f4xx_rcc.o(i.RCC_APB2PeriphClockCmd)
+    i.RCC_GetClocksFreq                      0x000022c8   Section        0  stm32f4xx_rcc.o(i.RCC_GetClocksFreq)
+    i.SVC_Handler                            0x000023b0   Section        0  stm32f4xx_it.o(i.SVC_Handler)
+    i.SetSysClock                            0x000023b4   Section        0  system_stm32f4xx.o(i.SetSysClock)
+    SetSysClock                              0x000023b5   Thumb Code   220  system_stm32f4xx.o(i.SetSysClock)
+    i.SysTick_CLKSourceConfig                0x000024a0   Section        0  misc.o(i.SysTick_CLKSourceConfig)
+    i.SysTick_Handler                        0x000024c8   Section        0  stm32f4xx_it.o(i.SysTick_Handler)
+    i.SysTick_Init                           0x000024cc   Section        0  systick.o(i.SysTick_Init)
+    i.SystemInit                             0x00002508   Section        0  system_stm32f4xx.o(i.SystemInit)
+    i.USART1_IRQHandler                      0x00002570   Section        0  usart.o(i.USART1_IRQHandler)
+    i.USART1_Init                            0x000025f8   Section        0  usart.o(i.USART1_Init)
+    i.USART_ClearFlag                        0x000026ac   Section        0  stm32f4xx_usart.o(i.USART_ClearFlag)
+    i.USART_Cmd                              0x000026be   Section        0  stm32f4xx_usart.o(i.USART_Cmd)
+    i.USART_GetFlagStatus                    0x000026d6   Section        0  stm32f4xx_usart.o(i.USART_GetFlagStatus)
+    i.USART_GetITStatus                      0x000026f0   Section        0  stm32f4xx_usart.o(i.USART_GetITStatus)
+    i.USART_ITConfig                         0x00002744   Section        0  stm32f4xx_usart.o(i.USART_ITConfig)
+    i.USART_Init                             0x00002790   Section        0  stm32f4xx_usart.o(i.USART_Init)
+    i.USART_ReceiveData                      0x00002864   Section        0  stm32f4xx_usart.o(i.USART_ReceiveData)
+    i.USART_SendData                         0x0000286e   Section        0  stm32f4xx_usart.o(i.USART_SendData)
+    i.UsageFault_Handler                     0x00002876   Section        0  stm32f4xx_it.o(i.UsageFault_Handler)
+    i.__0printf$8                            0x0000287c   Section        0  printf8.o(i.__0printf$8)
+    i.__scatterload_copy                     0x0000289c   Section       14  handlers.o(i.__scatterload_copy)
+    i.__scatterload_null                     0x000028aa   Section        2  handlers.o(i.__scatterload_null)
+    i.__scatterload_zeroinit                 0x000028ac   Section       14  handlers.o(i.__scatterload_zeroinit)
+    i._printf_core                           0x000028bc   Section        0  printf8.o(i._printf_core)
+    _printf_core                             0x000028bd   Thumb Code   996  printf8.o(i._printf_core)
+    i._printf_post_padding                   0x00002ccc   Section        0  printf8.o(i._printf_post_padding)
+    _printf_post_padding                     0x00002ccd   Thumb Code    36  printf8.o(i._printf_post_padding)
+    i._printf_pre_padding                    0x00002cf0   Section        0  printf8.o(i._printf_pre_padding)
+    _printf_pre_padding                      0x00002cf1   Thumb Code    46  printf8.o(i._printf_pre_padding)
+    i.delay_ms                               0x00002d1e   Section        0  systick.o(i.delay_ms)
+    i.delay_nms                              0x00002d58   Section        0  systick.o(i.delay_nms)
+    i.delay_us                               0x00002da4   Section        0  systick.o(i.delay_us)
+    i.fputc                                  0x00002df0   Section        0  usart.o(i.fputc)
+    i.main                                   0x00002e14   Section        0  main.o(i.main)
+    .conststring                             0x0000340c   Section      287  ds18b20.o(.conststring)
     .data                                    0x20000000   Section       16  stm32f4xx_rcc.o(.data)
     APBAHBPrescTable                         0x20000000   Data          16  stm32f4xx_rcc.o(.data)
     .data                                    0x20000010   Section        4  systick.o(.data)
@@ -1559,55 +1563,59 @@ Image Symbol Table
     PRB480_CalcCRC16                         0x00000891   Thumb Code    16  ds18b20.o(i.PRB480_CalcCRC16)
     PRB480_CopyScratchpad                    0x00000979   Thumb Code   262  ds18b20.o(i.PRB480_CopyScratchpad)
     PRB480_CopyScratchpadVerified            0x00000b0d   Thumb Code   470  ds18b20.o(i.PRB480_CopyScratchpadVerified)
-    PRB480_IO_IN                             0x0000113d   Thumb Code    36  ds18b20.o(i.PRB480_IO_IN)
-    PRB480_Init                              0x00001169   Thumb Code    26  ds18b20.o(i.PRB480_Init)
-    PRB480_LoadFirstSecret                   0x000011c1   Thumb Code   330  ds18b20.o(i.PRB480_LoadFirstSecret)
-    PRB480_MatchROM                          0x000013a5   Thumb Code    30  ds18b20.o(i.PRB480_MatchROM)
-    PRB480_ReadAuthenticatedPageEx           0x0000141d   Thumb Code    88  ds18b20.o(i.PRB480_ReadAuthenticatedPageEx)
-    PRB480_ReadBit                           0x000015c5   Thumb Code   116  ds18b20.o(i.PRB480_ReadBit)
-    PRB480_ReadByte                          0x00001651   Thumb Code    34  ds18b20.o(i.PRB480_ReadByte)
-    PRB480_ReadMemory                        0x00001673   Thumb Code    66  ds18b20.o(i.PRB480_ReadMemory)
-    PRB480_ReadROM                           0x000016b5   Thumb Code   136  ds18b20.o(i.PRB480_ReadROM)
-    PRB480_ReadScratchpad                    0x00001795   Thumb Code   198  ds18b20.o(i.PRB480_ReadScratchpad)
-    PRB480_Reset                             0x0000185b   Thumb Code    36  ds18b20.o(i.PRB480_Reset)
-    PRB480_SkipROM                           0x00001a05   Thumb Code    10  ds18b20.o(i.PRB480_SkipROM)
-    PRB480_WriteAndVerifyScratchpad          0x00001bc7   Thumb Code    80  ds18b20.o(i.PRB480_WriteAndVerifyScratchpad)
-    PRB480_WriteBit                          0x00001c17   Thumb Code    66  ds18b20.o(i.PRB480_WriteBit)
-    PRB480_WriteByte                         0x00001c59   Thumb Code    36  ds18b20.o(i.PRB480_WriteByte)
-    PRB480_WriteScratchpad                   0x00001c7d   Thumb Code   172  ds18b20.o(i.PRB480_WriteScratchpad)
-    PendSV_Handler                           0x00001d29   Thumb Code     2  stm32f4xx_it.o(i.PendSV_Handler)
-    RCC_AHB1PeriphClockCmd                   0x00001d2d   Thumb Code    26  stm32f4xx_rcc.o(i.RCC_AHB1PeriphClockCmd)
-    RCC_APB2PeriphClockCmd                   0x00001d4d   Thumb Code    26  stm32f4xx_rcc.o(i.RCC_APB2PeriphClockCmd)
-    RCC_GetClocksFreq                        0x00001d6d   Thumb Code   214  stm32f4xx_rcc.o(i.RCC_GetClocksFreq)
-    SVC_Handler                              0x00001e55   Thumb Code     2  stm32f4xx_it.o(i.SVC_Handler)
-    SysTick_CLKSourceConfig                  0x00001f45   Thumb Code    40  misc.o(i.SysTick_CLKSourceConfig)
-    SysTick_Handler                          0x00001f6d   Thumb Code     2  stm32f4xx_it.o(i.SysTick_Handler)
-    SysTick_Init                             0x00001f71   Thumb Code    52  systick.o(i.SysTick_Init)
-    SystemInit                               0x00001fad   Thumb Code    88  system_stm32f4xx.o(i.SystemInit)
-    USART1_IRQHandler                        0x00002015   Thumb Code   122  usart.o(i.USART1_IRQHandler)
-    USART1_Init                              0x0000209d   Thumb Code   172  usart.o(i.USART1_Init)
-    USART_ClearFlag                          0x00002151   Thumb Code    18  stm32f4xx_usart.o(i.USART_ClearFlag)
-    USART_Cmd                                0x00002163   Thumb Code    24  stm32f4xx_usart.o(i.USART_Cmd)
-    USART_GetFlagStatus                      0x0000217b   Thumb Code    26  stm32f4xx_usart.o(i.USART_GetFlagStatus)
-    USART_GetITStatus                        0x00002195   Thumb Code    84  stm32f4xx_usart.o(i.USART_GetITStatus)
-    USART_ITConfig                           0x000021e9   Thumb Code    74  stm32f4xx_usart.o(i.USART_ITConfig)
-    USART_Init                               0x00002235   Thumb Code   204  stm32f4xx_usart.o(i.USART_Init)
-    USART_ReceiveData                        0x00002309   Thumb Code    10  stm32f4xx_usart.o(i.USART_ReceiveData)
-    USART_SendData                           0x00002313   Thumb Code     8  stm32f4xx_usart.o(i.USART_SendData)
-    UsageFault_Handler                       0x0000231b   Thumb Code     4  stm32f4xx_it.o(i.UsageFault_Handler)
-    __0printf$8                              0x00002321   Thumb Code    22  printf8.o(i.__0printf$8)
-    __1printf$8                              0x00002321   Thumb Code     0  printf8.o(i.__0printf$8)
-    __2printf                                0x00002321   Thumb Code     0  printf8.o(i.__0printf$8)
-    __scatterload_copy                       0x00002341   Thumb Code    14  handlers.o(i.__scatterload_copy)
-    __scatterload_null                       0x0000234f   Thumb Code     2  handlers.o(i.__scatterload_null)
-    __scatterload_zeroinit                   0x00002351   Thumb Code    14  handlers.o(i.__scatterload_zeroinit)
-    delay_ms                                 0x000027c3   Thumb Code    56  systick.o(i.delay_ms)
-    delay_nms                                0x000027fd   Thumb Code    72  systick.o(i.delay_nms)
-    delay_us                                 0x00002849   Thumb Code    72  systick.o(i.delay_us)
-    fputc                                    0x00002895   Thumb Code    32  usart.o(i.fputc)
-    main                                     0x000028b9   Thumb Code   644  main.o(i.main)
-    Region$$Table$$Base                      0x00002e08   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x00002e28   Number         0  anon$$obj.o(Region$$Table)
+    PRB480_IO_IN                             0x00001189   Thumb Code    36  ds18b20.o(i.PRB480_IO_IN)
+    PRB480_Init                              0x000011b5   Thumb Code    26  ds18b20.o(i.PRB480_Init)
+    PRB480_LoadFirstSecret                   0x00001285   Thumb Code   330  ds18b20.o(i.PRB480_LoadFirstSecret)
+    PRB480_MatchROM                          0x00001469   Thumb Code    30  ds18b20.o(i.PRB480_MatchROM)
+    PRB480_PowerPMOS_Off                     0x00001491   Thumb Code     8  ds18b20.o(i.PRB480_PowerPMOS_Off)
+    PRB480_PowerPMOS_On                      0x0000149d   Thumb Code     8  ds18b20.o(i.PRB480_PowerPMOS_On)
+    PRB480_ReadAuthenticatedPageEx           0x000014e1   Thumb Code   192  ds18b20.o(i.PRB480_ReadAuthenticatedPageEx)
+    PRB480_ReadBit                           0x00001b21   Thumb Code   116  ds18b20.o(i.PRB480_ReadBit)
+    PRB480_ReadByte                          0x00001bad   Thumb Code    34  ds18b20.o(i.PRB480_ReadByte)
+    PRB480_ReadMemory                        0x00001bcf   Thumb Code    66  ds18b20.o(i.PRB480_ReadMemory)
+    PRB480_ReadROM                           0x00001c11   Thumb Code   136  ds18b20.o(i.PRB480_ReadROM)
+    PRB480_ReadScratchpad                    0x00001cf1   Thumb Code   198  ds18b20.o(i.PRB480_ReadScratchpad)
+    PRB480_Reset                             0x00001db7   Thumb Code    36  ds18b20.o(i.PRB480_Reset)
+    PRB480_ResponsePMOS_Off                  0x00001ddd   Thumb Code     8  ds18b20.o(i.PRB480_ResponsePMOS_Off)
+    PRB480_ResponsePMOS_On                   0x00001de9   Thumb Code     8  ds18b20.o(i.PRB480_ResponsePMOS_On)
+    PRB480_SkipROM                           0x00001f61   Thumb Code    10  ds18b20.o(i.PRB480_SkipROM)
+    PRB480_WriteAndVerifyScratchpad          0x00002123   Thumb Code    80  ds18b20.o(i.PRB480_WriteAndVerifyScratchpad)
+    PRB480_WriteBit                          0x00002173   Thumb Code    66  ds18b20.o(i.PRB480_WriteBit)
+    PRB480_WriteByte                         0x000021b5   Thumb Code    36  ds18b20.o(i.PRB480_WriteByte)
+    PRB480_WriteScratchpad                   0x000021d9   Thumb Code   172  ds18b20.o(i.PRB480_WriteScratchpad)
+    PendSV_Handler                           0x00002285   Thumb Code     2  stm32f4xx_it.o(i.PendSV_Handler)
+    RCC_AHB1PeriphClockCmd                   0x00002289   Thumb Code    26  stm32f4xx_rcc.o(i.RCC_AHB1PeriphClockCmd)
+    RCC_APB2PeriphClockCmd                   0x000022a9   Thumb Code    26  stm32f4xx_rcc.o(i.RCC_APB2PeriphClockCmd)
+    RCC_GetClocksFreq                        0x000022c9   Thumb Code   214  stm32f4xx_rcc.o(i.RCC_GetClocksFreq)
+    SVC_Handler                              0x000023b1   Thumb Code     2  stm32f4xx_it.o(i.SVC_Handler)
+    SysTick_CLKSourceConfig                  0x000024a1   Thumb Code    40  misc.o(i.SysTick_CLKSourceConfig)
+    SysTick_Handler                          0x000024c9   Thumb Code     2  stm32f4xx_it.o(i.SysTick_Handler)
+    SysTick_Init                             0x000024cd   Thumb Code    52  systick.o(i.SysTick_Init)
+    SystemInit                               0x00002509   Thumb Code    88  system_stm32f4xx.o(i.SystemInit)
+    USART1_IRQHandler                        0x00002571   Thumb Code   122  usart.o(i.USART1_IRQHandler)
+    USART1_Init                              0x000025f9   Thumb Code   172  usart.o(i.USART1_Init)
+    USART_ClearFlag                          0x000026ad   Thumb Code    18  stm32f4xx_usart.o(i.USART_ClearFlag)
+    USART_Cmd                                0x000026bf   Thumb Code    24  stm32f4xx_usart.o(i.USART_Cmd)
+    USART_GetFlagStatus                      0x000026d7   Thumb Code    26  stm32f4xx_usart.o(i.USART_GetFlagStatus)
+    USART_GetITStatus                        0x000026f1   Thumb Code    84  stm32f4xx_usart.o(i.USART_GetITStatus)
+    USART_ITConfig                           0x00002745   Thumb Code    74  stm32f4xx_usart.o(i.USART_ITConfig)
+    USART_Init                               0x00002791   Thumb Code   204  stm32f4xx_usart.o(i.USART_Init)
+    USART_ReceiveData                        0x00002865   Thumb Code    10  stm32f4xx_usart.o(i.USART_ReceiveData)
+    USART_SendData                           0x0000286f   Thumb Code     8  stm32f4xx_usart.o(i.USART_SendData)
+    UsageFault_Handler                       0x00002877   Thumb Code     4  stm32f4xx_it.o(i.UsageFault_Handler)
+    __0printf$8                              0x0000287d   Thumb Code    22  printf8.o(i.__0printf$8)
+    __1printf$8                              0x0000287d   Thumb Code     0  printf8.o(i.__0printf$8)
+    __2printf                                0x0000287d   Thumb Code     0  printf8.o(i.__0printf$8)
+    __scatterload_copy                       0x0000289d   Thumb Code    14  handlers.o(i.__scatterload_copy)
+    __scatterload_null                       0x000028ab   Thumb Code     2  handlers.o(i.__scatterload_null)
+    __scatterload_zeroinit                   0x000028ad   Thumb Code    14  handlers.o(i.__scatterload_zeroinit)
+    delay_ms                                 0x00002d1f   Thumb Code    56  systick.o(i.delay_ms)
+    delay_nms                                0x00002d59   Thumb Code    72  systick.o(i.delay_nms)
+    delay_us                                 0x00002da5   Thumb Code    72  systick.o(i.delay_us)
+    fputc                                    0x00002df1   Thumb Code    32  usart.o(i.fputc)
+    main                                     0x00002e15   Thumb Code   814  main.o(i.main)
+    Region$$Table$$Base                      0x0000352c   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x0000354c   Number         0  anon$$obj.o(Region$$Table)
     USART1_RX_STA                            0x20000014   Data           2  usart.o(.data)
     __stdout                                 0x20000030   Data           4  stdout.o(.data)
     USART1_RX_BUF                            0x20000034   Data         200  usart.o(.bss)
@@ -1621,30 +1629,30 @@ Memory Map of the image
 
   Image Entry point : 0x00000189
 
-  Load Region LR_IROM1 (Base: 0x00000000, Size: 0x00002e5c, Max: 0x00040000, ABSOLUTE)
+  Load Region LR_IROM1 (Base: 0x00000000, Size: 0x00003580, Max: 0x00040000, ABSOLUTE)
 
-    Execution Region ER_IROM1 (Exec base: 0x00000000, Load base: 0x00000000, Size: 0x00002e28, Max: 0x00040000, ABSOLUTE)
+    Execution Region ER_IROM1 (Exec base: 0x00000000, Load base: 0x00000000, Size: 0x0000354c, Max: 0x00040000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
     0x00000000   0x00000000   0x00000188   Data   RO          251    RESET               startup_stm32f40_41xxx.o
-    0x00000188   0x00000188   0x00000000   Code   RO         3451  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
-    0x00000188   0x00000188   0x00000004   Code   RO         3723    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
-    0x0000018c   0x0000018c   0x00000004   Code   RO         3726    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
-    0x00000190   0x00000190   0x00000000   Code   RO         3728    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
-    0x00000190   0x00000190   0x00000000   Code   RO         3730    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
-    0x00000190   0x00000190   0x00000008   Code   RO         3731    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
-    0x00000198   0x00000198   0x00000000   Code   RO         3733    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
-    0x00000198   0x00000198   0x00000000   Code   RO         3735    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
-    0x00000198   0x00000198   0x00000004   Code   RO         3724    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
+    0x00000188   0x00000188   0x00000000   Code   RO         3455  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
+    0x00000188   0x00000188   0x00000004   Code   RO         3727    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
+    0x0000018c   0x0000018c   0x00000004   Code   RO         3730    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
+    0x00000190   0x00000190   0x00000000   Code   RO         3732    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
+    0x00000190   0x00000190   0x00000000   Code   RO         3734    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
+    0x00000190   0x00000190   0x00000008   Code   RO         3735    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
+    0x00000198   0x00000198   0x00000000   Code   RO         3737    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
+    0x00000198   0x00000198   0x00000000   Code   RO         3739    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
+    0x00000198   0x00000198   0x00000004   Code   RO         3728    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
     0x0000019c   0x0000019c   0x00000024   Code   RO          252    .text               startup_stm32f40_41xxx.o
-    0x000001c0   0x000001c0   0x00000024   Code   RO         3454    .text               mc_w.l(memcpya.o)
-    0x000001e4   0x000001e4   0x00000024   Code   RO         3456    .text               mc_w.l(memseta.o)
-    0x00000208   0x00000208   0x0000001a   Code   RO         3458    .text               mc_w.l(memcmp.o)
-    0x00000222   0x00000222   0x00000062   Code   RO         3740    .text               mc_w.l(uldiv.o)
-    0x00000284   0x00000284   0x00000024   Code   RO         3753    .text               mc_w.l(init.o)
-    0x000002a8   0x000002a8   0x0000001e   Code   RO         3755    .text               mc_w.l(llshl.o)
-    0x000002c6   0x000002c6   0x00000020   Code   RO         3757    .text               mc_w.l(llushr.o)
+    0x000001c0   0x000001c0   0x00000024   Code   RO         3458    .text               mc_w.l(memcpya.o)
+    0x000001e4   0x000001e4   0x00000024   Code   RO         3460    .text               mc_w.l(memseta.o)
+    0x00000208   0x00000208   0x0000001a   Code   RO         3462    .text               mc_w.l(memcmp.o)
+    0x00000222   0x00000222   0x00000062   Code   RO         3744    .text               mc_w.l(uldiv.o)
+    0x00000284   0x00000284   0x00000024   Code   RO         3757    .text               mc_w.l(init.o)
+    0x000002a8   0x000002a8   0x0000001e   Code   RO         3759    .text               mc_w.l(llshl.o)
+    0x000002c6   0x000002c6   0x00000020   Code   RO         3761    .text               mc_w.l(llushr.o)
     0x000002e6   0x000002e6   0x00000006   Code   RO         1935    i.ADC_ClearFlag     stm32f4xx_adc.o
     0x000002ec   0x000002ec   0x00000016   Code   RO         1937    i.ADC_Cmd           stm32f4xx_adc.o
     0x00000302   0x00000302   0x00000002   PAD
@@ -1658,8 +1666,8 @@ Memory Map of the image
     0x00000468   0x00000468   0x0000000a   Code   RO         1964    i.ADC_SoftwareStartConv  stm32f4xx_adc.o
     0x00000472   0x00000472   0x00000014   Code   RO         1966    i.ADC_StructInit    stm32f4xx_adc.o
     0x00000486   0x00000486   0x00000004   Code   RO          155    i.BusFault_Handler  stm32f4xx_it.o
-    0x0000048a   0x0000048a   0x0000003e   Code   RO         3370    i.Cal_Crc16         crc16.o
-    0x000004c8   0x000004c8   0x00000042   Code   RO         3371    i.Cal_Crc16_bit     crc16.o
+    0x0000048a   0x0000048a   0x0000003e   Code   RO         3374    i.Cal_Crc16         crc16.o
+    0x000004c8   0x000004c8   0x00000042   Code   RO         3375    i.Cal_Crc16_bit     crc16.o
     0x0000050a   0x0000050a   0x00000002   Code   RO          156    i.DebugMon_Handler  stm32f4xx_it.o
     0x0000050c   0x0000050c   0x00000090   Code   RO          260    i.GPIO_Init         stm32f4xx_gpio.o
     0x0000059c   0x0000059c   0x00000046   Code   RO          261    i.GPIO_PinAFConfig  stm32f4xx_gpio.o
@@ -1690,100 +1698,101 @@ Memory Map of the image
     0x00000eaa   0x00000eaa   0x000000e4   Code   RO         2987    i.PRB480_GenerateCopyDataPageMAC  ds18b20.o
     0x00000f8e   0x00000f8e   0x00000002   PAD
     0x00000f90   0x00000f90   0x0000007c   Code   RO         2988    i.PRB480_GenerateCopyMAC  ds18b20.o
-    0x0000100c   0x0000100c   0x000000e6   Code   RO         2989    i.PRB480_GenerateReadAuthPageMAC  ds18b20.o
-    0x000010f2   0x000010f2   0x0000001a   Code   RO         2990    i.PRB480_GetCopyTargetArea  ds18b20.o
-    0x0000110c   0x0000110c   0x00000030   Code   RO         2992    i.PRB480_IO_ANALOG  ds18b20.o
-    0x0000113c   0x0000113c   0x0000002c   Code   RO         2993    i.PRB480_IO_IN      ds18b20.o
-    0x00001168   0x00001168   0x0000001a   Code   RO         2995    i.PRB480_Init       ds18b20.o
-    0x00001182   0x00001182   0x0000003c   Code   RO         2996    i.PRB480_LoadChallengeScratchpad  ds18b20.o
-    0x000011be   0x000011be   0x00000002   PAD
-    0x000011c0   0x000011c0   0x000001e4   Code   RO         2997    i.PRB480_LoadFirstSecret  ds18b20.o
-    0x000013a4   0x000013a4   0x0000001e   Code   RO         2999    i.PRB480_MatchROM   ds18b20.o
-    0x000013c2   0x000013c2   0x0000000a   Code   RO         3000    i.PRB480_PageStart  ds18b20.o
-    0x000013cc   0x000013cc   0x0000000c   Code   RO         3001    i.PRB480_PowerPMOS_Off  ds18b20.o
-    0x000013d8   0x000013d8   0x0000000c   Code   RO         3002    i.PRB480_PowerPMOS_On  ds18b20.o
-    0x000013e4   0x000013e4   0x00000038   Code   RO         3003    i.PRB480_ReadAdcRaw  ds18b20.o
-    0x0000141c   0x0000141c   0x00000058   Code   RO         3006    i.PRB480_ReadAuthenticatedPageEx  ds18b20.o
-    0x00001474   0x00001474   0x00000150   Code   RO         3007    i.PRB480_ReadAuthenticatedPageRaw  ds18b20.o
-    0x000015c4   0x000015c4   0x0000008c   Code   RO         3008    i.PRB480_ReadBit    ds18b20.o
-    0x00001650   0x00001650   0x00000022   Code   RO         3009    i.PRB480_ReadByte   ds18b20.o
-    0x00001672   0x00001672   0x00000042   Code   RO         3010    i.PRB480_ReadMemory  ds18b20.o
-    0x000016b4   0x000016b4   0x000000e0   Code   RO         3011    i.PRB480_ReadROM    ds18b20.o
-    0x00001794   0x00001794   0x000000c6   Code   RO         3012    i.PRB480_ReadScratchpad  ds18b20.o
-    0x0000185a   0x0000185a   0x00000024   Code   RO         3013    i.PRB480_Reset      ds18b20.o
-    0x0000187e   0x0000187e   0x00000002   PAD
-    0x00001880   0x00001880   0x0000000c   Code   RO         3014    i.PRB480_ResponsePMOS_Off  ds18b20.o
-    0x0000188c   0x0000188c   0x0000000c   Code   RO         3015    i.PRB480_ResponsePMOS_On  ds18b20.o
-    0x00001898   0x00001898   0x0000016c   Code   RO         3016    i.PRB480_RunMacCompression  ds18b20.o
-    0x00001a04   0x00001a04   0x0000000a   Code   RO         3020    i.PRB480_SkipROM    ds18b20.o
-    0x00001a0e   0x00001a0e   0x00000048   Code   RO         3021    i.PRB480_StateToBusMAC  ds18b20.o
-    0x00001a56   0x00001a56   0x00000060   Code   RO         3022    i.PRB480_VerifyPostCopyScratchpad  ds18b20.o
-    0x00001ab6   0x00001ab6   0x00000060   Code   RO         3023    i.PRB480_VerifyReadAuthPageCRC  ds18b20.o
-    0x00001b16   0x00001b16   0x0000006e   Code   RO         3024    i.PRB480_VerifyScratchpad  ds18b20.o
-    0x00001b84   0x00001b84   0x00000042   Code   RO         3026    i.PRB480_WaitCopyResult  ds18b20.o
-    0x00001bc6   0x00001bc6   0x00000050   Code   RO         3028    i.PRB480_WriteAndVerifyScratchpad  ds18b20.o
-    0x00001c16   0x00001c16   0x00000042   Code   RO         3030    i.PRB480_WriteBit   ds18b20.o
-    0x00001c58   0x00001c58   0x00000024   Code   RO         3031    i.PRB480_WriteByte  ds18b20.o
-    0x00001c7c   0x00001c7c   0x000000ac   Code   RO         3032    i.PRB480_WriteScratchpad  ds18b20.o
-    0x00001d28   0x00001d28   0x00000002   Code   RO          160    i.PendSV_Handler    stm32f4xx_it.o
-    0x00001d2a   0x00001d2a   0x00000002   PAD
-    0x00001d2c   0x00001d2c   0x00000020   Code   RO          361    i.RCC_AHB1PeriphClockCmd  stm32f4xx_rcc.o
-    0x00001d4c   0x00001d4c   0x00000020   Code   RO          373    i.RCC_APB2PeriphClockCmd  stm32f4xx_rcc.o
-    0x00001d6c   0x00001d6c   0x000000e8   Code   RO          382    i.RCC_GetClocksFreq  stm32f4xx_rcc.o
-    0x00001e54   0x00001e54   0x00000002   Code   RO          161    i.SVC_Handler       stm32f4xx_it.o
-    0x00001e56   0x00001e56   0x00000002   PAD
-    0x00001e58   0x00001e58   0x000000ec   Code   RO         2787    i.SetSysClock       system_stm32f4xx.o
-    0x00001f44   0x00001f44   0x00000028   Code   RO          763    i.SysTick_CLKSourceConfig  misc.o
-    0x00001f6c   0x00001f6c   0x00000002   Code   RO          162    i.SysTick_Handler   stm32f4xx_it.o
-    0x00001f6e   0x00001f6e   0x00000002   PAD
-    0x00001f70   0x00001f70   0x0000003c   Code   RO         2849    i.SysTick_Init      systick.o
-    0x00001fac   0x00001fac   0x00000068   Code   RO         2789    i.SystemInit        system_stm32f4xx.o
-    0x00002014   0x00002014   0x00000088   Code   RO         2896    i.USART1_IRQHandler  usart.o
-    0x0000209c   0x0000209c   0x000000b4   Code   RO         2897    i.USART1_Init       usart.o
-    0x00002150   0x00002150   0x00000012   Code   RO         1439    i.USART_ClearFlag   stm32f4xx_usart.o
-    0x00002162   0x00002162   0x00000018   Code   RO         1443    i.USART_Cmd         stm32f4xx_usart.o
-    0x0000217a   0x0000217a   0x0000001a   Code   RO         1446    i.USART_GetFlagStatus  stm32f4xx_usart.o
-    0x00002194   0x00002194   0x00000054   Code   RO         1447    i.USART_GetITStatus  stm32f4xx_usart.o
-    0x000021e8   0x000021e8   0x0000004a   Code   RO         1449    i.USART_ITConfig    stm32f4xx_usart.o
-    0x00002232   0x00002232   0x00000002   PAD
-    0x00002234   0x00002234   0x000000d4   Code   RO         1450    i.USART_Init        stm32f4xx_usart.o
-    0x00002308   0x00002308   0x0000000a   Code   RO         1457    i.USART_ReceiveData  stm32f4xx_usart.o
-    0x00002312   0x00002312   0x00000008   Code   RO         1460    i.USART_SendData    stm32f4xx_usart.o
-    0x0000231a   0x0000231a   0x00000004   Code   RO          163    i.UsageFault_Handler  stm32f4xx_it.o
-    0x0000231e   0x0000231e   0x00000002   PAD
-    0x00002320   0x00002320   0x00000020   Code   RO         3669    i.__0printf$8       mc_w.l(printf8.o)
-    0x00002340   0x00002340   0x0000000e   Code   RO         3765    i.__scatterload_copy  mc_w.l(handlers.o)
-    0x0000234e   0x0000234e   0x00000002   Code   RO         3766    i.__scatterload_null  mc_w.l(handlers.o)
-    0x00002350   0x00002350   0x0000000e   Code   RO         3767    i.__scatterload_zeroinit  mc_w.l(handlers.o)
-    0x0000235e   0x0000235e   0x00000002   PAD
-    0x00002360   0x00002360   0x00000410   Code   RO         3676    i._printf_core      mc_w.l(printf8.o)
-    0x00002770   0x00002770   0x00000024   Code   RO         3677    i._printf_post_padding  mc_w.l(printf8.o)
-    0x00002794   0x00002794   0x0000002e   Code   RO         3678    i._printf_pre_padding  mc_w.l(printf8.o)
-    0x000027c2   0x000027c2   0x00000038   Code   RO         2850    i.delay_ms          systick.o
-    0x000027fa   0x000027fa   0x00000002   PAD
-    0x000027fc   0x000027fc   0x0000004c   Code   RO         2851    i.delay_nms         systick.o
-    0x00002848   0x00002848   0x0000004c   Code   RO         2852    i.delay_us          systick.o
-    0x00002894   0x00002894   0x00000024   Code   RO         2898    i.fputc             usart.o
-    0x000028b8   0x000028b8   0x000004bc   Code   RO            4    i.main              main.o
-    0x00002d74   0x00002d74   0x00000093   Data   RO         3034    .conststring        ds18b20.o
-    0x00002e07   0x00002e07   0x00000001   PAD
-    0x00002e08   0x00002e08   0x00000020   Data   RO         3763    Region$$Table       anon$$obj.o
+    0x0000100c   0x0000100c   0x00000130   Code   RO         2989    i.PRB480_GenerateReadAuthPageMAC  ds18b20.o
+    0x0000113c   0x0000113c   0x0000001a   Code   RO         2990    i.PRB480_GetCopyTargetArea  ds18b20.o
+    0x00001156   0x00001156   0x00000002   PAD
+    0x00001158   0x00001158   0x00000030   Code   RO         2992    i.PRB480_IO_ANALOG  ds18b20.o
+    0x00001188   0x00001188   0x0000002c   Code   RO         2993    i.PRB480_IO_IN      ds18b20.o
+    0x000011b4   0x000011b4   0x0000001a   Code   RO         2995    i.PRB480_Init       ds18b20.o
+    0x000011ce   0x000011ce   0x00000002   PAD
+    0x000011d0   0x000011d0   0x000000b4   Code   RO         2996    i.PRB480_LoadChallengeScratchpad  ds18b20.o
+    0x00001284   0x00001284   0x000001e4   Code   RO         2997    i.PRB480_LoadFirstSecret  ds18b20.o
+    0x00001468   0x00001468   0x0000001e   Code   RO         2999    i.PRB480_MatchROM   ds18b20.o
+    0x00001486   0x00001486   0x0000000a   Code   RO         3000    i.PRB480_PageStart  ds18b20.o
+    0x00001490   0x00001490   0x0000000c   Code   RO         3001    i.PRB480_PowerPMOS_Off  ds18b20.o
+    0x0000149c   0x0000149c   0x0000000c   Code   RO         3002    i.PRB480_PowerPMOS_On  ds18b20.o
+    0x000014a8   0x000014a8   0x00000038   Code   RO         3003    i.PRB480_ReadAdcRaw  ds18b20.o
+    0x000014e0   0x000014e0   0x0000018c   Code   RO         3006    i.PRB480_ReadAuthenticatedPageEx  ds18b20.o
+    0x0000166c   0x0000166c   0x000004b4   Code   RO         3007    i.PRB480_ReadAuthenticatedPageRaw  ds18b20.o
+    0x00001b20   0x00001b20   0x0000008c   Code   RO         3008    i.PRB480_ReadBit    ds18b20.o
+    0x00001bac   0x00001bac   0x00000022   Code   RO         3009    i.PRB480_ReadByte   ds18b20.o
+    0x00001bce   0x00001bce   0x00000042   Code   RO         3010    i.PRB480_ReadMemory  ds18b20.o
+    0x00001c10   0x00001c10   0x000000e0   Code   RO         3011    i.PRB480_ReadROM    ds18b20.o
+    0x00001cf0   0x00001cf0   0x000000c6   Code   RO         3012    i.PRB480_ReadScratchpad  ds18b20.o
+    0x00001db6   0x00001db6   0x00000024   Code   RO         3013    i.PRB480_Reset      ds18b20.o
+    0x00001dda   0x00001dda   0x00000002   PAD
+    0x00001ddc   0x00001ddc   0x0000000c   Code   RO         3014    i.PRB480_ResponsePMOS_Off  ds18b20.o
+    0x00001de8   0x00001de8   0x0000000c   Code   RO         3015    i.PRB480_ResponsePMOS_On  ds18b20.o
+    0x00001df4   0x00001df4   0x0000016c   Code   RO         3016    i.PRB480_RunMacCompression  ds18b20.o
+    0x00001f60   0x00001f60   0x0000000a   Code   RO         3020    i.PRB480_SkipROM    ds18b20.o
+    0x00001f6a   0x00001f6a   0x00000048   Code   RO         3021    i.PRB480_StateToBusMAC  ds18b20.o
+    0x00001fb2   0x00001fb2   0x00000060   Code   RO         3022    i.PRB480_VerifyPostCopyScratchpad  ds18b20.o
+    0x00002012   0x00002012   0x00000060   Code   RO         3023    i.PRB480_VerifyReadAuthPageCRC  ds18b20.o
+    0x00002072   0x00002072   0x0000006e   Code   RO         3024    i.PRB480_VerifyScratchpad  ds18b20.o
+    0x000020e0   0x000020e0   0x00000042   Code   RO         3026    i.PRB480_WaitCopyResult  ds18b20.o
+    0x00002122   0x00002122   0x00000050   Code   RO         3028    i.PRB480_WriteAndVerifyScratchpad  ds18b20.o
+    0x00002172   0x00002172   0x00000042   Code   RO         3030    i.PRB480_WriteBit   ds18b20.o
+    0x000021b4   0x000021b4   0x00000024   Code   RO         3031    i.PRB480_WriteByte  ds18b20.o
+    0x000021d8   0x000021d8   0x000000ac   Code   RO         3032    i.PRB480_WriteScratchpad  ds18b20.o
+    0x00002284   0x00002284   0x00000002   Code   RO          160    i.PendSV_Handler    stm32f4xx_it.o
+    0x00002286   0x00002286   0x00000002   PAD
+    0x00002288   0x00002288   0x00000020   Code   RO          361    i.RCC_AHB1PeriphClockCmd  stm32f4xx_rcc.o
+    0x000022a8   0x000022a8   0x00000020   Code   RO          373    i.RCC_APB2PeriphClockCmd  stm32f4xx_rcc.o
+    0x000022c8   0x000022c8   0x000000e8   Code   RO          382    i.RCC_GetClocksFreq  stm32f4xx_rcc.o
+    0x000023b0   0x000023b0   0x00000002   Code   RO          161    i.SVC_Handler       stm32f4xx_it.o
+    0x000023b2   0x000023b2   0x00000002   PAD
+    0x000023b4   0x000023b4   0x000000ec   Code   RO         2787    i.SetSysClock       system_stm32f4xx.o
+    0x000024a0   0x000024a0   0x00000028   Code   RO          763    i.SysTick_CLKSourceConfig  misc.o
+    0x000024c8   0x000024c8   0x00000002   Code   RO          162    i.SysTick_Handler   stm32f4xx_it.o
+    0x000024ca   0x000024ca   0x00000002   PAD
+    0x000024cc   0x000024cc   0x0000003c   Code   RO         2849    i.SysTick_Init      systick.o
+    0x00002508   0x00002508   0x00000068   Code   RO         2789    i.SystemInit        system_stm32f4xx.o
+    0x00002570   0x00002570   0x00000088   Code   RO         2896    i.USART1_IRQHandler  usart.o
+    0x000025f8   0x000025f8   0x000000b4   Code   RO         2897    i.USART1_Init       usart.o
+    0x000026ac   0x000026ac   0x00000012   Code   RO         1439    i.USART_ClearFlag   stm32f4xx_usart.o
+    0x000026be   0x000026be   0x00000018   Code   RO         1443    i.USART_Cmd         stm32f4xx_usart.o
+    0x000026d6   0x000026d6   0x0000001a   Code   RO         1446    i.USART_GetFlagStatus  stm32f4xx_usart.o
+    0x000026f0   0x000026f0   0x00000054   Code   RO         1447    i.USART_GetITStatus  stm32f4xx_usart.o
+    0x00002744   0x00002744   0x0000004a   Code   RO         1449    i.USART_ITConfig    stm32f4xx_usart.o
+    0x0000278e   0x0000278e   0x00000002   PAD
+    0x00002790   0x00002790   0x000000d4   Code   RO         1450    i.USART_Init        stm32f4xx_usart.o
+    0x00002864   0x00002864   0x0000000a   Code   RO         1457    i.USART_ReceiveData  stm32f4xx_usart.o
+    0x0000286e   0x0000286e   0x00000008   Code   RO         1460    i.USART_SendData    stm32f4xx_usart.o
+    0x00002876   0x00002876   0x00000004   Code   RO          163    i.UsageFault_Handler  stm32f4xx_it.o
+    0x0000287a   0x0000287a   0x00000002   PAD
+    0x0000287c   0x0000287c   0x00000020   Code   RO         3673    i.__0printf$8       mc_w.l(printf8.o)
+    0x0000289c   0x0000289c   0x0000000e   Code   RO         3769    i.__scatterload_copy  mc_w.l(handlers.o)
+    0x000028aa   0x000028aa   0x00000002   Code   RO         3770    i.__scatterload_null  mc_w.l(handlers.o)
+    0x000028ac   0x000028ac   0x0000000e   Code   RO         3771    i.__scatterload_zeroinit  mc_w.l(handlers.o)
+    0x000028ba   0x000028ba   0x00000002   PAD
+    0x000028bc   0x000028bc   0x00000410   Code   RO         3680    i._printf_core      mc_w.l(printf8.o)
+    0x00002ccc   0x00002ccc   0x00000024   Code   RO         3681    i._printf_post_padding  mc_w.l(printf8.o)
+    0x00002cf0   0x00002cf0   0x0000002e   Code   RO         3682    i._printf_pre_padding  mc_w.l(printf8.o)
+    0x00002d1e   0x00002d1e   0x00000038   Code   RO         2850    i.delay_ms          systick.o
+    0x00002d56   0x00002d56   0x00000002   PAD
+    0x00002d58   0x00002d58   0x0000004c   Code   RO         2851    i.delay_nms         systick.o
+    0x00002da4   0x00002da4   0x0000004c   Code   RO         2852    i.delay_us          systick.o
+    0x00002df0   0x00002df0   0x00000024   Code   RO         2898    i.fputc             usart.o
+    0x00002e14   0x00002e14   0x000005f8   Code   RO            4    i.main              main.o
+    0x0000340c   0x0000340c   0x0000011f   Data   RO         3034    .conststring        ds18b20.o
+    0x0000352b   0x0000352b   0x00000001   PAD
+    0x0000352c   0x0000352c   0x00000020   Data   RO         3767    Region$$Table       anon$$obj.o
 
 
-    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x00002e28, Size: 0x000005c0, Max: 0x00020000, ABSOLUTE)
+    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x0000354c, Size: 0x000005c0, Max: 0x00020000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x20000000   0x00002e28   0x00000010   Data   RW          414    .data               stm32f4xx_rcc.o
-    0x20000010   0x00002e38   0x00000004   Data   RW         2853    .data               systick.o
-    0x20000014   0x00002e3c   0x00000002   Data   RW         2900    .data               usart.o
-    0x20000016   0x00002e3e   0x00000002   PAD
-    0x20000018   0x00002e40   0x00000017   Data   RW         3035    .data               ds18b20.o
-    0x2000002f   0x00002e57   0x00000001   PAD
-    0x20000030   0x00002e58   0x00000004   Data   RW         3737    .data               mc_w.l(stdout.o)
+    0x20000000   0x0000354c   0x00000010   Data   RW          414    .data               stm32f4xx_rcc.o
+    0x20000010   0x0000355c   0x00000004   Data   RW         2853    .data               systick.o
+    0x20000014   0x00003560   0x00000002   Data   RW         2900    .data               usart.o
+    0x20000016   0x00003562   0x00000002   PAD
+    0x20000018   0x00003564   0x00000017   Data   RW         3035    .data               ds18b20.o
+    0x2000002f   0x0000357b   0x00000001   PAD
+    0x20000030   0x0000357c   0x00000004   Data   RW         3741    .data               mc_w.l(stdout.o)
     0x20000034        -       0x000000c8   Zero   RW         2899    .bss                usart.o
     0x200000fc        -       0x000000c0   Zero   RW         3033    .bss                ds18b20.o
-    0x200001bc   0x00002e5c   0x00000004   PAD
+    0x200001bc   0x00003580   0x00000004   PAD
     0x200001c0        -       0x00000400   Zero   RW          249    STACK               startup_stm32f40_41xxx.o
 
 
@@ -1795,9 +1804,9 @@ Image component sizes
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
 
        128          0          0          0          0       1640   crc16.o
-      5690        782        147         23        192      39554   ds18b20.o
+      7060       1700        287         23        192      40418   ds18b20.o
         88          6          0          0          0        551   led.o
-      1212        568          0          0          0     286087   main.o
+      1528        714          0          0          0     286331   main.o
        180         24          0          0          0       2417   misc.o
         36          8        392          0       1024        876   startup_stm32f40_41xxx.o
        412         24          0          0          0       8066   stm32f4xx_adc.o
@@ -1810,9 +1819,9 @@ Image component sizes
        352         26          0          2        200       2544   usart.o
 
     ----------------------------------------------------------------------
-      9744       1524        572         48       1420     364724   Object Totals
+     11432       2588        712         48       1420     365832   Object Totals
          0          0         32          0          0          0   (incl. Generated)
-        24          0          1          3          4          0   (incl. Padding)
+        26          0          1          3          4          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
@@ -1857,15 +1866,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     11244       1594        572         52       1420     355916   Grand Totals
-     11244       1594        572         52       1420     355916   ELF Image Totals
-     11244       1594        572         52          0          0   ROM Totals
+     12932       2658        712         52       1420     357024   Grand Totals
+     12932       2658        712         52       1420     357024   ELF Image Totals
+     12932       2658        712         52          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                11816 (  11.54kB)
+    Total RO  Size (Code + RO Data)                13644 (  13.32kB)
     Total RW  Size (RW Data + ZI Data)              1472 (   1.44kB)
-    Total ROM Size (Code + RO Data + RW Data)      11868 (  11.59kB)
+    Total ROM Size (Code + RO Data + RW Data)      13696 (  13.38kB)
 
 ==============================================================================
 
