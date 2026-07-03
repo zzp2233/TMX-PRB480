@@ -62,6 +62,7 @@ static u8 PRB480_VerifyReadAuthPageCRC(u8 *prefix, u8 prefix_len, u8 *payload, u
 static void PRB480_RunMacCompression(const u8 message[64], u32 state[5]);            /* 执行 PRB480 单块 SHA-1 压缩 */
 static void PRB480_StateToBusMAC(const u32 state[5], u8 mac[20]);                    /* 把内部状态转换成总线输出 MAC */
 static u8 PRB480_GetCopyTargetArea(u16 addr);                                      /* 判断 Copy Scratchpad 目标地址类型 */
+static u8 PRB480_DebugPrintCopyMACInputs(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 *scratchpad, u8 ta1, u8 ta2, u8 es); /* 调试打印 Copy MAC 输入 */
 static u8 PRB480_GenerateCopyMAC(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 *scratchpad, u8 mac[20]); /* 按目标类型生成写授权 MAC */
 static void PRB480_GenerateCopyDataPageMAC(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 *scratchpad, u8 mac[20]); /* 生成数据页写授权 MAC */
 static u8 PRB480_GenerateCopyConfigPageMAC(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 *scratchpad, u8 mac[20]); /* 生成配置页写授权 MAC */
@@ -70,6 +71,10 @@ static u8 PRB480_LoadChallengeScratchpad(u8 *rom, u16 addr, u8 challenge[5], u8 
 static u8 PRB480_ReadAuthenticatedPageRaw(u8 *rom, u16 addr, u8 challenge[5], PRB480_AuthenticatedPagePacket *packet); /* CODEX: 原始认证读流程，5 字节 challenge */
 
 static u8 PRB480_CommandStart(u8 *rom);      /* 发送 Reset + ROM 寻址命令 */
+static void PRB480_Step5_SendCodeReset(u8 needDummy);
+static u8 PRB480_Step5_WriteScratchpad(u8 *rom, u16 addr, u8 *dat, u16 *crc);
+static u8 PRB480_Step5_ReadScratchpad(u8 *rom, u8 *ta1, u8 *ta2, u8 *es, u8 *buf, u16 *crc);
+static u8 PRB480_Step5_CopyScratchpad(u8 *rom, u16 addr, u8 es, u8 mac[20]);
 static u8 PRB480_CheckWriteAddress(u16 addr);/* 检查写地址是否 8 字节对齐 */
 static u8 PRB480_CheckScratchpadES(u8 es);   /* 检查 E/S 状态是否合法 */
 static u8 PRB480_VerifyScratchpad(u8 *rom, u16 addr, u8 *expected, u8 *ta1, u8 *ta2, u8 *es); /* 读回并验证 scratchpad */
@@ -178,37 +183,60 @@ static u8 PRB480_WaitReady(u16 timeout)
 *******************************************************************************/
 static u8 PRB480_WaitCopyResult(u8 *status)
 {
-    u8 loop;                                                                           /* 保存当前读取到的 loop 状态字节 */
-    u8 retry;                                                                          /* 状态字节轮询次数 */
+    u8 first = 0x88;
+    u8 second = 0x88;
+    u8 retry;
+    u8 zeroCount = 0;
+    u8 ffCount = 0;
 
-    if (status == 0) return PRB480_COPY_UNKNOWN;                                       /* 状态输出指针为空则返回未知错误 */
+    if (status == 0) return PRB480_COPY_UNKNOWN;
+    *status = 0x0F;
 
-    *status = 0xFF;                                                                    /* 先给输出状态一个默认值，便于失败时观察 */
-
-    for (retry = 0; retry < 20; retry++)                                               /* 最多读取 20 次状态 loop，避免总线异常时卡死 */
+    for (retry = 0; retry < 20; retry++)
     {
-        loop = PRB480_ReadByte();                                                      /* 读取 Copy Scratchpad 返回的状态字节 */
-        *status = loop;                                                                /* 保存最近一次状态字节给调用者打印 */
-
-        if (loop == 0xAA)                                                              /* 判断是否为 AAh 成功状态 */
+        first = PRB480_ReadByte();
+        second = PRB480_ReadByte();
+        *status = first;
+        printf("Copy loop[%d]: %02X %02X\r\n", retry, first, second);
+        /* Copy accepted: 0/1 loop，读成 AA 或 55 */
+        if (PRB480_CheckAlternatingResponse(first, second) == 0)
         {
-            return PRB480_COPY_OK;                                                     /* 返回复制成功 */
+            *status = first;
+            return PRB480_COPY_OK;
         }
 
-        if (loop == 0x00)                                                              /* 判断是否为 00h MAC 不匹配状态 */
+        /* Copy rejected: MAC mismatch，PRB480 repeats 0 */
+        if (first == 0x00 && second == 0x00)
         {
-            return PRB480_COPY_MAC_ERR;                                                /* 返回 MAC 不匹配 */
+            zeroCount++;
+            ffCount = 0;
+
+            if (zeroCount >= 3)
+            {
+                return PRB480_COPY_MAC_ERR;
+            }
+        }
+        /* Other reject / idle-high: repeats 1 */
+        else if (first == 0xFF && second == 0xFF)
+        {
+            ffCount++;
+            zeroCount = 0;
+
+            if (ffCount >= 3)
+            {
+                return PRB480_COPY_AUTH_ERR;
+            }
+        }
+        else
+        {
+            zeroCount = 0;
+            ffCount = 0;
         }
 
-        if (loop == 0xFF)                                                              /* 判断是否为 FFh 地址/认证错误状态 */
-        {
-            return PRB480_COPY_AUTH_ERR;                                               /* 返回 TA/E/S 错误、无效地址或写保护 */
-        }
-
-        delay_us(50);                                                                  /* 未读到标准状态时稍等后再次读取 */
+        delay_ms(1);
     }
 
-    return PRB480_COPY_TIMEOUT;                                                        /* 多次读取仍无标准状态则返回超时 */
+    return PRB480_COPY_TIMEOUT;
 }
 
 /*******************************************************************************
@@ -577,6 +605,112 @@ static u8 PRB480_GenerateCopyConfigPageMAC(u8 *secret, u8 *rom, u16 addr, u8 *pa
     return 0;                                                                            /* 配置页 Copy MAC 生成成功 */
 }
 
+/*******************************************************************************
+* 名    称         : PRB480_DebugPrintCopyMACInputs
+* 功    能         : 打印 Copy Scratchpad MAC 计算所需的全部输入
+* 说    明         : 仅用于调试，不改变 MAC 计算结果。数据页按表 3A 拼 block，
+*                    配置页按表 3B 拼 block，方便和手册/历程逐字节比对。
+*******************************************************************************/
+static u8 PRB480_DebugPrintCopyMACInputs(u8 *secret, u8 *rom, u16 addr, u8 *page, u8 *scratchpad, u8 ta1, u8 ta2, u8 es)
+{
+    u8 msg[64] = {0};
+    u8 area;
+    u8 i;
+    u8 mp;
+
+    if (secret == 0 || rom == 0 || page == 0 || scratchpad == 0) return 1;
+
+    area = PRB480_GetCopyTargetArea(addr);
+    if (area == PRB480_COPY_AREA_INVALID) return 1;
+
+    printf("Copy MAC input addr=0x%04X pageStart=0x%04X TA1=0x%02X TA2=0x%02X E/S=0x%02X area=%s\r\n",
+           addr,
+           PRB480_PageStart(addr),
+           ta1,
+           ta2,
+           es,
+           (area == PRB480_COPY_AREA_DATA) ? "DATA" : "CONFIG");
+
+    printf("Copy MAC input secret:");
+    for (i = 0; i < 8; i++) printf(" %02X", secret[i]);
+    printf("\r\n");
+
+    printf("Copy MAC input ROM full:");
+    for (i = 0; i < 8; i++) printf(" %02X", rom[i]);
+    printf("\r\n");
+
+    printf("Copy MAC input ROM used:");
+    for (i = 0; i < 7; i++) printf(" %02X", rom[i]);
+    printf("\r\n");
+
+    printf("Copy MAC input pageData[0..31]:");
+    for (i = 0; i < 32; i++) printf(" %02X", page[i]);
+    printf("\r\n");
+
+    if (area == PRB480_COPY_AREA_DATA)
+    {
+        printf("Copy MAC input pageData used[0..27]:");
+        for (i = 0; i < 28; i++) printf(" %02X", page[i]);
+        printf("\r\n");
+    }
+    else
+    {
+        printf("Copy MAC input RP used pageData[8..27] = 0x0088..0x009B:");
+        for (i = 0; i < 20; i++) printf(" %02X", page[8 + i]);
+        printf("\r\n");
+    }
+
+    printf("Copy MAC input scratchpad:");
+    for (i = 0; i < 8; i++) printf(" %02X", scratchpad[i]);
+    printf("\r\n");
+
+    if (area == PRB480_COPY_AREA_DATA)
+    {
+        for (i = 0; i < 4; i++) msg[i] = secret[i];
+        for (i = 0; i < 28; i++) msg[4 + i] = page[i];
+        for (i = 0; i < 8; i++) msg[32 + i] = scratchpad[i];
+        mp = (u8)((PRB480_PageStart(addr) >> 5) & 0x0F);
+        msg[40] = mp;
+        for (i = 0; i < 7; i++) msg[41 + i] = rom[i];
+        for (i = 0; i < 4; i++) msg[48 + i] = secret[4 + i];
+    }
+    else
+    {
+        for (i = 0; i < 4; i++) msg[i] = secret[i];
+        for (i = 0; i < 4; i++) msg[4 + i] = secret[i];
+        for (i = 0; i < 4; i++) msg[8 + i] = secret[4 + i];
+        for (i = 0; i < 20; i++) msg[12 + i] = page[8 + i];
+        for (i = 0; i < 8; i++) msg[32 + i] = scratchpad[i];
+        mp = 0x04;
+        msg[40] = mp;
+        for (i = 0; i < 7; i++) msg[41 + i] = rom[i];
+        for (i = 0; i < 4; i++) msg[48 + i] = secret[4 + i];
+    }
+
+    msg[52] = 0xFF;
+    msg[53] = 0xFF;
+    msg[54] = 0xFF;
+    msg[55] = 0x80;
+    msg[56] = 0x00;
+    msg[57] = 0x00;
+    msg[58] = 0x00;
+    msg[59] = 0x00;
+    msg[60] = 0x00;
+    msg[61] = 0x00;
+    msg[62] = 0x01;
+    msg[63] = 0xB8;
+
+    printf("Copy MAC input MP=0x%02X\r\n", mp);
+    printf("Copy MAC block:");
+    for (i = 0; i < 64; i++)
+    {
+        if ((i & 0x07) == 0) printf("\r\n");
+        printf(" %02X", msg[i]);
+    }
+    printf("\r\n");
+
+    return 0;
+}
 /*******************************************************************************
 * 名    称         : PRB480_GenerateCopyMAC
 * 功    能         : 根据目标地址类型生成 Copy Scratchpad 写授权 MAC
@@ -1024,6 +1158,24 @@ u8 PRB480_Reset(void)
     delay_us(PRB480_TSTD_US);
     
     return 0;
+}
+
+/*******************************************************************************
+* 名    称 : PRB480_SendCodeReset
+* 功    能 : 发送 PRB480 复位指令 CODEh
+* 参    数 : needDummy
+*            1 = 先发送 1 个 DUMMY bit，再发送 CODEh
+*            0 = 不发送 DUMMY bit，直接发送 CODEh
+*******************************************************************************/
+void PRB480_SendCodeReset(u8 needDummy)
+{
+    if (needDummy)
+    {
+        PRB480_WriteBit(0xFF);     /* DUMMY bit */
+    }
+
+    PRB480_WriteByte(0xC0);     /* CODEh 第 1 字节 */
+    PRB480_WriteByte(0xDE);     /* CODEh 第 2 字节 */
 }
 
 void PRB480_WriteBit(u8 bit)
@@ -1500,6 +1652,9 @@ u8 PRB480_ReadMemory(u8 *rom, u16 addr, u8 *buf, u8 len)
     {
         buf[i] = PRB480_ReadByte();  /* 逐字节读取 */
     }
+
+    PRB480_Reset();      /* 退出 F0h Read Memory 状态 */
+
     return 0;
 }
 
@@ -1888,23 +2043,28 @@ u8 PRB480_CopyScratchpad(u8 *rom, u16 addr, u8 es, u8 mac[20])
     PRB480_WriteByte((u8)(addr >> 8));                                                 /* 发送目标地址高字节 TA2 */
     PRB480_WriteByte(es);                                                              /* 发送 Read Scratchpad 验证得到的 E/S */
 
-    PRB480_ResponsePMOS_On();
-    PRB480_PowerPMOS_On();                                                          /* tCSHA 期间打开功率 PMOS */
-    delay_ms(PRB480_TCSHA_MS);                                                         /* 等待 tCSHA，期间不读取总线，避免打断 MAC 接收时序 */
-    PRB480_PowerPMOS_Off();
+    // PRB480_ResponsePMOS_On();
+    // PRB480_PowerPMOS_On();                                                          /* tCSHA 期间打开功率 PMOS */
+    delay_ms(50);                                                         /* 等待 tCSHA，期间不读取总线，避免打断 MAC 接收时序 */
+//    PRB480_PowerPMOS_Off();
 
     for (i = 0; i < 20; i++)                                                           /* 逐字节发送主机侧 20 字节 MAC */
     {
         PRB480_WriteByte(mac[i]);                                                      /* 发送第 i 个 MAC 字节 */
     }
 
-    PRB480_ResponsePMOS_On();
-    PRB480_PowerPMOS_On();                                                          /* tPROG 期间打开功率 PMOS */
-    delay_ms(PRB480_TPROG_MS);                                                         /* 等待 tPROG，让芯片完成 MAC 比较和 FRAM 复制 */
-    PRB480_PowerPMOS_Off();
+    // PRB480_ResponsePMOS_On();
+    // PRB480_PowerPMOS_On();                                                          /* tPROG 期间打开功率 PMOS */
+    delay_ms(50);                                                         /* 等待 tPROG，让芯片完成 MAC 比较和 FRAM 复制 */
+    // PRB480_PowerPMOS_Off();
 
     result = PRB480_WaitCopyResult(&status);                                           /* 读取图 8c 规定的 AAh/00h/FFh 最终状态 */
     PRB480_LastCopyStatus = status;                                                    /* 保存最近一次 Copy Scratchpad 原始状态 */
+
+    printf("Copy CMD: addr=0x%04X es=0x%02X\r\n", addr, es);
+    printf("Copy MAC send:");
+    for (i = 0; i < 20; i++) printf(" %02X", mac[i]);
+    printf("\r\n");
 
     printf("Copy Scratchpad status=0x%02X\r\n", status);                               /* 打印芯片返回的原始状态字节 */
 
@@ -1931,7 +2091,7 @@ u8 PRB480_CopyScratchpad(u8 *rom, u16 addr, u8 es, u8 mac[20])
 
     if (PRB480_Reset()) return 1;                                                      /* 成功读取 AAh 后由主机发送 Reset，结束当前命令 */
 
-    if (PRB480_VerifyPostCopyScratchpad(rom, addr, 0)) return 1;                       /* 重新读 scratchpad，确认 AA=1 表示授权复制已接受 */
+    // if (PRB480_VerifyPostCopyScratchpad(rom, addr, 0)) return 1;                       /* 重新读 scratchpad，确认 AA=1 表示授权复制已接受 */
 
     return 0;                                                                          /* Copy Scratchpad 认证写入成功 */
 }                                     
@@ -2009,6 +2169,196 @@ u8 PRB480_ReadAuthenticatedPage(u8 *rom, u16 addr, u8 page[32], u8 mac[20])
 }
 
 /*******************************************************************************
+* Name     : PRB480_Step5_SendCodeReset
+* Function : Step5-only command-stream reset. needDummy=1 sends one dummy bit before C0DE.
+*******************************************************************************/
+static void PRB480_Step5_SendCodeReset(u8 needDummy)
+{
+    if (needDummy)
+    {
+        PRB480_WriteBit(0xFF);      /* The datasheet says DUMMY bit, not a full FF byte. */
+    }
+
+    PRB480_WriteByte(0xC0);
+    PRB480_WriteByte(0xDE);
+}
+
+/*******************************************************************************
+* Name     : PRB480_Step5_WriteScratchpad
+* Function : Follow Step5 file: Reset + Match/Skip ROM + 0Fh + TA + 8 bytes + CRC.
+*******************************************************************************/
+static u8 PRB480_Step5_WriteScratchpad(u8 *rom, u16 addr, u8 *dat, u16 *crc)
+{
+    u8 tx[3 + PRB480_SCRATCHPAD_SIZE];
+    u8 i;
+    u8 crcLo;
+    u8 crcHi;
+    u16 busCrc;
+    u16 localCrc;
+
+    if (dat == 0) return 1;
+    if (PRB480_CheckWriteAddress(addr)) return 1;
+
+    if (PRB480_Reset()) return 1;
+    if (rom) PRB480_MatchROM(rom);
+    else PRB480_SkipROM();
+
+    PRB480_WriteByte(0x0F);
+    PRB480_WriteByte((u8)(addr & 0xFF));
+    PRB480_WriteByte((u8)(addr >> 8));
+
+    tx[0] = 0x0F;
+    tx[1] = (u8)(addr & 0xFF);
+    tx[2] = (u8)(addr >> 8);
+
+    for (i = 0; i < PRB480_SCRATCHPAD_SIZE; i++)
+    {
+        PRB480_WriteByte(dat[i]);
+        tx[3 + i] = dat[i];
+    }
+
+    crcLo = PRB480_ReadByte();
+    crcHi = PRB480_ReadByte();
+    busCrc = crcLo | ((u16)crcHi << 8);
+    localCrc = PRB480_CalcCRC16(tx, 3 + PRB480_SCRATCHPAD_SIZE);
+
+    if (crc) *crc = busCrc;
+
+    printf("Step5 WriteScratchpad CRC bus=0x%04X local=0x%04X\r\n", busCrc, localCrc);
+    return (busCrc == localCrc) ? 0 : 1;
+}
+
+/*******************************************************************************
+* Name     : PRB480_Step5_ReadScratchpad
+* Function : Step5 fallback: Reset + Match/Skip ROM + Read Scratchpad AAh.
+*******************************************************************************/
+static u8 PRB480_Step5_ReadScratchpad(u8 *rom, u8 *ta1, u8 *ta2, u8 *es, u8 *buf, u16 *crc)
+{
+    u8 verify[4 + PRB480_SCRATCHPAD_SIZE];
+    u8 i;
+    u8 crcLo;
+    u8 crcHi;
+    u16 busCrc;
+    u16 localCrc;
+
+    if (ta1 == 0 || ta2 == 0 || es == 0 || buf == 0) return 1;
+
+//    if (PRB480_CommandStart(rom)) return 1;
+    PRB480_SendCodeReset(1);
+    PRB480_WriteByte(0xA5);
+    PRB480_WriteByte(0xAA);
+
+    *ta1 = PRB480_ReadByte();
+    *ta2 = PRB480_ReadByte();
+    *es  = PRB480_ReadByte();
+
+    for (i = 0; i < PRB480_SCRATCHPAD_SIZE; i++)
+    {
+        buf[i] = PRB480_ReadByte();
+    }
+
+    crcLo = PRB480_ReadByte();
+    crcHi = PRB480_ReadByte();
+    busCrc = crcLo | ((u16)crcHi << 8);
+
+    verify[0] = 0xAA;
+    verify[1] = *ta1;
+    verify[2] = *ta2;
+    verify[3] = *es;
+    for (i = 0; i < PRB480_SCRATCHPAD_SIZE; i++)
+    {
+        verify[4 + i] = buf[i];
+    }
+
+    localCrc = PRB480_CalcCRC16(verify, 4 + PRB480_SCRATCHPAD_SIZE);
+    if (crc) *crc = busCrc;
+
+    printf("Step5 ReadScratchpad raw: TA1=%02X TA2=%02X E/S=%02X data:", *ta1, *ta2, *es);
+    for (i = 0; i < PRB480_SCRATCHPAD_SIZE; i++)
+    {
+        printf(" %02X", buf[i]);
+    }
+    printf(" CRC=%02X %02X\r\n", crcLo, crcHi);
+    printf("Step5 ReadScratchpad CRC bus=0x%04X local=0x%04X\r\n", busCrc, localCrc);
+    return (busCrc == localCrc) ? 0 : 1;
+}
+
+/*******************************************************************************
+* Name     : PRB480_Step5_CopyScratchpad
+* Function : Step5 fallback: Reset + Match/Skip ROM + Copy 55h + MAC + AA loop.
+*******************************************************************************/
+static u8 PRB480_Step5_CopyScratchpad(u8 *rom, u16 addr, u8 es, u8 mac[20])
+{
+    u8 i;
+    u8 status;
+    u8 result;
+
+    PRB480_LastCopyStatus = 0xFF;
+
+    if (mac == 0) return 1;
+    if (PRB480_GetCopyTargetArea(addr) == PRB480_COPY_AREA_INVALID) return 1;
+    if (PRB480_CheckWriteAddress(addr)) return 1;
+    if (PRB480_CheckScratchpadES(es)) return 1;
+
+    //test1
+    if (PRB480_CommandStart(rom)) return 1;
+
+    //test2
+    //PRB480_Step5_SendCodeReset(0);  
+    //PRB480_WriteByte(0xA5);   /* Resume */
+
+    // //test3
+    // PRB480_Step5_SendCodeReset(0);  
+    // PRB480_WriteByte(1);   /* Resume */
+    // PRB480_WriteByte(1); 
+    // PRB480_WriteByte(1); 
+    // delay_us(1000);   
+    // PRB480_WriteByte(0xCC);   /* Skip ROM */
+
+
+    PRB480_WriteByte(0x55);   /* Copy Scratchpad */
+
+    PRB480_WriteByte((u8)(addr & 0xFF));
+    PRB480_WriteByte((u8)(addr >> 8));
+    PRB480_WriteByte(es);
+
+    //printf("Step5 Copy waitCSHA: power on\r\n");
+    // PRB480_ResponsePMOS_On();
+    // PRB480_PowerPMOS_On();
+    delay_ms(500);                   
+    // PRB480_PowerPMOS_Off();
+
+    for (i = 0; i < 20; i++)
+    {
+        PRB480_WriteByte(mac[i]);
+    }
+
+    // printf("Step5 Copy waitprog: power on\r\n");
+    // PRB480_ResponsePMOS_On();
+    // PRB480_PowerPMOS_On();
+    delay_ms(500);                   
+    // PRB480_PowerPMOS_Off();
+
+    result = PRB480_WaitCopyResult(&status);
+    PRB480_LastCopyStatus = status;
+
+    printf("Step5 Copy CMD: addr=0x%04X es=0x%02X\r\n", addr, es);
+    printf("Step5 Copy MAC send:");
+    for (i = 0; i < 20; i++) printf(" %02X", mac[i]);
+    printf("\r\n");
+    printf("Step5 Copy Scratchpad status=0x%02X\r\n", status);
+
+    if (result != PRB480_COPY_OK)
+    {
+        PRB480_Reset();
+        return 1;
+    }
+
+    if (PRB480_Reset()) return 1;
+    return 0;
+}
+
+/*******************************************************************************
 * 名    称         : PRB480_CopyScratchpadVerified
 * 功    能         : 按图 8c 完整执行 Copy Scratchpad(0x55) 授权写入流程
 * 说    明         : 函数内部完成 Write Scratchpad、Read Scratchpad 验证、
@@ -2034,6 +2384,10 @@ u8 PRB480_CopyScratchpadVerified(u8 *rom, u16 addr, u8 *writeData, u8 *secret, u
     u16 crc;                                                                           /* 保存 Read Scratchpad 返回的 CRC16 */
     u8 i;                                                                              /* 通用循环变量 */
 
+    /*
+    1. Write Scratchpad：把 8 字节数据写进 scratchpad
+    2. Read Scratchpad：读回确认 TA1/TA2/E/S 和数据
+    */
     if (copyStatus) *copyStatus = 0xFF;                                                /* 如果调用者需要，先返回默认 FFh 状态 */
     if (writeData == 0 || secret == 0 || pageData == 0 || mac == 0) return 1;          /* 任一关键指针为空则返回失败 */
     if (rom == 0) return 1;                                                            /* Copy MAC 必须使用 ROM 前 7 字节，不能使用空 ROM */
@@ -2043,7 +2397,8 @@ u8 PRB480_CopyScratchpadVerified(u8 *rom, u16 addr, u8 *writeData, u8 *secret, u
     if (PRB480_ReadMemory(rom, PRB480_PageStart(addr), pageData, 32)) return 1;        /* 读取目标页原始 32 字节数据 */
     if (PRB480_WriteScratchpad(rom, addr, writeData, PRB480_SCRATCHPAD_SIZE, &crc)) return 1; /* 写入 8 字节待授权数据到 scratchpad */
     if (PRB480_ReadScratchpad(rom, &ta1, &ta2, &es, scratchpad, PRB480_SCRATCHPAD_SIZE, &crc)) return 1; /* 读回真实 TA1/TA2/E/S 和暂存数据 */
-
+    //if (PRB480_Step5_ReadScratchpad(rom, &ta1, &ta2, &es, scratchpad, &crc)) return 1; /* 读回真实 TA1/TA2/E/S 和暂存数据 */
+    
     printf("Scratchpad TA1=0x%02X TA2=0x%02X E/S=0x%02X PF=%d AA=%d\r\n", ta1, ta2, es, (es & PRB480_ES_PF) ? 1 : 0, (es & PRB480_ES_AA) ? 1 : 0); /* 打印真实认证字节和 PF/AA */
     printf("Scratchpad data:");                                                       /* 打印 scratchpad 数据标题 */
     for (i = 0; i < PRB480_SCRATCHPAD_SIZE; i++)                                      /* 遍历 scratchpad 8 字节 */
@@ -2056,7 +2411,11 @@ u8 PRB480_CopyScratchpadVerified(u8 *rom, u16 addr, u8 *writeData, u8 *secret, u
     if (ta2 != (u8)(addr >> 8)) return 1;                                              /* 检查真实 TA2 是否匹配目标地址高字节 */
     if (PRB480_CheckScratchpadES(es)) return 1;                                        /* 检查 PF=0、AA=0、E[2:0]=111b */
     if (memcmp(scratchpad, writeData, PRB480_SCRATCHPAD_SIZE) != 0) return 1;          /* 检查 scratchpad 数据是否等于待写入数据 */
+// ta1 = (u8)(addr & 0xFF);
+// ta2 = (u8)(addr >> 8);
+// es  = 0x5F;
 
+    if (PRB480_DebugPrintCopyMACInputs(secret, rom, addr, pageData, scratchpad, ta1, ta2, es)) return 1; /* 打印 Copy MAC 计算输入 */
     if (PRB480_GenerateCopyMAC(secret, rom, addr, pageData, scratchpad, mac)) return 1;       /* 按数据页表 3A 或配置页表 3B 生成 Copy MAC */
 
     printf("Copy MAC:");                                                              /* 打印 Copy MAC 标题 */
@@ -2066,12 +2425,14 @@ u8 PRB480_CopyScratchpadVerified(u8 *rom, u16 addr, u8 *writeData, u8 *secret, u
     }
     printf("\r\n");                                                                    /* Copy MAC 打印结束 */
 
-    if (PRB480_CopyScratchpad(rom, ((u16)ta2 << 8) | ta1, es, mac))                    /* 用真实 TA1/TA2/E/S 执行 Copy Scratchpad 0x55 */
+    //3. Copy Scratchpad：把 scratchpad 复制到目标 EEPROM/FRAM 地址
+    if (PRB480_Step5_CopyScratchpad(rom, ((u16)ta2 << 8) | ta1, es, mac))                  /* Step5 fallback: Reset + Match ROM + Copy Scratchpad 0x55 */
     {
         if (copyStatus) *copyStatus = PRB480_LastCopyStatus;                           /* 失败时也返回芯片原始状态 */
         return 1;                                                                      /* Copy Scratchpad 失败则返回失败 */
     }
 
+    //4. Read Memory：读目标地址确认写进去了
     if (copyStatus) *copyStatus = PRB480_LastCopyStatus;                               /* 成功时返回芯片原始 AAh 状态 */
     if (PRB480_ReadMemory(rom, addr, readback, PRB480_SCRATCHPAD_SIZE)) return 1;      /* Copy 成功后读回目标地址数据 */
 

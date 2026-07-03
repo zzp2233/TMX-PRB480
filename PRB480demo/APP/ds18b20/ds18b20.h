@@ -31,6 +31,7 @@ u16 PRB480_GetLastReadAdc(void);/* 调试用：返回最近一次 ReadBit 的 ADC 原始值 */
 void PRB480_DebugAdcLevels(void); /* 调试用：打印 PG10/PG11 状态下的 PC1 ADC 电平 */
 u8 PRB480_Init(void);           /* PRB480 初始化：配置引脚，执行 tRSTL/tSTD 复位时序 */
 u8 PRB480_Reset(void);          /* 复位命令：总线低电平 tRSTL，释放后等待 tSTD */
+void PRB480_SendCodeReset(u8 needDummy); /* 发送复位码，needDummy=1 时在 tRSTH 后发一个 dummy bit */
 u8 PRB480_ReadBit(void);        /* 按读时序读取 1 bit：Q5/Q6 形成读窗口，在 tREAD0 内采样 */
 void PRB480_DebugReadSlotLoop(u16 count); /* 调试用：不发命令，只循环产生 ReadBit 同款读时隙，count=0 表示一直循环 */
 void PRB480_WriteBit(u8 bit);   /* 按写时序写 1 bit：1=一个低脉冲，0=两个低脉冲 */
