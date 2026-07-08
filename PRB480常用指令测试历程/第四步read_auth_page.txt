@@ -1,4 +1,5 @@
 /*上电复位*/
+/*每步都要上电复位，且都会清除暂存器*/
 Reset;
 
 /*等待1ms，期间保持供电*/
@@ -7,8 +8,46 @@ wait_1ms;
 /*发送Skip ROM命令码*/
 Send(8'hCC);
 
+/*发送Write Scratchpad命令码，也就是写随机码*/
+Send(8'h0F);
+
+/*发送地址0000*/
+Send(8'h00); 
+Send(8'h00);
+
+/*发送要写入的随机数据*/
+Send(8'h11);  
+Send(8'h22);  
+Send(8'h33);  
+Send(8'h44);  
+Send(8'h55);  
+Send(8'h66);  
+Send(8'h77);  
+Send(8'h88);  
+
+/*接收CRC-16校验值*/
+repeat(2)Receive_Byte;  
+ 
+/*发送复位指令码*/
+Send(8'hFF);  // 发送8个DUMMY bit
+ 
+Send(8'hC0);  //发送复位指令码C0DE
+Send(8'hDE);  
+
+/*发送3bit虚拟码*/
+Send(3bit1);  // 发送3个DUMMY bit
+
+
+/**/
+
+
+
+/*发送Skip ROM命令码*/
+Send(8'hCC);
+
 /*发送Read Authentication Page命令码*/
 Send(8'hA5);
+
 
 /*发送地址，本例中从0060开始读*/
 Send(8'h60); 

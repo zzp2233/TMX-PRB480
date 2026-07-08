@@ -150,10 +150,10 @@ int main(void)
     {
         printf("Read Authenticated Page failed\r\n");
     }
-    // while (1)
-    // {
-    //     HAL_Delay(300);
-    // }
+    while (1)
+    {
+        HAL_Delay(300);
+    }
 
 
 

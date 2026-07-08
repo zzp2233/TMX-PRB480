@@ -334,7 +334,8 @@ static u8 PRB480_VerifyReadAuthPageCRC(u8 *prefix, u8 prefix_len, u8 *payload, u
 
     /* 对拼装出的完整数据计算本地 CRC16 */
     local_crc = PRB480_CalcCRC16(verify, offset); /* 计算主机侧 CRC16 */
-
+    printf("RAP local_crc:%04X", local_crc);
+    printf("\r\n");
     /* 将本地 CRC16 与总线返回值比较 */
     return (local_crc == bus_crc) ? 0 : 1;        /* 相同返回 0，否则返回 1 */
 }
@@ -1550,128 +1551,6 @@ void PRB480_WriteBit(u8 bit)
 
 u8 PRB480_ReadBit(void)
 {
-#if 0
-
-    u16 adc;
-    u8 data;
-    //大：IO1，小：IO2
-    //famg:大开小关    ling:关大开小
-    PRB480_ResponsePMOS_Off();
-    PRB480_Delay_Read(5);
-    PRB480_PowerPMOS_On();
-    PRB480_IO_ANALOG();
-
-    
-    //delay_us(1);//t1+一半的tREAD 2+2=4
-    PRB480_Delay_Read(15);//2us
-    delay_us(5);
-
-    //ad采样大概要2.2us
-    adc = PRB480_ReadAdcRaw();
-    PRB480_LastReadAdc = adc;
-    data = (adc >= PRB480_AdcThreshold) ? 1 : 0;
-    if (PRB480_AdcLogEnabled && (PRB480_AdcLogIndex < PRB480_ADC_LOG_SIZE))
-    {
-        PRB480_AdcLog[PRB480_AdcLogIndex] = adc;
-        PRB480_BitLog[PRB480_AdcLogIndex] = data;
-        PRB480_AdcLogIndex++;
-    }
-
-    // //delay_us(1);
-    PRB480_Delay_Read(39);//3.7
-    
-    
-    //关大开小    关小开大
-    PRB480_PowerPMOS_Off();
-    PRB480_ResponsePMOS_On();
-    PRB480_IO_IN();
-    //delay_us(PRB480_TSLOT_US - PRB480_ReadSampleDelayUs/2 - 8);
-    delay_us(20);
-    return data;
-
-    
-#endif
-
-
-#if 0
-    u16 adc;
-    u8 data;
-    //大：IO1，小：IO2
-    //famg:大开小关    ling:关大开小
-    PRB480_PowerPMOS_Off();
-    //PRB480_Delay_Read(5);
-    PRB480_ResponsePMOS_On();
-
-    PRB480_IO_ANALOG();
-
-    
-    //delay_us(1);//t1+一半的tREAD 2+2=4
-    //PRB480_Delay_Read(15);//2us
-    delay_us(6);
-
-    //ad采样大概要2.2us
-    adc = PRB480_ReadAdcRaw();
-    PRB480_LastReadAdc = adc;
-    data = (adc >= PRB480_AdcThreshold) ? 1 : 0;
-    if (PRB480_AdcLogEnabled && (PRB480_AdcLogIndex < PRB480_ADC_LOG_SIZE))
-    {
-        PRB480_AdcLog[PRB480_AdcLogIndex] = adc;
-        PRB480_BitLog[PRB480_AdcLogIndex] = data;
-        PRB480_AdcLogIndex++;
-    }
-
-    delay_us(1);
-    //PRB480_Delay_Read(39);//3.7
-    
-    
-    //关大开小    关小开大
-    PRB480_PowerPMOS_On();
-    PRB480_ResponsePMOS_On();
-    PRB480_IO_IN();
-    //delay_us(PRB480_TSLOT_US - PRB480_ReadSampleDelayUs/2 - 8);
-    delay_us(18);
-    return data;
-#endif
-
-
-#if 0
-    u16 adc;
-    u8 data;
-    //大：IO1，小：IO2
-    //famg:大开小关    ling:关大开小
-    PRB480_ResponsePMOS_Off();
-    PRB480_PowerPMOS_On();
-
-    PRB480_IO_ANALOG();
-
-    
-    //delay_us(1);//t1+一半的tREAD 2+2=4
-    //PRB480_Delay_Read(15);//2us
-    delay_us(7);
-
-    //ad采样大概要2.2us
-    adc = PRB480_ReadAdcRaw();
-    PRB480_LastReadAdc = adc;
-    data = (adc >= PRB480_AdcThreshold) ? 1 : 0;
-    if (PRB480_AdcLogEnabled && (PRB480_AdcLogIndex < PRB480_ADC_LOG_SIZE))
-    {
-        PRB480_AdcLog[PRB480_AdcLogIndex] = adc;
-        PRB480_BitLog[PRB480_AdcLogIndex] = data;
-        PRB480_AdcLogIndex++;
-    }
-
-    delay_us(1);
-    //PRB480_Delay_Read(39);//3.7
-    
-    
-    //关大开小    关小开大
-    PRB480_PowerPMOS_Off();
-    PRB480_ResponsePMOS_On();
-    PRB480_IO_IN();
-    //delay_us(PRB480_TSLOT_US - PRB480_ReadSampleDelayUs/2 - 8);
-    delay_us(15);
-    return data;
-#endif
 
 #if 1
 
@@ -1697,7 +1576,7 @@ u8 PRB480_ReadBit(void)
     /*
      * ADC 采样脚切到模拟输入。
      */
-    PRB480_IO_ANALOG();
+    //PRB480_IO_ANALOG();
 
     /*
      * 从读时隙开始算，等到约 7us 的采样位置。
@@ -1733,13 +1612,14 @@ u8 PRB480_ReadBit(void)
      */
     PRB480_POWER_GPIO_PORT->BSRR = PRB480_PowerPin;   /* IO2 关闭，PowerPMOS_Off = 输出高 */
     PRB480_RESP_GPIO_PORT->BSRR = PRB480_RespPin;     /* IO1 释放/拉高 */
-    PRB480_IO_IN();
+    //PRB480_IO_IN();
 
     /*
      * 补齐整个读 bit 周期到 30us。
      * 不再手动 delay_us(15)，避免 ADC 时间变化导致 bit 周期漂移。
      */
-    PRB480_DelayNop(10);
+    //PRB480_DelayNop(12);
+    PRB480_DelayNop(32);
     //PRB480_WaitSlotEnd(slotStart, 1);
     return data;
 #endif
@@ -1775,109 +1655,6 @@ void PRB480_DebugReadSlotLoop(u16 count)
 }
 
 
-
-
-// u8 PRB480_ReadBit(void)
-// {
-//     u16 adc;
-//     u8 data;
-//     //大：IO1，小：IO2
-//     //大开小关
-//     PRB480_ResponsePMOS_On();
-//     PRB480_PowerPMOS_Off();
-//     PRB480_IO_ANALOG();
-
-    
-//     //delay_us(1);//t1+一半的tREAD 2+2=4
-//     PRB480_Delay_Read(15);//2us
-
-//     //ad采样大概要2.2us
-//     adc = PRB480_ReadAdcRaw();
-//     PRB480_LastReadAdc = adc;
-//     data = (adc >= PRB480_AdcThreshold) ? 1 : 0;
-//     if (PRB480_AdcLogEnabled && (PRB480_AdcLogIndex < PRB480_ADC_LOG_SIZE))
-//     {
-//         PRB480_AdcLog[PRB480_AdcLogIndex] = adc;
-//         PRB480_BitLog[PRB480_AdcLogIndex] = data;
-//         PRB480_AdcLogIndex++;
-//     }
-
-//     // //delay_us(1);
-//     PRB480_Delay_Read(39);//3.7
-    
-//     //关大开小
-//     PRB480_ResponsePMOS_Off();
-//     PRB480_PowerPMOS_On();
-    
-//     PRB480_IO_IN();
-//     //delay_us(PRB480_TSLOT_US - PRB480_ReadSampleDelayUs/2 - 8);
-//     delay_us(20);
-//     return data;
-// }
-
-
-// u8 PRB480_ReadBit(void)
-// {
-//     u16 adc;
-//     u8 data;
-    
-//     PRB480_ResponsePMOS_Off();
-//     PRB480_PowerPMOS_Off();
-//     PRB480_IO_ANALOG();
-
-    
-//     //delay_us(1);//t1+一半的tREAD 2+2=4
-//     PRB480_Delay_Read(30);//4.1us
-
-//     //ad采样大概要2.2us
-//     adc = PRB480_ReadAdcRaw();
-//     PRB480_LastReadAdc = adc;
-//     data = (adc >= PRB480_AdcThreshold) ? 1 : 0;
-//     if (PRB480_AdcLogEnabled && (PRB480_AdcLogIndex < PRB480_ADC_LOG_SIZE))
-//     {
-//         PRB480_AdcLog[PRB480_AdcLogIndex] = adc;
-//         PRB480_BitLog[PRB480_AdcLogIndex] = data;
-//         PRB480_AdcLogIndex++;
-//     }
-
-//     // //delay_us(1);
-//     PRB480_Delay_Read(24);//1.7
-    
-//     PRB480_PowerPMOS_Off();
-//     PRB480_ResponsePMOS_On();
-//     PRB480_IO_IN();
-//     //delay_us(PRB480_TSLOT_US - PRB480_ReadSampleDelayUs/2 - 8);
-//     delay_us(20);
-//     return data;
-// }
-
-
-
-
-// u8 PRB480_ReadBit(void)
-// {
-//     u8 data;
-
-//     PRB480_PowerPMOS_Off();
-
-//     /* 启动读时隙 */
-//     PRB480_ResponsePMOS_Off();
-//     delay_us(2);
-
-//     /* 释放总线，让 PRB480 响应出现在 PC1 */
-//     PRB480_ResponsePMOS_On();
-
-//     /* 先试 1~3us，目标是落在 PC1 高脉冲中间 */
-//     delay_us(2);
-
-//     PRB480_IO_IN();
-//     data = GPIO_ReadInputDataBit(PRB480_DqPort, PRB480_DqPin) ? 1 : 0;
-
-//     delay_us(24);
-//     return data;
-// }
-
-
 void PRB480_WriteByte(u8 dat)
 {
     u8 j;
@@ -1896,7 +1673,7 @@ u8 PRB480_ReadByte(void)
 {
     u8 i;
     u8 dat = 0;
-
+    PRB480_IO_ANALOG();
     for (i = 0; i < 8; i++)
     {
         if (PRB480_ReadBit())
@@ -1904,6 +1681,7 @@ u8 PRB480_ReadByte(void)
             dat |= (1 << i);
         }
     }
+    PRB480_IO_IN();
 
     return dat;
 }
@@ -3164,13 +2942,29 @@ static u8 PRB480_ReadAuthenticatedPageRaw(u8 *rom, u16 addr, u8 challenge[5], PR
     memcpy(page_crc_buf, packet->page, 32);       /* CRC 输入：32 字节 page data */
     page_crc_buf[32] = 0xFF;                      /* CRC 输入：FFh separator */
 
+    printf("RAP page CRC input req:");
+    for (i = 0; i < 3; i++)
+    {
+        printf(" %02X", req[i]);
+    }
+    printf("\r\n");
+
+    printf("RAP page CRC input payload:");
+    for (i = 0; i < 33; i++)
+    {
+        printf(" %02X", page_crc_buf[i]);
+    }
+    printf("\r\n");
+
     if (PRB480_VerifyReadAuthPageCRC(req, 3, page_crc_buf, 33, packet->page_crc16))
     {
         printf("RAP FAIL[4]: page CRC16 mismatch\r\n");
         //return 1;
     }
-
-    printf("RAP page CRC16 OK\r\n");
+    else
+    {
+        printf("RAP page CRC16 OK\r\n");
+    }
 
     /* ========== 14. 打印并校验 device MAC CRC16 ========== */
 
@@ -3188,8 +2982,12 @@ static u8 PRB480_ReadAuthenticatedPageRaw(u8 *rom, u16 addr, u8 challenge[5], PR
         printf("RAP FAIL[5]: MAC CRC16 mismatch\r\n");
         //return 1;
     }
+    else
+    {
+        printf("RAP MAC CRC16 OK\r\n");
+    }
 
-    printf("RAP MAC CRC16 OK\r\n");
+    
 
     /* ========== 15. 检查 A5 末尾 0/1 loop ========== */
 
@@ -3201,8 +2999,12 @@ static u8 PRB480_ReadAuthenticatedPageRaw(u8 *rom, u16 addr, u8 challenge[5], PR
         printf("RAP FAIL[6]: trailer/status loop invalid\r\n");
         return 1;
     }
+    else
+    {
+        printf("RAP trailer OK\r\n");
+    }
 
-    printf("RAP trailer OK\r\n");
+    
 
     (void)scratchpadEs;                           /* 当前只保留 challenge 写入成功这一事实，不再单独使用 E/S */
 
