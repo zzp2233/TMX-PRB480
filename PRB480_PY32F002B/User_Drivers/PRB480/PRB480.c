@@ -1979,18 +1979,84 @@ u8 PRB480_ReadScratchpad(u8 *rom, u8 *ta1, u8 *ta2, u8 *es, u8 *buf, u8 len, u16
  */
 u8 PRB480_WriteAndVerifyScratchpad(u8 *rom, u16 addr, u8 *dat, u8 *es)
 {
-    u16 crc;            /* 保存 Write Scratchpad 返回的 CRC16 */
-    u8 ta1;             /* 保存 Read Scratchpad 读回的 TA1 */
-    u8 ta2;             /* 保存 Read Scratchpad 读回的 TA2 */
-    u8 localEs;         /* 保存 Read Scratchpad 读回的 E/S */
+    // u16 crc;            /* 保存 Write Scratchpad 返回的 CRC16 */
+    // u8 ta1;             /* 保存 Read Scratchpad 读回的 TA1 */
+    // u8 ta2;             /* 保存 Read Scratchpad 读回的 TA2 */
+    // u8 localEs;         /* 保存 Read Scratchpad 读回的 E/S */
 
-    if (dat == 0) return 1;                                                        /* 写入数据指针不能为空 */
-    if (PRB480_WriteScratchpad(rom, addr, dat, PRB480_SCRATCHPAD_SIZE, &crc)) return 1; /* 先写满 8 字节 scratchpad */
-    if (PRB480_VerifyScratchpad(rom, addr, dat, &ta1, &ta2, &localEs)) return 1;   /* 再读回并验证地址、状态、数据和 CRC */
+    // if (dat == 0) return 1;                                                        /* 写入数据指针不能为空 */
+    // if (PRB480_WriteScratchpad(rom, addr, dat, PRB480_SCRATCHPAD_SIZE, &crc)) return 1; /* 先写满 8 字节 scratchpad */
+    // if (PRB480_VerifyScratchpad(rom, addr, dat, &ta1, &ta2, &localEs)) return 1;   /* 再读回并验证地址、状态、数据和 CRC */
 
-    if (es) *es = localEs;                                                        /* 如果调用者需要，就返回验证后的 E/S */
+    // if (es) *es = localEs;                                                        /* 如果调用者需要，就返回验证后的 E/S */
 
-    return 0;                                                                     /* scratchpad 写入并验证成功 */
+    // return 0;                                                                     /* scratchpad 写入并验证成功 */
+
+    u16 crc;                                                /* 保存 Write/Read Scratchpad 返回的 CRC16 */
+    u8 ta1;                                                 /* Read Scratchpad 读回的 TA1 */
+    u8 ta2;                                                 /* Read Scratchpad 读回的 TA2 */
+    u8 localEs;                                             /* Read Scratchpad 读回的 E/S */
+    u8 readback[PRB480_SCRATCHPAD_SIZE];                    /* Read Scratchpad 读回的 8 字节 scratchpad */
+    u8 i;                                                   /* 循环变量 */
+
+    if (dat == 0) return 1;                                 /* 写入数据指针不能为空 */
+    if (PRB480_CheckWriteAddress(addr)) return 1;           /* 写地址必须 8 字节对齐 */
+
+    if (PRB480_WriteScratchpad(rom, addr, dat, PRB480_SCRATCHPAD_SIZE, &crc))
+    {
+        printf("WAVS FAIL[1]: WriteScratchpad CRC error, crc=0x%04X\r\n", crc);
+        return 1;
+    }
+
+    if (PRB480_Step5_ReadScratchpad(rom, &ta1, &ta2, &localEs,readback, PRB480_SCRATCHPAD_SIZE, &crc))
+    {
+        printf("WAVS FAIL[2]: Step5_ReadScratchpad CRC error, crc=0x%04X\r\n", crc);
+        return 1;
+    }
+
+    if (ta1 != (u8)(addr & 0xFF))
+    {
+        printf("WAVS FAIL[3]: TA1 mismatch, read=0x%02X expect=0x%02X\r\n",
+               ta1, (u8)(addr & 0xFF));
+        return 1;
+    }
+
+    if (ta2 != (u8)(addr >> 8))
+    {
+        printf("WAVS FAIL[4]: TA2 mismatch, read=0x%02X expect=0x%02X\r\n",
+               ta2, (u8)(addr >> 8));
+        return 1;
+    }
+
+    if (PRB480_CheckScratchpadES(localEs))
+    {
+        printf("WAVS FAIL[5]: E/S invalid, es=0x%02X\r\n", localEs);
+        return 1;
+    }
+
+    //校验 scratchpad 数据
+    for (i = 0; i < PRB480_SCRATCHPAD_SIZE; i++)
+    {
+        if (readback[i] != dat[i])
+        {
+            printf("WAVS FAIL[6]: data mismatch index=%u read=0x%02X expect=0x%02X\r\n",
+                   i, readback[i], dat[i]);
+            return 1;
+        }
+    }
+
+    if (es) *es = localEs;
+
+    printf("WAVS OK: addr=0x%04X E/S=0x%02X crc=0x%04X scratchpad:",
+           addr, localEs, crc);
+    for (i = 0; i < PRB480_SCRATCHPAD_SIZE; i++)
+    {
+        printf(" %02X", readback[i]);
+    }
+    printf("\r\n");
+
+    return 0;    
+
 }
 /*******************************************************************************
 * 名    称         : PRB480_LoadFirstSecret
@@ -2818,6 +2884,19 @@ static u8 PRB480_ReadAuthenticatedPageRaw(u8 *rom, u16 addr, u8 challenge[5], PR
         printf("RAP FAIL[2]: Reset/ROM selection failed before A5h\r\n");
         return 1;
     }
+
+
+    // PRB480_WriteByte(0xFF);
+    // PRB480_WriteByte(0xC0);
+    // PRB480_WriteByte(0xDE);
+
+    // PRB480_WriteBit(1);
+    // PRB480_WriteBit(1);
+    // PRB480_WriteBit(1);
+
+    // PRB480_DelayNop(2100);
+
+    // PRB480_WriteByte(0xCC);     /* Skip ROM */
 
 //    printf("RAP prefix: Reset + ROM selection, then ReadAuth A5\r\n");
 

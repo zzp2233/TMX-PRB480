@@ -521,7 +521,7 @@ I (..\Drivers\PY32F002B_HAL_Driver\Inc\py32f002b_hal_iwdg.h)(0x64A28B06)
 I (..\Drivers\PY32F002B_HAL_Driver\Inc\py32f002b_hal_pwr.h)(0x64A28B06)
 I (..\Drivers\PY32F002B_HAL_Driver\Inc\py32f002b_hal_spi.h)(0x64A28B06)
 I (..\Drivers\PY32F002B_HAL_Driver\Inc\py32f002b_hal_uart.h)(0x64A28B06)
-F (..\User\Src\main.c)(0x6A4E0238)(--c99 -c --cpu Cortex-M0+ -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\Drivers\CMSIS\Include -I ..\Drivers\CMSIS\Device\PY32F0xx\Include -I ..\Drivers\PY32F002B_HAL_Driver\Inc -I ..\User\Inc -I ..\User_Drivers\User_LED -I ..\User_Drivers\User_USART1 -I ..\User_Drivers\User_System_Clock_Config -I ..\User_Drivers\ADC -I ..\User_Drivers\PRB480-I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\Puya\PY32F0xx_DFP\1.1.9\Device\Include-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DUSE_HAL_DRIVER -DPY32F002Bx5-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
+F (..\User\Src\main.c)(0x6A4E17AB)(--c99 -c --cpu Cortex-M0+ -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\Drivers\CMSIS\Include -I ..\Drivers\CMSIS\Device\PY32F0xx\Include -I ..\Drivers\PY32F002B_HAL_Driver\Inc -I ..\User\Inc -I ..\User_Drivers\User_LED -I ..\User_Drivers\User_USART1 -I ..\User_Drivers\User_System_Clock_Config -I ..\User_Drivers\ADC -I ..\User_Drivers\PRB480-I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\Puya\PY32F0xx_DFP\1.1.9\Device\Include-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DUSE_HAL_DRIVER -DPY32F002Bx5-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
 I (..\User\Inc\main.h)(0x652CDAB8)
 I (..\Drivers\PY32F002B_HAL_Driver\Inc\py32f0xx_hal.h)(0x64A28B06)
 I (..\User\Inc\py32f002b_hal_conf.h)(0x652CD8C6)
@@ -697,7 +697,7 @@ I (..\Drivers\PY32F002B_HAL_Driver\Inc\py32f002b_hal_pwr.h)(0x64A28B06)
 I (..\Drivers\PY32F002B_HAL_Driver\Inc\py32f002b_hal_spi.h)(0x64A28B06)
 I (..\Drivers\PY32F002B_HAL_Driver\Inc\py32f002b_hal_uart.h)(0x64A28B06)
 I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x588B8344)
-F (..\User_Drivers\PRB480\PRB480.c)(0x6A4E0980)(--c99 -c --cpu Cortex-M0+ -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\Drivers\CMSIS\Include -I ..\Drivers\CMSIS\Device\PY32F0xx\Include -I ..\Drivers\PY32F002B_HAL_Driver\Inc -I ..\User\Inc -I ..\User_Drivers\User_LED -I ..\User_Drivers\User_USART1 -I ..\User_Drivers\User_System_Clock_Config -I ..\User_Drivers\ADC -I ..\User_Drivers\PRB480-I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\Puya\PY32F0xx_DFP\1.1.9\Device\Include-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DUSE_HAL_DRIVER -DPY32F002Bx5-o .\objects\prb480.o --omf_browse .\objects\prb480.crf --depend .\objects\prb480.d)
+F (..\User_Drivers\PRB480\PRB480.c)(0x6A4E16E4)(--c99 -c --cpu Cortex-M0+ -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\Drivers\CMSIS\Include -I ..\Drivers\CMSIS\Device\PY32F0xx\Include -I ..\Drivers\PY32F002B_HAL_Driver\Inc -I ..\User\Inc -I ..\User_Drivers\User_LED -I ..\User_Drivers\User_USART1 -I ..\User_Drivers\User_System_Clock_Config -I ..\User_Drivers\ADC -I ..\User_Drivers\PRB480-I.\RTE\_Target_1-IC:\Keil_v5\ARM\PACK\Puya\PY32F0xx_DFP\1.1.9\Device\Include-IC:\Keil_v5\ARM\CMSIS\Include-D__UVISION_VERSION="524" -DUSE_HAL_DRIVER -DPY32F002Bx5-o .\objects\prb480.o --omf_browse .\objects\prb480.crf --depend .\objects\prb480.d)
 I (..\User_Drivers\PRB480\PRB480.h)(0x6A4B5335)
 I (..\User\Inc\main.h)(0x652CDAB8)
 I (..\Drivers\PY32F002B_HAL_Driver\Inc\py32f0xx_hal.h)(0x64A28B06)
