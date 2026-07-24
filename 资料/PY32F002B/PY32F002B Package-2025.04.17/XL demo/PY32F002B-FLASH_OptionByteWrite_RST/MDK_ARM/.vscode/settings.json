@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "main.h": "c",
+        "user_led.h": "c",
+        "user_uart1.h": "c"
+    }
+}

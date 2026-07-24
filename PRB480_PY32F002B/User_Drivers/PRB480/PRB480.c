@@ -28,7 +28,7 @@
 #define PRB480_COPY_AREA_INVALID    2       /* Copy Scratchpad 目标类型：非法地址 */
 #define PRB480_TLOW_US              1       /* 图 12：短低脉冲，手册典型 1us */
 #define PRB480_TGAP_US              1       /* 图 12：写 0 两个低脉冲之间的间隔，手册典型 1us */
-#define PRB480_TSLOT_US             28      /* 图 12：单总线时隙，手册 125Kbits/s 典型 30us */
+#define PRB480_TSLOT_US             62      /* 图 12：单总线时隙，手册 125Kbits/s 典型 30us */
 #define PRB480_TRSTL_US             300     /* 图 11：复位低电平时间，手册典型 300us */
 #define PRB480_TSTD_US              200     /* 图 11：上电/复位后系统稳定时间 */
 #define PRB480_ADC_THRESHOLD_DEFAULT 1000     /* PC1/ADC 判 0/1 阈值，需要按实测 VDC0/VDC1 校准 */
@@ -38,7 +38,7 @@
 #define delay_us TMX_Delay_us
 #define delay_ms TMX_Delay_ms
 
-#define PRB480_TLOW_NOP_COUNT    0U      /* 先用 4，示波器实测后微调 */
+#define PRB480_TLOW_NOP_COUNT    15U      /* 先用 4，示波器实测后微调 */
 #define PRB480_TGAP_NOP_COUNT    0U      /* 写 0 两个低脉冲之间的高电平间隔 */
 
 static GPIO_TypeDef *PRB480_DqPort = PRB480_DQ_GPIO_PORT;
@@ -1037,14 +1037,12 @@ void PRB480_ResponsePMOS_Off(void)
 // IO2
 void PRB480_PowerPMOS_On(void)
 {
-    /* 功率 PMOS 是低电平打开，所以 On = 输出 0。 */
-    PRB480_POWER_GPIO_PORT->BRR = PRB480_PowerPin;
+    PRB480_POWER_GPIO_PORT->BSRR = PRB480_PowerPin;
 }
 
 void PRB480_PowerPMOS_Off(void)
 {
-    /* 功率 PMOS 是高电平关闭，所以 Off = 输出 1。 */
-    PRB480_POWER_GPIO_PORT->BSRR = PRB480_PowerPin;
+    PRB480_POWER_GPIO_PORT->BRR = PRB480_PowerPin;
 }
 
 void PRB480_SetPinRoles(u16 dqPin, u16 respPin, u16 powerPin)
@@ -1092,6 +1090,10 @@ static void PRB480_AdcLogDump(void)
     for (i = 0; i < PRB480_AdcLogIndex; i++)
     {
         printf("%02u: adc=%u bit=%u\r\n", i, PRB480_AdcLog[i], PRB480_BitLog[i]);
+        if (((i + 1) % 8) == 0)
+        {
+            printf("\r\n");
+        }        
     }
 }
 void PRB480_BoardInterfaceConfig(void)
@@ -1196,7 +1198,7 @@ static void PRB480_ADC_Config(void)
     PRB480_AdcHandle.Init.ExternalTrigConv = ADC_SOFTWARE_START;
     PRB480_AdcHandle.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
     PRB480_AdcHandle.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
-    PRB480_AdcHandle.Init.SamplingTimeCommon = ADC_SAMPLETIME_41CYCLES_5;
+    PRB480_AdcHandle.Init.SamplingTimeCommon = ADC_SAMPLETIME_3CYCLES_5;
 
     if (HAL_ADC_Init(&PRB480_AdcHandle) != HAL_OK)
     {
@@ -1212,7 +1214,7 @@ static void PRB480_ADC_Config(void)
 
     channelConfig.Channel = PRB480_ADC_CHANNEL;
     channelConfig.Rank = ADC_RANK_CHANNEL_NUMBER;
-    channelConfig.SamplingTime = ADC_SAMPLETIME_41CYCLES_5;
+    channelConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES_5;
 
     if (HAL_ADC_ConfigChannel(&PRB480_AdcHandle, &channelConfig) != HAL_OK)
     {
@@ -1314,6 +1316,124 @@ void PRB480_DebugAdcLevels(void)
     printf("ADC debug PG10=0(resp on)=%u PG10=1(resp off)=%u PG11=0(power on)=%u\r\n",
            adcRespOn, adcRespOff, adcPowerOn);
 }
+
+void PRB480_DebugQ2Q3PulseTest(void)
+{
+    u8 i;
+    u16 adc_before;
+    u16 adc_after_on;
+    u16 adc_hold;
+    u16 adc_after_off;
+
+    const u16 pulse_ms[] = {1, 2, 5, 10, 20, 50, 100};
+    const u8 pulse_count = sizeof(pulse_ms) / sizeof(pulse_ms[0]);
+
+    printf("\r\n========== Q2/Q3 HW+ Pulse Test ==========\r\n");
+
+    PRB480_ResponsePMOS_Off();   /* Q3 / HEAT_R off */
+    PRB480_PowerPMOS_Off();      /* Q2 / HEAT_PWM off */
+    delay_ms(20);
+
+    /*
+     * Test Q3 / HEAT_R only.
+     */
+    printf("\r\n--- Q3 / HEAT_R only ---\r\n");
+
+    for (i = 0; i < pulse_count; i++)
+    {
+        PRB480_ResponsePMOS_Off();
+        PRB480_PowerPMOS_Off();
+        delay_ms(20);
+        adc_before = PRB480_ReadAdcValue();
+
+        PRB480_ResponsePMOS_On();      /* Q3 on */
+        delay_us(100);
+        adc_after_on = PRB480_ReadAdcValue();
+
+        delay_ms(pulse_ms[i]);
+        adc_hold = PRB480_ReadAdcValue();
+
+        PRB480_ResponsePMOS_Off();     /* Q3 off */
+        delay_ms(20);
+        adc_after_off = PRB480_ReadAdcValue();
+
+        printf("Q3 on %ums: before=%u after_on=%u hold=%u after_off=%u\r\n",
+               pulse_ms[i],
+               adc_before,
+               adc_after_on,
+               adc_hold,
+               adc_after_off);
+    }
+
+    /*
+     * Test Q2 / HEAT_PWM only.
+     */
+    printf("\r\n--- Q2 / HEAT_PWM only ---\r\n");
+
+    for (i = 0; i < pulse_count; i++)
+    {
+        PRB480_ResponsePMOS_Off();
+        PRB480_PowerPMOS_Off();
+        delay_ms(20);
+        adc_before = PRB480_ReadAdcValue();
+
+        PRB480_PowerPMOS_On();         /* Q2 on */
+        delay_us(100);
+        adc_after_on = PRB480_ReadAdcValue();
+
+        delay_ms(pulse_ms[i]);
+        adc_hold = PRB480_ReadAdcValue();
+
+        PRB480_PowerPMOS_Off();        /* Q2 off */
+        delay_ms(20);
+        adc_after_off = PRB480_ReadAdcValue();
+
+        printf("Q2 on %ums: before=%u after_on=%u hold=%u after_off=%u\r\n",
+               pulse_ms[i],
+               adc_before,
+               adc_after_on,
+               adc_hold,
+               adc_after_off);
+    }
+
+    /*
+     * Test Q3 + Q2 together.
+     */
+    printf("\r\n--- Q3 + Q2 together ---\r\n");
+
+    for (i = 0; i < pulse_count; i++)
+    {
+        PRB480_ResponsePMOS_Off();
+        PRB480_PowerPMOS_Off();
+        delay_ms(20);
+        adc_before = PRB480_ReadAdcValue();
+
+        PRB480_ResponsePMOS_On();      /* Q3 on */
+        PRB480_PowerPMOS_On();         /* Q2 on */
+        delay_us(100);
+        adc_after_on = PRB480_ReadAdcValue();
+
+        delay_ms(pulse_ms[i]);
+        adc_hold = PRB480_ReadAdcValue();
+
+        PRB480_PowerPMOS_Off();        /* Q2 off */
+        PRB480_ResponsePMOS_Off();     /* Q3 off */
+        delay_ms(20);
+        adc_after_off = PRB480_ReadAdcValue();
+
+        printf("Q3+Q2 on %ums: before=%u after_on=%u hold=%u after_off=%u\r\n",
+               pulse_ms[i],
+               adc_before,
+               adc_after_on,
+               adc_hold,
+               adc_after_off);
+    }
+
+    PRB480_PowerPMOS_Off();
+    PRB480_ResponsePMOS_Off();
+
+    printf("========== Q2/Q3 HW+ Pulse Test End ==========\r\n");
+}
 /* ========== PC1 采样 + PG10/PG11 单总线时序 ========== */
 
 
@@ -1405,8 +1525,8 @@ u8 PRB480_Reset(void)
 
     PRB480_ResponsePMOS_On();
     //PRB480_IO_IN();
-    delay_us(200);
-    
+    ///delay_us(200);
+    delay_ms(1);
     return 0;
 }
 
@@ -1538,7 +1658,6 @@ void PRB480_WriteBit(u8 bit)
 
         PRB480_RESP_GPIO_PORT->BSRR = PRB480_RespPin;     /* 中间释放 */
         PRB480_DelayNop(PRB480_TGAP_NOP_COUNT);
-
         PRB480_RESP_GPIO_PORT->BRR = PRB480_RespPin;      /* 第 2 个低脉冲 */
         PRB480_DelayNop(PRB480_TLOW_NOP_COUNT);
 
@@ -1571,7 +1690,7 @@ u8 PRB480_ReadBit(void)
      * PRB480_PowerPMOS_On();
      */
     PRB480_RESP_GPIO_PORT->BRR = PRB480_RespPin;      /* IO1 拉低 */
-    PRB480_POWER_GPIO_PORT->BRR = PRB480_PowerPin;    /* IO2 打开，PowerPMOS_On = 输出低 */
+    PRB480_POWER_GPIO_PORT->BSRR  = PRB480_PowerPin;    /* IO2 打开，PowerPMOS_On = 输出低 */
 
     /*
      * ADC 采样脚切到模拟输入。
@@ -1582,25 +1701,17 @@ u8 PRB480_ReadBit(void)
      * 从读时隙开始算，等到约 7us 的采样位置。
      */
     //PRB480_WaitFromStart(slotStart, 7);
-    //PRB480_DelayNop(2);
-
+    PRB480_DelayNop(15);
+    //PRB480_DelayNop(20);
 
     /*
      * 读取 ADC。
      */
-    adc = PRB480_ReadAdcRaw();
-    PRB480_LastReadAdc = adc;
-
+    adc = PRB480_ReadAdcRaw();//ADC_SAMPLETIME_3CYCLES_5 6us，ADC_SAMPLETIME_41CYCLES_5 12us
+    PRB480_DelayNop(120);
     /*
      * ADC 大于阈值判 1，小于阈值判 0。
      */
-    data = (adc >= PRB480_AdcThreshold) ? 1 : 0;
-    if (PRB480_AdcLogEnabled && (PRB480_AdcLogIndex < PRB480_ADC_LOG_SIZE))
-    {
-        PRB480_AdcLog[PRB480_AdcLogIndex] = adc;
-        PRB480_BitLog[PRB480_AdcLogIndex] = data;
-        PRB480_AdcLogIndex++;
-    }
     //PRB480_DelayNop(PRB480_TLOW_NOP_COUNT);
 
     /*
@@ -1610,7 +1721,7 @@ u8 PRB480_ReadBit(void)
      * PRB480_ResponsePMOS_On();
      * PRB480_IO_IN();
      */
-    PRB480_POWER_GPIO_PORT->BSRR = PRB480_PowerPin;   /* IO2 关闭，PowerPMOS_Off = 输出高 */
+    PRB480_POWER_GPIO_PORT->BRR  = PRB480_PowerPin;   /* IO2 关闭，PowerPMOS_Off = 输出高 */
     PRB480_RESP_GPIO_PORT->BSRR = PRB480_RespPin;     /* IO1 释放/拉高 */
     //PRB480_IO_IN();
 
@@ -1621,6 +1732,16 @@ u8 PRB480_ReadBit(void)
     //PRB480_DelayNop(12);
     PRB480_DelayNop(32);
     //PRB480_WaitSlotEnd(slotStart, 1);
+
+    PRB480_LastReadAdc = adc;
+    data = (adc >= PRB480_AdcThreshold) ? 1 : 0;
+    if (PRB480_AdcLogEnabled && (PRB480_AdcLogIndex < PRB480_ADC_LOG_SIZE))
+    {
+        PRB480_AdcLog[PRB480_AdcLogIndex] = adc;
+        PRB480_BitLog[PRB480_AdcLogIndex] = data;
+        PRB480_AdcLogIndex++;
+    }
+
     return data;
 #endif
 
@@ -1667,9 +1788,10 @@ void PRB480_WriteByte(u8 dat)
         PRB480_WriteBit(dat & 0x01);
         dat >>= 1;
     }
+    //delay_us(28);
 }
 
-u8 PRB480_ReadByte(void)
+u8  PRB480_ReadByte(void)
 {
     u8 i;
     u8 dat = 0;
@@ -1682,6 +1804,7 @@ u8 PRB480_ReadByte(void)
         }
     }
     PRB480_IO_IN();
+    delay_us(20);
 
     return dat;
 }
@@ -2137,7 +2260,7 @@ u8 PRB480_LoadFirstSecret(u8 *rom, u16 addr, u8 *secret, u8 *es)
             break;  /* 收到AA或55交替位型 */
         }
 
-        if (response1 == 0xFF && response2 == 0xFF)
+        if ((response1 == 0xFF && response2 == 0xFF) && retry >5)
         {
             break;  /* 连续1，芯片明确拒绝 */
         }

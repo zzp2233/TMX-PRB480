@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\PY32F002B.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\PY32F002B.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Wed Jul 08 17:26:12 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Fri Jul 24 09:12:37 2026
 <BR><P>
 <H3>Maximum Stack Usage =       1000 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -198,20 +198,20 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[1d]"></a>_double_epilogue</STRONG> (Thumb, 164 bytes, Stack size 48 bytes, depilogue.o(.text), UNUSED)
-<BR><BR>[Calls]<UL><LI><a href="#[23]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_clz
-<LI><a href="#[1f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_double_round
-<LI><a href="#[21]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_llsr
+<BR><BR>[Calls]<UL><LI><a href="#[21]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_llsr
 <LI><a href="#[22]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_llsl
+<LI><a href="#[23]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__ARM_clz
+<LI><a href="#[1f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_double_round
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dmul
 <LI><a href="#[24]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dadd
 </UL>
 
 <P><STRONG><a name="[24]"></a>__aeabi_dadd</STRONG> (Thumb, 328 bytes, Stack size 48 bytes, dadd.o(.text), UNUSED)
-<BR><BR>[Calls]<UL><LI><a href="#[1f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_double_round
-<LI><a href="#[1d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_double_epilogue
-<LI><a href="#[25]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_lasr
+<BR><BR>[Calls]<UL><LI><a href="#[25]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_lasr
 <LI><a href="#[22]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_llsl
+<LI><a href="#[1f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_double_round
+<LI><a href="#[1d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_double_epilogue
 </UL>
 <BR>[Called By]<UL><LI><a href="#[27]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_drsub
 <LI><a href="#[26]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dsub
@@ -421,10 +421,10 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 92<LI>Call Chain = PRB480_BoardInterfaceConfig &rArr; PRB480_ADC_Config &rArr; HAL_ADC_ConfigChannel &rArr; __aeabi_uidivmod
 </UL>
 <BR>[Calls]<UL><LI><a href="#[3f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_Init
+<LI><a href="#[47]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_IO_IN
 <LI><a href="#[41]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ADC_Config
 <LI><a href="#[45]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_Off
 <LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PowerPMOS_Off
-<LI><a href="#[47]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_IO_IN
 </UL>
 <BR>[Called By]<UL><LI><a href="#[13]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -434,10 +434,10 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[2a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Cal_Crc16
 </UL>
-<BR>[Called By]<UL><LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_VerifyReadAuthPageCRC
+<BR>[Called By]<UL><LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadScratchpad
+<LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_VerifyReadAuthPageCRC
 <LI><a href="#[52]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteScratchpad
 <LI><a href="#[53]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Step5_ReadScratchpad
-<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadScratchpad
 </UL>
 
 <P><STRONG><a name="[4d]"></a>PRB480_CopyScratchpadVerified</STRONG> (Thumb, 528 bytes, Stack size 88 bytes, prb480.o(i.PRB480_CopyScratchpadVerified))
@@ -464,27 +464,29 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[60]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_GetPinPos
 </UL>
-<BR>[Called By]<UL><LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Init
+<BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
+<LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Init
 <LI><a href="#[44]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_BoardInterfaceConfig
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
 </UL>
 
 <P><STRONG><a name="[61]"></a>PRB480_Init</STRONG> (Thumb, 26 bytes, Stack size 8 bytes, prb480.o(i.PRB480_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 60<LI>Call Chain = PRB480_Init &rArr; PRB480_Reset &rArr; TMX_Delay_us &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PowerPMOS_Off
-<LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TMX_Delay_ms
-<LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_On
+<BR>[Calls]<UL><LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_On
 <LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
 <LI><a href="#[47]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_IO_IN
+<LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PowerPMOS_Off
+<LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TMX_Delay_ms
 </UL>
 <BR>[Called By]<UL><LI><a href="#[13]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[66]"></a>PRB480_LoadFirstSecret</STRONG> (Thumb, 342 bytes, Stack size 72 bytes, prb480.o(i.PRB480_LoadFirstSecret))
+<P><STRONG><a name="[66]"></a>PRB480_LoadFirstSecret</STRONG> (Thumb, 314 bytes, Stack size 72 bytes, prb480.o(i.PRB480_LoadFirstSecret))
 <BR><BR>[Stack]<UL><LI>Max Depth = 300<LI>Call Chain = PRB480_LoadFirstSecret &rArr; PRB480_VerifyScratchpad &rArr; PRB480_ReadScratchpad &rArr; PRB480_CommandStart &rArr; PRB480_MatchROM &rArr; PRB480_WriteByte &rArr; PRB480_WriteBit &rArr; PRB480_WaitSlotEnd &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_VerifyScratchpad
+<BR>[Calls]<UL><LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
+<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
+<LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_VerifyScratchpad
 <LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_VerifyPostCopyScratchpad
 <LI><a href="#[49]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CommandStart
 <LI><a href="#[4f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CheckWriteAddress
@@ -494,8 +496,6 @@ Global Symbols
 <LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TMX_Delay_ms
 <LI><a href="#[52]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteScratchpad
 <LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteByte
-<LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
 </UL>
 <BR>[Called By]<UL><LI><a href="#[13]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -509,11 +509,11 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[46]"></a>PRB480_PowerPMOS_Off</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, prb480.o(i.PRB480_PowerPMOS_Off))
-<BR><BR>[Called By]<UL><LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Init
+<BR><BR>[Called By]<UL><LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
+<LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Init
 <LI><a href="#[44]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_BoardInterfaceConfig
 <LI><a href="#[13]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 <LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteByte
-<LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
 </UL>
 
 <P><STRONG><a name="[6d]"></a>PRB480_ReadAuthenticatedPageEx</STRONG> (Thumb, 196 bytes, Stack size 48 bytes, prb480.o(i.PRB480_ReadAuthenticatedPageEx))
@@ -527,39 +527,40 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[13]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[71]"></a>PRB480_ReadBit</STRONG> (Thumb, 114 bytes, Stack size 16 bytes, prb480.o(i.PRB480_ReadBit))
+<P><STRONG><a name="[71]"></a>PRB480_ReadBit</STRONG> (Thumb, 126 bytes, Stack size 16 bytes, prb480.o(i.PRB480_ReadBit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = PRB480_ReadBit &rArr; PRB480_DelayNop
 </UL>
-<BR>[Calls]<UL><LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadAdcRaw
-<LI><a href="#[73]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_DelayNop
+<BR>[Calls]<UL><LI><a href="#[73]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadAdcRaw
+<LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_DelayNop
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
 </UL>
 
-<P><STRONG><a name="[6a]"></a>PRB480_ReadByte</STRONG> (Thumb, 44 bytes, Stack size 16 bytes, prb480.o(i.PRB480_ReadByte))
-<BR><BR>[Stack]<UL><LI>Max Depth = 40<LI>Call Chain = PRB480_ReadByte &rArr; PRB480_ReadBit &rArr; PRB480_DelayNop
+<P><STRONG><a name="[6a]"></a>PRB480_ReadByte</STRONG> (Thumb, 50 bytes, Stack size 16 bytes, prb480.o(i.PRB480_ReadByte))
+<BR><BR>[Stack]<UL><LI>Max Depth = 60<LI>Call Chain = PRB480_ReadByte &rArr; TMX_Delay_us &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_IO_ANALOG
-<LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadBit
+<BR>[Calls]<UL><LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadBit
 <LI><a href="#[47]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_IO_IN
+<LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_IO_ANALOG
+<LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TMX_Delay_us
 </UL>
-<BR>[Called By]<UL><LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WaitCopyResult
+<BR>[Called By]<UL><LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadScratchpad
+<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WaitCopyResult
 <LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadAuthenticatedPageRaw
 <LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadROM
 <LI><a href="#[51]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadMemory
 <LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_LoadFirstSecret
 <LI><a href="#[52]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteScratchpad
 <LI><a href="#[53]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Step5_ReadScratchpad
-<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadScratchpad
 </UL>
 
 <P><STRONG><a name="[51]"></a>PRB480_ReadMemory</STRONG> (Thumb, 70 bytes, Stack size 40 bytes, prb480.o(i.PRB480_ReadMemory))
 <BR><BR>[Stack]<UL><LI>Max Depth = 140<LI>Call Chain = PRB480_ReadMemory &rArr; PRB480_CommandStart &rArr; PRB480_MatchROM &rArr; PRB480_WriteByte &rArr; PRB480_WriteBit &rArr; PRB480_WaitSlotEnd &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[49]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CommandStart
-<LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteByte
-<LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
+<BR>[Calls]<UL><LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
 <LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
+<LI><a href="#[49]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CommandStart
+<LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteByte
 </UL>
 <BR>[Called By]<UL><LI><a href="#[4d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CopyScratchpadVerified
 <LI><a href="#[13]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
@@ -568,13 +569,13 @@ Global Symbols
 <P><STRONG><a name="[74]"></a>PRB480_ReadROM</STRONG> (Thumb, 138 bytes, Stack size 16 bytes, prb480.o(i.PRB480_ReadROM))
 <BR><BR>[Stack]<UL><LI>Max Depth = 92<LI>Call Chain = PRB480_ReadROM &rArr; PRB480_WriteByte &rArr; PRB480_WriteBit &rArr; PRB480_WaitSlotEnd &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CalcCRC8
+<BR>[Calls]<UL><LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
+<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
+<LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CalcCRC8
 <LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_AdcLogStart
 <LI><a href="#[43]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_AdcLogDump
 <LI><a href="#[42]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 <LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteByte
-<LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
 </UL>
 <BR>[Called By]<UL><LI><a href="#[13]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -582,10 +583,10 @@ Global Symbols
 <P><STRONG><a name="[77]"></a>PRB480_ReadScratchpad</STRONG> (Thumb, 202 bytes, Stack size 64 bytes, prb480.o(i.PRB480_ReadScratchpad))
 <BR><BR>[Stack]<UL><LI>Max Depth = 164<LI>Call Chain = PRB480_ReadScratchpad &rArr; PRB480_CommandStart &rArr; PRB480_MatchROM &rArr; PRB480_WriteByte &rArr; PRB480_WriteBit &rArr; PRB480_WaitSlotEnd &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[49]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CommandStart
-<LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteByte
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
+<BR>[Calls]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
 <LI><a href="#[48]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CalcCRC16
+<LI><a href="#[49]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CommandStart
+<LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteByte
 </UL>
 <BR>[Called By]<UL><LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_VerifyScratchpad
 <LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_VerifyPostCopyScratchpad
@@ -594,10 +595,11 @@ Global Symbols
 <P><STRONG><a name="[4a]"></a>PRB480_Reset</STRONG> (Thumb, 32 bytes, Stack size 8 bytes, prb480.o(i.PRB480_Reset))
 <BR><BR>[Stack]<UL><LI>Max Depth = 52<LI>Call Chain = PRB480_Reset &rArr; TMX_Delay_us &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[45]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_Off
+<BR>[Calls]<UL><LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_On
+<LI><a href="#[45]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_Off
 <LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PowerPMOS_Off
 <LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TMX_Delay_us
-<LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_On
+<LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TMX_Delay_ms
 </UL>
 <BR>[Called By]<UL><LI><a href="#[58]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Step5_CopyScratchpad
 <LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadAuthenticatedPageRaw
@@ -609,15 +611,15 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[45]"></a>PRB480_ResponsePMOS_Off</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, prb480.o(i.PRB480_ResponsePMOS_Off))
-<BR><BR>[Called By]<UL><LI><a href="#[44]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_BoardInterfaceConfig
+<BR><BR>[Called By]<UL><LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
+<LI><a href="#[44]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_BoardInterfaceConfig
 <LI><a href="#[13]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
-<LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
 </UL>
 
 <P><STRONG><a name="[62]"></a>PRB480_ResponsePMOS_On</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, prb480.o(i.PRB480_ResponsePMOS_On))
-<BR><BR>[Called By]<UL><LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Init
+<BR><BR>[Called By]<UL><LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
+<LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Init
 <LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteByte
-<LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
 </UL>
 
 <P><STRONG><a name="[87]"></a>PRB480_SetAdcThreshold</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, prb480.o(i.PRB480_SetAdcThreshold))
@@ -635,11 +637,11 @@ Global Symbols
 <P><STRONG><a name="[53]"></a>PRB480_Step5_ReadScratchpad</STRONG> (Thumb, 236 bytes, Stack size 48 bytes, prb480.o(i.PRB480_Step5_ReadScratchpad))
 <BR><BR>[Stack]<UL><LI>Max Depth = 124<LI>Call Chain = PRB480_Step5_ReadScratchpad &rArr; PRB480_WriteByte &rArr; PRB480_WriteBit &rArr; PRB480_WaitSlotEnd &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[73]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_DelayNop
+<BR>[Calls]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
+<LI><a href="#[48]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CalcCRC16
+<LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_DelayNop
 <LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteByte
 <LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteBit
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
-<LI><a href="#[48]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CalcCRC16
 </UL>
 <BR>[Called By]<UL><LI><a href="#[4d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CopyScratchpadVerified
 <LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteAndVerifyScratchpad
@@ -661,7 +663,7 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 60<LI>Call Chain = PRB480_WriteBit &rArr; PRB480_WaitSlotEnd &rArr; __aeabi_uidivmod
 </UL>
 <BR>[Calls]<UL><LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WaitSlotEnd
-<LI><a href="#[73]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_DelayNop
+<LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_DelayNop
 </UL>
 <BR>[Called By]<UL><LI><a href="#[58]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Step5_CopyScratchpad
 <LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteByte
@@ -671,11 +673,13 @@ Global Symbols
 <P><STRONG><a name="[69]"></a>PRB480_WriteByte</STRONG> (Thumb, 36 bytes, Stack size 16 bytes, prb480.o(i.PRB480_WriteByte))
 <BR><BR>[Stack]<UL><LI>Max Depth = 76<LI>Call Chain = PRB480_WriteByte &rArr; PRB480_WriteBit &rArr; PRB480_WaitSlotEnd &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PowerPMOS_Off
+<BR>[Calls]<UL><LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_On
+<LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_PowerPMOS_Off
 <LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteBit
-<LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ResponsePMOS_On
 </UL>
-<BR>[Called By]<UL><LI><a href="#[58]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Step5_CopyScratchpad
+<BR>[Called By]<UL><LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadScratchpad
+<LI><a href="#[4b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_MatchROM
+<LI><a href="#[58]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Step5_CopyScratchpad
 <LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadAuthenticatedPageRaw
 <LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadROM
 <LI><a href="#[51]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadMemory
@@ -683,18 +687,16 @@ Global Symbols
 <LI><a href="#[52]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteScratchpad
 <LI><a href="#[53]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Step5_ReadScratchpad
 <LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_SkipROM
-<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadScratchpad
-<LI><a href="#[4b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_MatchROM
 </UL>
 
 <P><STRONG><a name="[52]"></a>PRB480_WriteScratchpad</STRONG> (Thumb, 166 bytes, Stack size 64 bytes, prb480.o(i.PRB480_WriteScratchpad))
 <BR><BR>[Stack]<UL><LI>Max Depth = 164<LI>Call Chain = PRB480_WriteScratchpad &rArr; PRB480_CommandStart &rArr; PRB480_MatchROM &rArr; PRB480_WriteByte &rArr; PRB480_WriteBit &rArr; PRB480_WaitSlotEnd &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[49]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CommandStart
+<BR>[Calls]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
+<LI><a href="#[48]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CalcCRC16
+<LI><a href="#[49]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CommandStart
 <LI><a href="#[4f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CheckWriteAddress
 <LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteByte
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
-<LI><a href="#[48]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CalcCRC16
 </UL>
 <BR>[Called By]<UL><LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_LoadFirstSecret
 <LI><a href="#[4d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CopyScratchpadVerified
@@ -726,7 +728,8 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[32]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
 </UL>
-<BR>[Called By]<UL><LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WaitCopyResult
+<BR>[Called By]<UL><LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
+<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WaitCopyResult
 <LI><a href="#[58]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Step5_CopyScratchpad
 <LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadAuthenticatedPageRaw
 <LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_LoadFirstSecret
@@ -738,8 +741,9 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[2f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_uidivmod
 </UL>
-<BR>[Called By]<UL><LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_LoadFirstSecret
-<LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
+<BR>[Called By]<UL><LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
+<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
+<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_LoadFirstSecret
 </UL>
 
 <P><STRONG><a name="[12]"></a>USART1_IRQHandler</STRONG> (Thumb, 74 bytes, Stack size 0 bytes, user_usart1.o(i.USART1_IRQHandler))
@@ -809,7 +813,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> printfa.o(i.__0printf)
 </UL>
-<P><STRONG><a name="[13]"></a>main</STRONG> (Thumb, 804 bytes, Stack size 384 bytes, main.o(i.main))
+<P><STRONG><a name="[13]"></a>main</STRONG> (Thumb, 786 bytes, Stack size 384 bytes, main.o(i.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 1000<LI>Call Chain = main &rArr; PRB480_CopyScratchpadVerified &rArr; PRB480_GenerateCopyMAC &rArr; PRB480_GenerateCopyDataPageMAC &rArr; PRB480_RunMacCompression
 </UL>
 <BR>[Calls]<UL><LI><a href="#[32]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
@@ -860,7 +864,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[3b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Init
 </UL>
 
-<P><STRONG><a name="[41]"></a>PRB480_ADC_Config</STRONG> (Thumb, 240 bytes, Stack size 24 bytes, prb480.o(i.PRB480_ADC_Config))
+<P><STRONG><a name="[41]"></a>PRB480_ADC_Config</STRONG> (Thumb, 238 bytes, Stack size 24 bytes, prb480.o(i.PRB480_ADC_Config))
 <BR><BR>[Stack]<UL><LI>Max Depth = 60<LI>Call Chain = PRB480_ADC_Config &rArr; HAL_ADC_ConfigChannel &rArr; __aeabi_uidivmod
 </UL>
 <BR>[Calls]<UL><LI><a href="#[30]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_ADC_Init
@@ -871,7 +875,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[44]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_BoardInterfaceConfig
 </UL>
 
-<P><STRONG><a name="[43]"></a>PRB480_AdcLogDump</STRONG> (Thumb, 58 bytes, Stack size 8 bytes, prb480.o(i.PRB480_AdcLogDump))
+<P><STRONG><a name="[43]"></a>PRB480_AdcLogDump</STRONG> (Thumb, 80 bytes, Stack size 8 bytes, prb480.o(i.PRB480_AdcLogDump))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = PRB480_AdcLogDump &rArr; __2printf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[42]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
@@ -917,15 +921,15 @@ Local Symbols
 <P><STRONG><a name="[49]"></a>PRB480_CommandStart</STRONG> (Thumb, 36 bytes, Stack size 8 bytes, prb480.o(i.PRB480_CommandStart))
 <BR><BR>[Stack]<UL><LI>Max Depth = 100<LI>Call Chain = PRB480_CommandStart &rArr; PRB480_MatchROM &rArr; PRB480_WriteByte &rArr; PRB480_WriteBit &rArr; PRB480_WaitSlotEnd &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_SkipROM
-<LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
+<BR>[Calls]<UL><LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
 <LI><a href="#[4b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_MatchROM
+<LI><a href="#[4c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_SkipROM
 </UL>
-<BR>[Called By]<UL><LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadAuthenticatedPageRaw
+<BR>[Called By]<UL><LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadScratchpad
+<LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadAuthenticatedPageRaw
 <LI><a href="#[51]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadMemory
 <LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_LoadFirstSecret
 <LI><a href="#[52]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteScratchpad
-<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadScratchpad
 </UL>
 
 <P><STRONG><a name="[56]"></a>PRB480_DebugPrintCopyMACInputs</STRONG> (Thumb, 728 bytes, Stack size 128 bytes, prb480.o(i.PRB480_DebugPrintCopyMACInputs))
@@ -939,13 +943,13 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[4d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CopyScratchpadVerified
 </UL>
 
-<P><STRONG><a name="[73]"></a>PRB480_DelayNop</STRONG> (Thumb, 24 bytes, Stack size 8 bytes, prb480.o(i.PRB480_DelayNop))
+<P><STRONG><a name="[72]"></a>PRB480_DelayNop</STRONG> (Thumb, 24 bytes, Stack size 8 bytes, prb480.o(i.PRB480_DelayNop))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = PRB480_DelayNop
 </UL>
-<BR>[Called By]<UL><LI><a href="#[58]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Step5_CopyScratchpad
+<BR>[Called By]<UL><LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadBit
+<LI><a href="#[58]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Step5_CopyScratchpad
 <LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteBit
 <LI><a href="#[53]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Step5_ReadScratchpad
-<LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadBit
 </UL>
 
 <P><STRONG><a name="[5a]"></a>PRB480_GenerateCopyConfigPageMAC</STRONG> (Thumb, 276 bytes, Stack size 120 bytes, prb480.o(i.PRB480_GenerateCopyConfigPageMAC))
@@ -1002,8 +1006,8 @@ Local Symbols
 </UL>
 
 <P><STRONG><a name="[60]"></a>PRB480_GetPinPos</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, prb480.o(i.PRB480_GetPinPos))
-<BR><BR>[Called By]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_IO_ANALOG
-<LI><a href="#[47]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_IO_IN
+<BR><BR>[Called By]<UL><LI><a href="#[47]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_IO_IN
+<LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_IO_ANALOG
 </UL>
 
 <P><STRONG><a name="[5f]"></a>PRB480_IO_ANALOG</STRONG> (Thumb, 78 bytes, Stack size 16 bytes, prb480.o(i.PRB480_IO_ANALOG))
@@ -1032,14 +1036,16 @@ Local Symbols
 <LI><a href="#[4d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CopyScratchpadVerified
 </UL>
 
-<P><STRONG><a name="[72]"></a>PRB480_ReadAdcRaw</STRONG> (Thumb, 58 bytes, Stack size 0 bytes, prb480.o(i.PRB480_ReadAdcRaw))
+<P><STRONG><a name="[73]"></a>PRB480_ReadAdcRaw</STRONG> (Thumb, 58 bytes, Stack size 0 bytes, prb480.o(i.PRB480_ReadAdcRaw))
 <BR><BR>[Called By]<UL><LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadBit
 </UL>
 
 <P><STRONG><a name="[6e]"></a>PRB480_ReadAuthenticatedPageRaw</STRONG> (Thumb, 670 bytes, Stack size 104 bytes, prb480.o(i.PRB480_ReadAuthenticatedPageRaw))
 <BR><BR>[Stack]<UL><LI>Max Depth = 412<LI>Call Chain = PRB480_ReadAuthenticatedPageRaw &rArr; PRB480_LoadChallengeScratchpad &rArr; PRB480_WriteAndVerifyScratchpad &rArr; PRB480_WriteScratchpad &rArr; PRB480_CommandStart &rArr; PRB480_MatchROM &rArr; PRB480_WriteByte &rArr; PRB480_WriteBit &rArr; PRB480_WaitSlotEnd &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_VerifyReadAuthPageCRC
+<BR>[Calls]<UL><LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
+<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
+<LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_VerifyReadAuthPageCRC
 <LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_LoadChallengeScratchpad
 <LI><a href="#[49]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CommandStart
 <LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CheckAlternatingResponse
@@ -1048,8 +1054,6 @@ Local Symbols
 <LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 <LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TMX_Delay_ms
 <LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteByte
-<LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadAuthenticatedPageEx
 </UL>
@@ -1071,18 +1075,18 @@ Local Symbols
 </UL>
 
 <P><STRONG><a name="[58]"></a>PRB480_Step5_CopyScratchpad</STRONG> (Thumb, 258 bytes, Stack size 32 bytes, prb480.o(i.PRB480_Step5_CopyScratchpad))
-<BR><BR>[Stack]<UL><LI>Max Depth = 108<LI>Call Chain = PRB480_Step5_CopyScratchpad &rArr; PRB480_WriteByte &rArr; PRB480_WriteBit &rArr; PRB480_WaitSlotEnd &rArr; __aeabi_uidivmod
+<BR><BR>[Stack]<UL><LI>Max Depth = 124<LI>Call Chain = PRB480_Step5_CopyScratchpad &rArr; PRB480_WaitCopyResult &rArr; PRB480_ReadByte &rArr; TMX_Delay_us &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WaitCopyResult
+<BR>[Calls]<UL><LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
+<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WaitCopyResult
 <LI><a href="#[4e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_GetCopyTargetArea
-<LI><a href="#[73]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_DelayNop
+<LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_DelayNop
 <LI><a href="#[4f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CheckWriteAddress
 <LI><a href="#[54]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CheckScratchpadES
 <LI><a href="#[42]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 <LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TMX_Delay_ms
 <LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteByte
 <LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_WriteBit
-<LI><a href="#[4a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Reset
 </UL>
 <BR>[Called By]<UL><LI><a href="#[4d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CopyScratchpadVerified
 </UL>
@@ -1090,8 +1094,8 @@ Local Symbols
 <P><STRONG><a name="[6c]"></a>PRB480_VerifyPostCopyScratchpad</STRONG> (Thumb, 102 bytes, Stack size 56 bytes, prb480.o(i.PRB480_VerifyPostCopyScratchpad))
 <BR><BR>[Stack]<UL><LI>Max Depth = 220<LI>Call Chain = PRB480_VerifyPostCopyScratchpad &rArr; PRB480_ReadScratchpad &rArr; PRB480_CommandStart &rArr; PRB480_MatchROM &rArr; PRB480_WriteByte &rArr; PRB480_WriteBit &rArr; PRB480_WaitSlotEnd &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CheckPostCopyES
-<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadScratchpad
+<BR>[Calls]<UL><LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadScratchpad
+<LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CheckPostCopyES
 </UL>
 <BR>[Called By]<UL><LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_LoadFirstSecret
 </UL>
@@ -1099,8 +1103,8 @@ Local Symbols
 <P><STRONG><a name="[70]"></a>PRB480_VerifyReadAuthPageCRC</STRONG> (Thumb, 102 bytes, Stack size 80 bytes, prb480.o(i.PRB480_VerifyReadAuthPageCRC))
 <BR><BR>[Stack]<UL><LI>Max Depth = 128<LI>Call Chain = PRB480_VerifyReadAuthPageCRC &rArr; PRB480_CalcCRC16 &rArr; Cal_Crc16 &rArr; Cal_Crc16_bit
 </UL>
-<BR>[Calls]<UL><LI><a href="#[42]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
-<LI><a href="#[48]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CalcCRC16
+<BR>[Calls]<UL><LI><a href="#[48]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CalcCRC16
+<LI><a href="#[42]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadAuthenticatedPageRaw
 </UL>
@@ -1108,20 +1112,20 @@ Local Symbols
 <P><STRONG><a name="[67]"></a>PRB480_VerifyScratchpad</STRONG> (Thumb, 108 bytes, Stack size 64 bytes, prb480.o(i.PRB480_VerifyScratchpad))
 <BR><BR>[Stack]<UL><LI>Max Depth = 228<LI>Call Chain = PRB480_VerifyScratchpad &rArr; PRB480_ReadScratchpad &rArr; PRB480_CommandStart &rArr; PRB480_MatchROM &rArr; PRB480_WriteByte &rArr; PRB480_WriteBit &rArr; PRB480_WaitSlotEnd &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[54]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CheckScratchpadES
+<BR>[Calls]<UL><LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadScratchpad
+<LI><a href="#[54]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CheckScratchpadES
 <LI><a href="#[55]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;memcmp
-<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadScratchpad
 </UL>
 <BR>[Called By]<UL><LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_LoadFirstSecret
 </UL>
 
 <P><STRONG><a name="[79]"></a>PRB480_WaitCopyResult</STRONG> (Thumb, 156 bytes, Stack size 32 bytes, prb480.o(i.PRB480_WaitCopyResult))
-<BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = PRB480_WaitCopyResult &rArr; PRB480_ReadByte &rArr; PRB480_ReadBit &rArr; PRB480_DelayNop
+<BR><BR>[Stack]<UL><LI>Max Depth = 92<LI>Call Chain = PRB480_WaitCopyResult &rArr; PRB480_ReadByte &rArr; TMX_Delay_us &rArr; __aeabi_uidivmod
 </UL>
-<BR>[Calls]<UL><LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CheckAlternatingResponse
+<BR>[Calls]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
+<LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_CheckAlternatingResponse
 <LI><a href="#[42]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 <LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TMX_Delay_ms
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_ReadByte
 </UL>
 <BR>[Called By]<UL><LI><a href="#[58]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PRB480_Step5_CopyScratchpad
 </UL>

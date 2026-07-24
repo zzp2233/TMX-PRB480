@@ -22,12 +22,30 @@ Dialog DLL:      TARMCM1.DLL V1.13.0.0
  
 <h2>Project:</h2>
 C:\Users\wangy\Desktop\TXM_PRB480\TMX-PRB480-main\TMX-PRB480-main\PRB480_PY32F002B\MDK_ARM\PY32F002B.uvprojx
-Project File Date:  07/06/2026
+Project File Date:  07/16/2026
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'Target 1'
-".\Objects\PY32F002B.axf" - 0 Error(s), 0 Warning(s).
+compiling main.c...
+compiling PRB480.c...
+..\User_Drivers\PRB480\PRB480.c(1678): warning:  #550-D: variable "slotStart"  was set but never used
+      u32 slotStart;
+..\User_Drivers\PRB480\PRB480.c(49): warning:  #550-D: variable "PRB480_ReadSampleDelayUs"  was set but never used
+  static u8 PRB480_ReadSampleDelayUs = 4;                                              /* 图 12：进入 tREAD0 窗口后采样 */
+..\User_Drivers\PRB480\PRB480.c(2559): warning:  #177-D: function "PRB480_Step5_SendCodeReset"  was declared but never referenced
+  static void PRB480_Step5_SendCodeReset(u8 needDummy)
+..\User_Drivers\PRB480\PRB480.c(2574): warning:  #177-D: function "PRB480_Step5_WriteScratchpad"  was declared but never referenced
+  static u8 PRB480_Step5_WriteScratchpad(u8 *rom, u16 addr, u8 *dat, u16 *crc)
+..\User_Drivers\PRB480\PRB480.c(98): warning:  #177-D: function "PRB480_DelayTlow"  was declared but never referenced
+  static void PRB480_DelayTlow(void)
+..\User_Drivers\PRB480\PRB480.c(1566): warning:  #177-D: function "PRB480_WaitFromStart"  was declared but never referenced
+  static void PRB480_WaitFromStart(u32 startVal, u32 delayUs)
+..\User_Drivers\PRB480\PRB480.c: 6 warnings, 0 errors
+linking...
+Program Size: Code=18568 RO-data=736 RW-data=44 ZI-data=1356  
+FromELF: creating hex file...
+".\Objects\PY32F002B.axf" - 0 Error(s), 6 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -41,7 +59,7 @@ Package Vendor: Puya
   C:\Keil_v5\ARM\PACK\Puya\PY32F0xx_DFP\1.1.9\Device\Include
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:00
+Build Time Elapsed:  00:00:01
 </pre>
 </body>
 </html>

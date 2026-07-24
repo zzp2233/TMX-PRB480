@@ -14,6 +14,23 @@ typedef uint32_t u32;
  * PB3 = IO1 / response PMOS control
  * PB4 = IO2 / power PMOS control
  * Change these macros if your board wiring is different.
+ 
+#define PRB480_DQ_GPIO_PORT      GPIOB
+#define PRB480_DQ_GPIO_PIN       GPIO_PIN_1
+#define PRB480_ADC_CHANNEL       ADC_CHANNEL_0
+
+#define PRB480_RESP_GPIO_PORT    GPIOB
+#define PRB480_RESP_GPIO_PIN     GPIO_PIN_3
+#define PRB480_POWER_GPIO_PORT   GPIOB
+#define PRB480_POWER_GPIO_PIN    GPIO_PIN_4
+*/
+
+/* ========== PRB480 新的小板接口引脚定义 ========== */
+/* PY32F002B default pins:
+ * PB1 = IO3 / ADC channel 0 sample input
+ * PB3 = IO1 / HEAT_PWM / response PMOS control
+ * PB4 = IO2 / HEAT_R     power PMOS control
+ * Change these macros if your board wiring is different.
  */
 #define PRB480_DQ_GPIO_PORT      GPIOB
 #define PRB480_DQ_GPIO_PIN       GPIO_PIN_1
@@ -29,7 +46,7 @@ void PRB480_ResponsePMOS_On(void);        /* 打开响应 PMOS，PC1 可采样 I
 void PRB480_ResponsePMOS_Off(void);       /* 关闭响应 PMOS，PC1 采样 IO3 为高阻态 */
 void PRB480_PowerPMOS_On(void);           /* 打开功率 PMOS，PC1 采样 IO3 为高阻态 */
 void PRB480_PowerPMOS_Off(void);          /* 关闭功率 PMOS，PC1 采样 IO3 为高阻态 */
-
+void PRB480_DebugQ2Q3PulseTest(void);
 
 void TMX_Delay_us(u32 us);
 void TMX_Delay_ms(u32 ms);

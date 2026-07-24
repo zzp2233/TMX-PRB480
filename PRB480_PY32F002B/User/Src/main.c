@@ -29,7 +29,8 @@ int main(void)
     printf("\r\nPRB480 PY32F002B demo start\r\n");
 
     PRB480_BoardInterfaceConfig();
-    PRB480_SetAdcThreshold(600);
+    PRB480_SetAdcThreshold(800);
+// PRB480_DebugQ2Q3PulseTest();
 
     if (PRB480_Init())
     {
@@ -53,11 +54,11 @@ int main(void)
     }
     else
     {
-        printf("PRB480 Read ROM failed or CRC8 invalid\r\n");
-        while (1)
-        {
-            HAL_Delay(120);
-        }
+        // printf("PRB480 Read ROM failed or CRC8 invalid\r\n");
+        // while (1)
+        // {
+        //     HAL_Delay(120);
+        // }
     }
 
 

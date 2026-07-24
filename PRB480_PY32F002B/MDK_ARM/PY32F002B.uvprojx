@@ -379,17 +379,15 @@
       <Groups>
         <Group>
           <GroupName>MDK_ARM</GroupName>
+        </Group>
+        <Group>
+          <GroupName>Drivers/CMSIS</GroupName>
           <Files>
             <File>
               <FileName>startup_py32f002bxx.s</FileName>
               <FileType>2</FileType>
               <FilePath>..\Drivers\CMSIS\Device\PY32F0xx\Source\arm\startup_py32f002bxx.s</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>Drivers/CMSIS</GroupName>
-          <Files>
             <File>
               <FileName>system_py32f002b.c</FileName>
               <FileType>1</FileType>
