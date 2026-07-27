@@ -206,7 +206,7 @@ u8 PRB480_ReadAuthenticatedPageEx(u8 *rom, u8 *secret, u16 addr, u8 challenge[5]
 u8 PRB480_LoadPartialSecretScratchpad(u8 *rom, u16 addr, u8 partial[8], u8 *es);       /* 写入 Compute Next Secret 使用的 8 字节 partial secret */
 u8 PRB480_ComputeNextSecret(u8 *rom, u16 addr);                                       /* 0x33 - Compute Next Secret，生成下一阶段密钥 */
 u8 PRB480_VerifyScratchpadFilledAA(u8 *rom);                                          /* 图 8b：验证 scratchpad 被 0xAA 填充 */
-
+u8 PRB480_Test_step1_step2(u8 *rom, u16 addr, u8 *secret, u8 *es);
 #endif
 
 

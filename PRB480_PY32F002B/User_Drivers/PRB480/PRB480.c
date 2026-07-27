@@ -28,7 +28,7 @@
 #define PRB480_COPY_AREA_INVALID    2       /* Copy Scratchpad 目标类型：非法地址 */
 #define PRB480_TLOW_US              1       /* 图 12：短低脉冲，手册典型 1us */
 #define PRB480_TGAP_US              1       /* 图 12：写 0 两个低脉冲之间的间隔，手册典型 1us */
-#define PRB480_TSLOT_US             62      /* 图 12：单总线时隙，手册 125Kbits/s 典型 30us */
+#define PRB480_TSLOT_US             41      /* 图 12：单总线时隙，手册 125Kbits/s 典型 30us */
 #define PRB480_TRSTL_US             300     /* 图 11：复位低电平时间，手册典型 300us */
 #define PRB480_TSTD_US              200     /* 图 11：上电/复位后系统稳定时间 */
 #define PRB480_ADC_THRESHOLD_DEFAULT 1000     /* PC1/ADC 判 0/1 阈值，需要按实测 VDC0/VDC1 校准 */
@@ -38,8 +38,8 @@
 #define delay_us TMX_Delay_us
 #define delay_ms TMX_Delay_ms
 
-#define PRB480_TLOW_NOP_COUNT    15U      /* 先用 4，示波器实测后微调 */
-#define PRB480_TGAP_NOP_COUNT    0U      /* 写 0 两个低脉冲之间的高电平间隔 */
+#define PRB480_TLOW_NOP_COUNT    16U      /* 读时序拉低总线时间 */
+#define PRB480_TGAP_NOP_COUNT    0U      /* 读时序拉高总线时间 */
 
 static GPIO_TypeDef *PRB480_DqPort = PRB480_DQ_GPIO_PORT;
 static ADC_HandleTypeDef PRB480_AdcHandle;
@@ -91,7 +91,7 @@ u8 PRB480_LoadPartialSecretScratchpad(u8 *rom, u16 addr, u8 partial[8], u8 *es);
 u8 PRB480_VerifyScratchpadFilledAA(u8 *rom);                                           /* 验证 Compute Next Secret 后 scratchpad 是否为 0xAA */
 static u8 PRB480_VerifyPostCopyScratchpad(u8 *rom, u16 addr, u8 *verifiedEs);         /* Copy / Load First Secret 后验证 TA1/TA2/E/S，重点确认 AA=1 */
 static u32 PRB480_GetPinPos(u16 pin);
-
+u8 PRB480_Test_step1_step2(u8 *rom, u16 addr, u8 *secret, u8 *es);
 
 
 
@@ -1514,7 +1514,7 @@ u8 PRB480_Init(void)
     PRB480_ResponsePMOS_On();
     PRB480_PowerPMOS_Off();
     delay_ms(2);
-    return PRB480_Reset();
+    return 0;
 }
 
 u8 PRB480_Reset(void)
@@ -1644,7 +1644,7 @@ void PRB480_WriteBit(u8 bit)
          * 只产生一个短低脉冲 tLOW，然后释放总线。
          */
         PRB480_RESP_GPIO_PORT->BRR = PRB480_RespPin;      /* 拉低总线 */
-        PRB480_DelayNop(PRB480_TLOW_NOP_COUNT);           /* 约 1us，靠示波器微调 */
+        PRB480_DelayNop(PRB480_TLOW_NOP_COUNT+3);           
         PRB480_RESP_GPIO_PORT->BSRR = PRB480_RespPin;     /* 释放/拉高总线 */
     }
     else
@@ -1657,7 +1657,7 @@ void PRB480_WriteBit(u8 bit)
         PRB480_DelayNop(PRB480_TLOW_NOP_COUNT);
 
         PRB480_RESP_GPIO_PORT->BSRR = PRB480_RespPin;     /* 中间释放 */
-        PRB480_DelayNop(PRB480_TGAP_NOP_COUNT);
+        //PRB480_DelayNop(PRB480_TGAP_NOP_COUNT);
         PRB480_RESP_GPIO_PORT->BRR = PRB480_RespPin;      /* 第 2 个低脉冲 */
         PRB480_DelayNop(PRB480_TLOW_NOP_COUNT);
 
@@ -1708,7 +1708,7 @@ u8 PRB480_ReadBit(void)
      * 读取 ADC。
      */
     adc = PRB480_ReadAdcRaw();//ADC_SAMPLETIME_3CYCLES_5 6us，ADC_SAMPLETIME_41CYCLES_5 12us
-    PRB480_DelayNop(120);
+    PRB480_DelayNop(35);
     /*
      * ADC 大于阈值判 1，小于阈值判 0。
      */
@@ -1730,7 +1730,7 @@ u8 PRB480_ReadBit(void)
      * 不再手动 delay_us(15)，避免 ADC 时间变化导致 bit 周期漂移。
      */
     //PRB480_DelayNop(12);
-    PRB480_DelayNop(32);
+    PRB480_DelayNop(46);
     //PRB480_WaitSlotEnd(slotStart, 1);
 
     PRB480_LastReadAdc = adc;
@@ -1851,7 +1851,7 @@ u8 PRB480_ReadROM(u8 rom[8])
     {
         rom[i] = 0;               
     }
-
+    PRB480_AdcLogStart();                         /* 只缓存后续 64 个读 bit 的 ADC 值 */
     if (PRB480_Reset())
     {
         printf("Read ROM reset failed\r\n");
@@ -1861,7 +1861,7 @@ u8 PRB480_ReadROM(u8 rom[8])
     printf("Read ROM send 0x33\r\n");
     PRB480_WriteByte(0x33);                       /* 发送 Read ROM 命令 */
 
-    PRB480_AdcLogStart();                         /* 只缓存后续 64 个读 bit 的 ADC 值 */
+
     for (i = 0; i < 8; i++)                       /* 连续读取 8 字节 ROM ID */
     {
         rom[i] = PRB480_ReadByte();               /* 读回第 i 个 ROM 字节 */
@@ -3274,3 +3274,135 @@ u8 PRB480_ReadAuthenticatedPageEx(u8 *rom, u8 *secret, u16 addr, u8 challenge[5]
 
 
 
+u8 PRB480_Test_step1_step2(u8 *rom, u16 addr, u8 *secret, u8 *es)
+{
+    u16 crc;                                                                           /* 保存 Write Scratchpad 返回的 CRC16 */
+    u8 ta1;                                                                            /* 保存 Read Scratchpad 返回的 TA1 */
+    u8 ta2;                                                                            /* 保存 Read Scratchpad 返回的 TA2 */
+    u8 localEs;                                                                        /* 保存 Read Scratchpad 返回的 E/S */
+    u8 response1 = 0;                                                                      /* 保存 5Ah 完成后的第 1 个交替响应字节 */
+    u8 response2 = 0;                                                                      /* 保存 5Ah 完成后的第 2 个交替响应字节 */
+    u8 postEs;                                                                         /* 保存 Load First Secret 完成后重新读到的 E/S */
+    u8 retry;                                                                          /* 交替响应循环重试计数 */
+
+    //step1
+    u8 i;                                         /* ROM 字节读取循环变量 */
+
+    for (i = 0; i < 8; i++)                       /* 清空缓冲区 */
+    {
+        rom[i] = 0;               
+    }
+    PRB480_AdcLogStart();                         /* 只缓存后续 64 个读 bit 的 ADC 值 */
+    PRB480_Reset();
+
+    PRB480_WriteByte(0x33);                       /* 发送 Read ROM 命令 */
+
+
+    for (i = 0; i < 8; i++)                       /* 连续读取 8 字节 ROM ID */
+    {
+        rom[i] = PRB480_ReadByte();               /* 读回第 i 个 ROM 字节 */
+    }
+
+    // PRB480_AdcLogDump();                          /* 读完 64 bit 后再统一打印，避免扰乱时序 */
+
+    // printf("Read ROM raw:");
+    // for (i = 0; i < 8; i++)
+    // {
+    //     printf(" %02X", rom[i]);
+    // }
+    // printf(" CRC8=0x%02X\r\n", PRB480_CalcCRC8(rom, 8));
+    // if (PRB480_CalcCRC8(rom, 8) == 0);   /* 用 CRC8 校验整个 8 字节 ROM */    
+
+
+
+    //step2
+    if (secret == 0) return 1;                                                         /* secret 指针为空，直接失败 */
+    if (addr != 0x0080) return 1;                                                      /* Load First Secret 只允许写入 secret 地址 */
+    if (PRB480_CheckWriteAddress(addr)) return 1;                                      /* 地址不合法则失败 */
+
+    if (PRB480_WriteScratchpad(rom, addr, secret, 8, &crc));                  /* 第 1 步：把 8 字节 secret 写入 scratchpad */
+    if (PRB480_VerifyScratchpad(rom, addr, secret, &ta1, &ta2, &localEs));    /* 第 2 步：读回验证 TA1 / TA2 / E/S / 数据 */
+    printf("LFS auth: TA1=%02X TA2=%02X E/S=%02X PF=%d AA=%d\r\n",
+        ta1,
+        ta2,
+        localEs,
+        (localEs & PRB480_ES_PF) ? 1 : 0,
+        (localEs & PRB480_ES_AA) ? 1 : 0);
+    delay_us(500);
+
+
+    if (PRB480_CommandStart(rom));                                            /* 重新开始一帧新的 1-Wire 命令事务 */
+
+
+
+
+    PRB480_WriteByte(0x5A);                                                            /* 流程图：发送 Load First Secret 命令 5Ah */
+    PRB480_WriteByte(ta1);                                                             /* 流程图：发送认证字节 TA1，必须来自刚才的 Read Scratchpad */
+    PRB480_WriteByte(ta2);                                                             /* 流程图：发送认证字节 TA2，必须来自刚才的 Read Scratchpad */
+    PRB480_WriteByte(localEs);                                                         /* 流程图：发送认证字节 E/S，必须与 scratchpad 当前状态一致 */
+
+    // PRB480_ResponsePMOS_On();
+    // PRB480_PowerPMOS_On();                                                             /* 流程图：tPROG 期间保持 1-Wire 空闲高电平并给芯片供电 */
+    //delay_us(500);
+    delay_ms(11);  
+//    PRB480_PowerPMOS_Off();
+
+    /*
+     * 图 8b 成功路径中，PRB480 在 tPROG 后持续发送交替的 0、1。
+     * 每个连续读取的字节通常表现为 AAh 或 55h。
+     * 失败路径会持续发送 1，因此不能使用“只读到一个 1 就成功”的
+     * PRB480_WaitReady()，否则认证字节错误、地址错误或写保护也会误判成功。
+     */
+    
+
+    for (retry = 0; retry < 20; retry++)
+    {
+        response1 = PRB480_ReadByte();
+        response2 = PRB480_ReadByte();
+
+        printf("LFS response[%u]: %02X %02X\r\n",
+            retry, response1, response2);
+
+        if (PRB480_CheckAlternatingResponse(response1, response2) == 0)
+        {
+            break;  /* 收到AA或55交替位型 */
+        }
+
+        if ((response1 == 0xFF && response2 == 0xFF) && retry >5)
+        {
+            break;  /* 连续1，芯片明确拒绝 */
+        }
+        delay_ms(1); 
+    }
+
+
+    // if (PRB480_CheckAlternatingResponse(response1, response2))
+    // {
+    //     printf("Load First Secret rejected: response is not alternating 0/1\r\n");
+    //     PRB480_Reset();                                                                /* 无论成功或失败，主机都用 Reset 退出芯片的状态循环 */
+    //     return 1;
+    // }
+
+    if (PRB480_Reset());                                                      /* 流程图：主机发送 Reset，结束 0/1 交替响应循环 */
+    PRB480_ResponsePMOS_Off();
+    PRB480_PowerPMOS_Off();
+
+    while (1)
+    {
+        HAL_Delay(300);
+    }
+    /*
+     * 流程图在真正复制前会把 AA 位置 1。
+     * Reset 后重新执行 Read Scratchpad，确认 TA1/TA2 未变化、PF=0、
+     * E[2:0]=111 且 AA=1。只有此检查通过，才证明 Secret 已被芯片接受。
+     */
+    if (PRB480_VerifyPostCopyScratchpad(rom, addr, &postEs))
+    {
+        printf("Load First Secret post-check failed: AA is not set or TA/E/S invalid\r\n");
+        return 1;
+    }
+
+    if (es) *es = postEs;                                                             /* 返回操作后的 E/S，而不是操作前 AA=0 的 0x5F */
+    
+    return 0;                                                                          /* Load First Secret 流程成功 */
+}

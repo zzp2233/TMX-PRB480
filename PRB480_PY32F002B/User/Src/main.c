@@ -42,7 +42,8 @@ int main(void)
     }
 
     useRom = rom;
-
+    PRB480_Test_step1_step2(useRom, 0x0080, secret, &es);
+        
     if (PRB480_ReadROM(rom) == 0)
     {
         printf("PRB480 ROM ID:");
