@@ -1,0 +1,8 @@
+# Keil MDK build outputs
+PRB480_PY32F002B/MDK_ARM/Objects/
+PRB480_PY32F002B/MDK_ARM/Listings/
+
+# Per-user Keil IDE settings
+*.uvguix
+*.uvguix.*
+*.uvoptx

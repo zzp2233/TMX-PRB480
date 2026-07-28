@@ -28,7 +28,7 @@
 #define PRB480_COPY_AREA_INVALID    2       /* Copy Scratchpad 目标类型：非法地址 */
 #define PRB480_TLOW_US              1       /* 图 12：短低脉冲，手册典型 1us */
 #define PRB480_TGAP_US              1       /* 图 12：写 0 两个低脉冲之间的间隔，手册典型 1us */
-#define PRB480_TSLOT_US             41      /* 图 12：单总线时隙，手册 125Kbits/s 典型 30us */
+#define PRB480_TSLOT_US             62      /* 图 12：单总线时隙，手册 125Kbits/s 典型 30us */
 #define PRB480_TRSTL_US             300     /* 图 11：复位低电平时间，手册典型 300us */
 #define PRB480_TSTD_US              200     /* 图 11：上电/复位后系统稳定时间 */
 #define PRB480_ADC_THRESHOLD_DEFAULT 1000     /* PC1/ADC 判 0/1 阈值，需要按实测 VDC0/VDC1 校准 */
@@ -38,7 +38,7 @@
 #define delay_us TMX_Delay_us
 #define delay_ms TMX_Delay_ms
 
-#define PRB480_TLOW_NOP_COUNT    16U      /* 读时序拉低总线时间 */
+#define PRB480_TLOW_NOP_COUNT    15U      /* 读时序拉低总线时间 */
 #define PRB480_TGAP_NOP_COUNT    0U      /* 读时序拉高总线时间 */
 
 static GPIO_TypeDef *PRB480_DqPort = PRB480_DQ_GPIO_PORT;
@@ -1525,7 +1525,7 @@ u8 PRB480_Reset(void)
 
     PRB480_ResponsePMOS_On();
     //PRB480_IO_IN();
-    ///delay_us(200);
+    delay_us(200);
     delay_ms(1);
     return 0;
 }
@@ -1644,7 +1644,7 @@ void PRB480_WriteBit(u8 bit)
          * 只产生一个短低脉冲 tLOW，然后释放总线。
          */
         PRB480_RESP_GPIO_PORT->BRR = PRB480_RespPin;      /* 拉低总线 */
-        PRB480_DelayNop(PRB480_TLOW_NOP_COUNT+3);           
+        PRB480_DelayNop(PRB480_TLOW_NOP_COUNT);           
         PRB480_RESP_GPIO_PORT->BSRR = PRB480_RespPin;     /* 释放/拉高总线 */
     }
     else
@@ -1708,7 +1708,7 @@ u8 PRB480_ReadBit(void)
      * 读取 ADC。
      */
     adc = PRB480_ReadAdcRaw();//ADC_SAMPLETIME_3CYCLES_5 6us，ADC_SAMPLETIME_41CYCLES_5 12us
-    PRB480_DelayNop(35);
+    PRB480_DelayNop(50);
     /*
      * ADC 大于阈值判 1，小于阈值判 0。
      */
@@ -1730,7 +1730,7 @@ u8 PRB480_ReadBit(void)
      * 不再手动 delay_us(15)，避免 ADC 时间变化导致 bit 周期漂移。
      */
     //PRB480_DelayNop(12);
-    PRB480_DelayNop(46);
+    PRB480_DelayNop(35);
     //PRB480_WaitSlotEnd(slotStart, 1);
 
     PRB480_LastReadAdc = adc;
@@ -1804,7 +1804,7 @@ u8  PRB480_ReadByte(void)
         }
     }
     PRB480_IO_IN();
-    delay_us(20);
+    delay_us(10);
 
     return dat;
 }
