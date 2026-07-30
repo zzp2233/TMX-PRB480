@@ -29,7 +29,7 @@ int main(void)
     printf("\r\nPRB480 PY32F002B demo start\r\n");
 
     PRB480_BoardInterfaceConfig();
-    PRB480_SetAdcThreshold(800);
+    PRB480_SetAdcThreshold(990);
 // PRB480_DebugQ2Q3PulseTest();
 
     if (PRB480_Init())
@@ -109,9 +109,9 @@ int main(void)
     }
 
     printf("\r\n========== Step 2 ==========\r\n");
-    if (PRB480_LoadFirstSecret(useRom, 0x0080, secret, &es) == 0)
+    if (PRB480_LoadFirstSecret(useRom, 0x0080, secret) == 0)
     {
-        printf("Load First Secret OK, E/S=0x%02X\r\n", es);
+        printf("Load First Secret OK\r\n");
     }
     else
     {
