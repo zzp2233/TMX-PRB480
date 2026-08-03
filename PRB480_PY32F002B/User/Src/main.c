@@ -156,7 +156,13 @@ int main(void)
     // {
     //     HAL_Delay(300);
     // }
+    // PRB480_ResponsePMOS_Off();
+    // PRB480_PowerPMOS_Off();
 
+    // while (1)
+    // {
+    //     HAL_Delay(300);
+    // }
 
 
     printf("\r\n========== Step 4 ==========\r\n");

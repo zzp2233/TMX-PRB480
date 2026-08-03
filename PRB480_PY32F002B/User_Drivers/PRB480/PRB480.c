@@ -340,6 +340,144 @@ static u8 PRB480_VerifyReadAuthPageCRC(u8 *prefix, u8 prefix_len, u8 *payload, u
     return (local_crc == bus_crc) ? 0 : 1;        /* 相同返回 0，否则返回 1 */
 }
 
+
+/*******************************************************************************
+* 名    称         : PRB480_VerifyReadAuthPageDataCRC
+* 功    能         : 校验 Read Authenticated Page 命令返回的页面数据段 CRC16
+* 说    明         :
+*   按 PRB480 数据手册，页面数据段 CRC16 的标准计算输入为：
+*
+*       A5h + TA1 + TA2 + 32字节页面数据 + FFh
+*
+*   当前 PRB480 样片的实测结果与主机使用零初值计算出的标准 CRC16
+*   存在固定异或差值 0xE041。该现象已经在三个不同页面验证：
+*
+*       页面 0x0020：
+*           主机标准 CRC = 0x483A
+*           芯片返回 CRC = 0xA87B
+*           0x483A ^ 0xE041 = 0xA87B
+*
+*       页面 0x0040：
+*           主机标准 CRC = 0x9AC5
+*           芯片返回 CRC = 0x7A84
+*           0x9AC5 ^ 0xE041 = 0x7A84
+*
+*       页面 0x0060：
+*           主机标准 CRC = 0xB9E4
+*           芯片返回 CRC = 0x59A5
+*           0xB9E4 ^ 0xE041 = 0x59A5
+*
+*   三个页面的数据内容和地址均不同，但异或差值完全一致，说明该差异
+*   不是随机总线误码，也不是 CRC 高低字节组合错误。其数学表现等效于
+*   页面 CRC 使用了非零初始状态，但也可能是当前芯片版本在计算页面 CRC
+*   时包含了 V0.0 数据手册未说明的固定前缀。
+*
+*   由于目前无法确认芯片内部实现，本函数只针对固定长度的 RAP 页面
+*   数据段应用 0xE041 兼容值，不修改公共 PRB480_CalcCRC16()。
+*
+*   注意：
+*   1. 本函数只能用于 RAP 页面数据段 CRC；
+*   2. 不能用于 RAP MAC CRC；
+*   3. 不能用于 Write/Read Scratchpad CRC；
+*   4. RAP MAC CRC 仍应使用标准零初值 CRC16 校验；
+*   5. 如果更换芯片版本，应重新确认该兼容值是否仍然适用。
+*
+* 输入参数         : prefix     - CRC 前缀，固定为 A5h、TA1、TA2
+*                    prefixLen  - 前缀长度，正常应为 3
+*                    payload    - 32字节页面数据和1字节 FFh
+*                    payloadLen - 主体长度，正常应为 33
+*                    busCrc     - PRB480 返回的页面数据段 CRC16
+*
+* 返 回 值         : 0 - 页面 CRC 校验通过
+*                    1 - 参数错误、数据长度错误或 CRC 校验失败
+*******************************************************************************/
+static u8 PRB480_VerifyReadAuthPageDataCRC(
+    u8 *prefix,
+    u8 prefixLen,
+    u8 *payload,
+    u8 payloadLen,
+    u16 busCrc)
+{
+    u8 verify[40];                              /* 保存完整 CRC 输入数据 */
+    u8 offset = 0;                              /* verify 当前写入位置 */
+    u8 i;                                       /* 数据复制循环变量 */
+    u16 standardCrc;                            /* 零初值标准 CRC16 */
+    u16 compatibleCrc;                          /* 当前样片兼容 CRC16 */
+
+    /*
+     * RAP 页面 CRC 的标准输入长度固定为：
+     * 3字节命令/地址 + 32字节页面数据 + 1字节 FFh = 36字节。
+     */
+    if (prefixLen != 3 || payloadLen != 33)
+    {
+        printf("RAP page CRC FAIL: invalid length, prefix=%u payload=%u\r\n",
+               prefixLen,
+               payloadLen);
+        return 1;
+    }
+
+    /* 长度不为0时，对应的数据指针必须有效。 */
+    if (prefix == 0 || payload == 0)
+    {
+        printf("RAP page CRC FAIL: null input pointer\r\n");
+        return 1;
+    }
+
+    /* 防止后续修改参数长度时造成 verify 数组越界。 */
+    if (((u16)prefixLen + (u16)payloadLen) > sizeof(verify))
+    {
+        printf("RAP page CRC FAIL: input too long\r\n");
+        return 1;
+    }
+
+    /*
+     * 拼装 CRC 前缀：
+     * prefix[0] = A5h
+     * prefix[1] = TA1
+     * prefix[2] = TA2
+     */
+    for (i = 0; i < prefixLen; i++)
+    {
+        verify[offset++] = prefix[i];
+    }
+
+    /*
+     * 拼装 CRC 主体：
+     * payload[0..31] = 32字节页面数据
+     * payload[32]    = FFh
+     */
+    for (i = 0; i < payloadLen; i++)
+    {
+        verify[offset++] = payload[i];
+    }
+
+    /*
+     * 先按数据手册描述，使用公共 CRC16 箭法计算标准结果。
+     * 公共算法保持不变，以免影响已经验证正确的 MAC CRC、
+     * Write Scratchpad CRC 和 Read Scratchpad CRC。
+     */
+    standardCrc = PRB480_CalcCRC16(verify, offset);
+
+    /*
+     * 当前样片的 RAP 页面 CRC 与标准结果存在固定异或差值。
+     * 此修正仅适用于固定36字节输入的 RAP 页面数据段。
+     */
+    compatibleCrc = standardCrc ^ 0xE041;
+
+    printf("RAP page CRC: bus=%04X standard=%04X compatible=%04X\r\n",
+           busCrc,
+           standardCrc,
+           compatibleCrc);
+
+    if (busCrc != compatibleCrc)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+
 /*******************************************************************************
 * 名    称         : PRB480_RunMacCompression
 * 功    能         : 按 PRB480/DS28E01 规则计算单个 64 字节块的 SHA-1 压缩结果
@@ -3158,7 +3296,7 @@ static u8 PRB480_ReadAuthenticatedPageRaw(u8 *rom, u16 addr, u8 challenge[5], PR
     }
     printf("\r\n");
 
-    if (PRB480_VerifyReadAuthPageCRC(req, 3, page_crc_buf, 33, packet->page_crc16))
+    if (PRB480_VerifyReadAuthPageDataCRC(req, 3, page_crc_buf, 33, packet->page_crc16))
     {
         printf("RAP FAIL[4]: page CRC16 mismatch\r\n");
         //return 1;
