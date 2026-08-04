@@ -3299,7 +3299,7 @@ static u8 PRB480_ReadAuthenticatedPageRaw(u8 *rom, u16 addr, u8 challenge[5], PR
     if (PRB480_VerifyReadAuthPageDataCRC(req, 3, page_crc_buf, 33, packet->page_crc16))
     {
         printf("RAP FAIL[4]: page CRC16 mismatch\r\n");
-        //return 1;
+        return 1;
     }
     else
     {
@@ -3320,7 +3320,7 @@ static u8 PRB480_ReadAuthenticatedPageRaw(u8 *rom, u16 addr, u8 challenge[5], PR
     if (PRB480_VerifyReadAuthPageCRC(packet->device_mac, 20, 0, 0, packet->mac_crc16))
     {
         printf("RAP FAIL[5]: MAC CRC16 mismatch\r\n");
-        //return 1;
+        return 1;
     }
     else
     {

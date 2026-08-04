@@ -65,52 +65,6 @@ u8 referenceBlock0[8] = {
         // }
     }
 
-    PRB480_ReadMemory(useRom, 0x0088, config, 24);
-    
-    printf("Config 0x0088-0x009F:");
-    for (i = 0; i < 24; i++)
-    {
-        printf(" %02X", config[i]);
-    }
-    printf("\r\n");
-
-    PRB480_ReadMemory(useRom, 0x0088, config, 24);
-    
-    printf("Config 0x0088-0x009F:");
-    for (i = 0; i < 24; i++)
-    {
-        printf(" %02X", config[i]);
-    }
-    printf("\r\n");
-
-    PRB480_ReadMemory(useRom, 0x0088, config, 24);
-    
-    printf("Config 0x0088-0x009F:");
-    for (i = 0; i < 24; i++)
-    {
-        printf(" %02X", config[i]);
-    }
-    printf("\r\n");
-
-    PRB480_ReadMemory(useRom, 0x0088, config, 24);
-    
-    printf("Config 0x0088-0x009F:");
-    for (i = 0; i < 24; i++)
-    {
-        printf(" %02X", config[i]);
-    }
-    printf("\r\n");
-
-    PRB480_ReadMemory(useRom, 0x0088, config, 24);
-    
-    printf("Config 0x0088-0x009F:");
-    for (i = 0; i < 24; i++)
-    {
-        printf(" %02X", config[i]);
-    }
-    printf("\r\n");
-
-
     printf("\r\n========== Step 2  Read_memory ==========\r\n");
     printf("Secret:");
     for (i = 0; i < 8; i++)
@@ -263,6 +217,8 @@ u8 referenceBlock0[8] = {
         printf("Read Memory failed\r\n");
     }
 
+    printf("\r\n");
+    printf("重新写回原始数据\r\n");
     //重新写回原始数据
     PRB480_CopyScratchpadVerified(useRom, 0x0000, referenceBlock0, secret, pageData, copyMac, &copyStatus);
  
