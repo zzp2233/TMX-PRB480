@@ -21,7 +21,10 @@ int main(void)
     u8 config[24];
     u8 chipData[160];
     u16 addr;
-
+u8 referenceBlock0[8] = {
+    0x5A, 0xC2, 0xB1, 0x80,
+    0x96, 0x46, 0x10, 0x77
+};
     HAL_Init();
     User_System_Clock_Init();
     User_USART1_Init();
@@ -62,8 +65,53 @@ int main(void)
         // }
     }
 
+    PRB480_ReadMemory(useRom, 0x0088, config, 24);
+    
+    printf("Config 0x0088-0x009F:");
+    for (i = 0; i < 24; i++)
+    {
+        printf(" %02X", config[i]);
+    }
+    printf("\r\n");
+
+    PRB480_ReadMemory(useRom, 0x0088, config, 24);
+    
+    printf("Config 0x0088-0x009F:");
+    for (i = 0; i < 24; i++)
+    {
+        printf(" %02X", config[i]);
+    }
+    printf("\r\n");
+
+    PRB480_ReadMemory(useRom, 0x0088, config, 24);
+    
+    printf("Config 0x0088-0x009F:");
+    for (i = 0; i < 24; i++)
+    {
+        printf(" %02X", config[i]);
+    }
+    printf("\r\n");
+
+    PRB480_ReadMemory(useRom, 0x0088, config, 24);
+    
+    printf("Config 0x0088-0x009F:");
+    for (i = 0; i < 24; i++)
+    {
+        printf(" %02X", config[i]);
+    }
+    printf("\r\n");
+
+    PRB480_ReadMemory(useRom, 0x0088, config, 24);
+    
+    printf("Config 0x0088-0x009F:");
+    for (i = 0; i < 24; i++)
+    {
+        printf(" %02X", config[i]);
+    }
+    printf("\r\n");
 
 
+    printf("\r\n========== Step 2  Read_memory ==========\r\n");
     printf("Secret:");
     for (i = 0; i < 8; i++)
     {
@@ -108,7 +156,7 @@ int main(void)
         printf("Read Memory 0x0000-0x009F failed\r\n");
     }
 
-    printf("\r\n========== Step 2 ==========\r\n");
+    printf("\r\n========== Step 3  load_first_secret ==========\r\n");
     if (PRB480_LoadFirstSecret(useRom, 0x0080, secret) == 0)
     {
         printf("Load First Secret OK\r\n");
@@ -118,7 +166,7 @@ int main(void)
         printf("Load First Secret failed\r\n");
     }
 
-    printf("\r\n========== Step 3 ==========\r\n");
+    printf("\r\n========== Step 4  read_authenticated_page ==========\r\n");
     if (PRB480_ReadAuthenticatedPageEx(useRom, secret, 0x0060, challenge, &authPacket) == 0)
     {
         printf("Read Authenticated Page OK\r\n");
@@ -165,7 +213,7 @@ int main(void)
     // }
 
 
-    printf("\r\n========== Step 4 ==========\r\n");
+    // printf("\r\n========== Step 4 ==========\r\n");
     printf("WriteData:");
     for (i = 0; i < 8; i++)
     {
@@ -173,7 +221,7 @@ int main(void)
     }
     printf("\r\n");
 
-    printf("\r\n========== Step 5 ==========\r\n");
+    printf("\r\n========== Step 5  copy_scratchpad ==========\r\n");
     copyOk = PRB480_CopyScratchpadVerified(useRom, 0x0000, writeData, secret, pageData, copyMac, &copyStatus);
 
     printf("PageData:");
@@ -200,7 +248,6 @@ int main(void)
         printf("Authenticated Copy Scratchpad failed\r\n");
     }
 
-    printf("\r\n========== Step 6 ==========\r\n");
     if (PRB480_ReadMemory(useRom, 0x0000, readback, 8) == 0)
     {
         printf("Read Memory 0x0000 data:");
@@ -216,6 +263,10 @@ int main(void)
         printf("Read Memory failed\r\n");
     }
 
+    //重新写回原始数据
+    PRB480_CopyScratchpadVerified(useRom, 0x0000, referenceBlock0, secret, pageData, copyMac, &copyStatus);
+ 
+ 
     PRB480_ResponsePMOS_Off();
     PRB480_PowerPMOS_Off();
 
