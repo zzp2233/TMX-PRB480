@@ -3472,3 +3472,138 @@ u8 PRB480_Test_step1_step2(u8 *rom, u16 addr, u8 *buf, u8 len)
 
     return 0;                                                                          /* Load First Secret 流程成功 */
 }
+
+
+/*******************************************************************************
+ * 函数名称：PRB480_FRAM_Verify
+ * 功    能：向 FRAM 的 0x00C0 地址写入 8 字节，然后读回校验
+ * 返 回 值：0 = 校验成功
+ *            1 = 参数错误或数据校验失败
+ *******************************************************************************/
+u8 PRB480_FRAM_Verify(const u8 writeData[8], u8 readData[8])
+{
+    u8 i;
+    u8 result = 0;
+
+    if ((writeData == 0) || (readData == 0))
+    {
+        return 1;
+    }
+
+    for (i = 0; i < 8; i++)
+    {
+        readData[i] = 0;
+    }
+    /* ========================================================
+     * 写 FRAM 认证区
+     * ======================================================== */
+
+    PRB480_Reset();
+
+    PRB480_WriteByte(0x73);
+    PRB480_WriteByte(0x8C);
+    PRB480_WriteByte(0xFF);
+    PRB480_WriteByte(0xFF);
+
+    PRB480_WriteBit(1);
+    PRB480_WriteBit(1);
+    PRB480_WriteBit(1);
+
+    delay_us(250);       /* 实测约300 us */
+
+    PRB480_WriteByte(0xC0);
+    PRB480_WriteByte(0xDE);
+
+    PRB480_WriteBit(1);
+    PRB480_WriteBit(1);
+    PRB480_WriteBit(1);
+
+    delay_us(250);       /* 实测约300 us */
+
+    PRB480_WriteBit(1);
+
+    PRB480_WriteByte(0xDD);
+    PRB480_WriteByte(0xC0);
+
+    for (i = 0; i < 8; i++)
+    {
+        PRB480_WriteByte(writeData[i]);
+    }
+
+    PRB480_WriteBit(1);
+    PRB480_WriteBit(1);
+    PRB480_WriteBit(1);
+    PRB480_WriteBit(1);
+    PRB480_WriteBit(1);
+
+    PRB480_Reset();
+
+    /* ========================================================
+     * 读 FRAM 认证区
+     * ======================================================== */
+    PRB480_WriteByte(0x73);
+    PRB480_WriteByte(0x8C);
+    PRB480_WriteByte(0xFF);
+    PRB480_WriteByte(0xFF);
+
+    PRB480_WriteBit(1);
+    PRB480_WriteBit(1);
+    PRB480_WriteBit(1);
+
+    PRB480_WriteByte(0xC0);
+    PRB480_WriteByte(0xDE);
+
+    PRB480_WriteBit(1);
+    PRB480_WriteBit(1);
+    PRB480_WriteBit(1);
+
+    delay_us(250);       /* 实测约300 us */
+
+    PRB480_WriteBit(1);
+
+    PRB480_WriteByte(0xDE);
+
+    PRB480_WriteBit(1);
+    PRB480_WriteBit(1);
+    PRB480_WriteBit(1);
+
+    PRB480_WriteByte(0xC0);
+    PRB480_WriteByte(0xDE);
+
+    PRB480_WriteBit(1);
+    PRB480_WriteBit(1);
+    PRB480_WriteBit(1);
+
+    delay_us(250);       /* 实测约300 us */
+
+    PRB480_WriteByte(0xCC);
+    PRB480_WriteByte(0xF0);
+    PRB480_WriteByte(0x00);
+    PRB480_WriteByte(0x00);
+
+    for (i = 0; i < 8; i++)
+    {
+        readData[i] = PRB480_ReadByte();
+    }
+
+    for (i = 0; i < 8; i++)
+    {
+        if (readData[i] != writeData[i])
+        {
+            printf("FRAM mismatch[%u]: write=%02X read=%02X\r\n",
+                   i, writeData[i], readData[i]);
+
+            result = 1;
+            break;
+        }
+    }
+
+    if (result == 0)
+    {
+        printf("FRAM verify OK\r\n");
+    }
+
+    PRB480_Reset();
+
+    return result;
+}

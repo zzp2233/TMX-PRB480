@@ -206,6 +206,7 @@ u8 PRB480_LoadPartialSecretScratchpad(u8 *rom, u16 addr, u8 partial[8], u8 *es);
 u8 PRB480_ComputeNextSecret(u8 *rom, u16 addr);                                       /* 0x33 - Compute Next Secret，生成下一阶段密钥 */
 u8 PRB480_VerifyScratchpadFilledAA(u8 *rom);                                          /* 图 8b：验证 scratchpad 被 0xAA 填充 */
 u8 PRB480_Test_step1_step2(u8 *rom, u16 addr, u8 *buf, u8 len);
+u8 PRB480_FRAM_Verify(const u8 writeData[8], u8 readData[8]);
 #endif
 
 

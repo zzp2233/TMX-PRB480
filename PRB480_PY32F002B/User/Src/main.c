@@ -21,10 +21,21 @@ int main(void)
     u8 config[24];
     u8 chipData[160];
     u16 addr;
-u8 referenceBlock0[8] = {
-    0x5A, 0xC2, 0xB1, 0x80,
-    0x96, 0x46, 0x10, 0x77
-};
+    u8 referenceBlock0[8] = {
+        0x5A, 0xC2, 0xB1, 0x80,
+        0x96, 0x46, 0x10, 0x77
+    };
+
+    u8 framWrite[8] = {
+        0xAF, 0xF0, 0x10, 0x04,
+        0xA0, 0x31, 0x03, 0xC7
+    };
+
+    u8 framRead[8] = {0};
+    u8 framResult;
+    u8 round;
+    u8 status;
+
     HAL_Init();
     User_System_Clock_Init();
     User_USART1_Init();
@@ -222,6 +233,37 @@ u8 referenceBlock0[8] = {
     //重新写回原始数据
     PRB480_CopyScratchpadVerified(useRom, 0x0000, referenceBlock0, secret, pageData, copyMac, &copyStatus);
  
+
+   
+    printf("\r\n========== Step 6  FRAM_Verify ==========\r\n");
+
+    printf("Write:");
+    for (i = 0; i < 8; i++)
+    {
+        printf(" %02X", framWrite[i]);
+    }
+    printf("\r\n");
+
+    framResult = PRB480_FRAM_Verify(framWrite, framRead);
+
+    printf("Read :");
+    for (i = 0; i < 8; i++)
+    {
+        printf(" %02X", framRead[i]);
+    }
+    printf("\r\n");
+
+    if (framResult == 0)
+    {
+        printf("FRAM VERIFY OK\r\n");
+    }
+    else
+    {
+        printf("FRAM VERIFY FAIL\r\n");
+    }
+
+    printf("===== FRAM VERIFY END =====\r\n");
+
  
     PRB480_ResponsePMOS_Off();
     PRB480_PowerPMOS_Off();
