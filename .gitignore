@@ -6,3 +6,8 @@ PRB480_PY32F002B/MDK_ARM/Listings/
 *.uvguix
 *.uvguix.*
 *.uvoptx
+
+# Keil MDK-ARM generated build outputs
+**/MDK-ARM/Output/
+**/MDK-ARM/Objects/
+**/MDK-ARM/Listings/
