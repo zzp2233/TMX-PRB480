@@ -5,13 +5,28 @@
 static void APP_SystemClockConfig(void)
 {
     LL_RCC_HSI_Enable();
-    while (LL_RCC_HSI_IsReady() != 1U) {}
+
+    LL_RCC_HSI_SetCalibFreq(
+        LL_RCC_HSICALIBRATION_24MHz
+    );
+
+    while (LL_RCC_HSI_IsReady() != 1U)
+    {
+    }
+
+    LL_RCC_SetHSIDiv(LL_RCC_HSI_DIV_1);
     LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
     LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_HSISYS);
-    while (LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_HSISYS) {}
+
+    while (LL_RCC_GetSysClkSource() !=
+        LL_RCC_SYS_CLKSOURCE_STATUS_HSISYS)
+    {
+    }
+
     LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
-    LL_Init1msTick(8000000U);
-    LL_SetSystemCoreClock(8000000U);
+
+    LL_Init1msTick(24000000U);
+    LL_SetSystemCoreClock(24000000U);
 }
 
 int main(void)
@@ -55,7 +70,7 @@ int main(void)
     printf("\r\nPRB480 PY32CA70 demo start\r\n");
 
     PRB480_BoardInterfaceConfig();
-    PRB480_SetAdcThreshold(990);
+    PRB480_SetAdcThreshold(820);
 // PRB480_DebugQ2Q3PulseTest();
 
     if (PRB480_Init())
