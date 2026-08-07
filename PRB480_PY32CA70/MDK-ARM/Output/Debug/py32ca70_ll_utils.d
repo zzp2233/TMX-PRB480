@@ -1,0 +1,14 @@
+.\output\debug\py32ca70_ll_utils.o: ..\Drivers\PY32CA70_HAL_Driver\Src\py32ca70_ll_utils.c
+.\output\debug\py32ca70_ll_utils.o: ..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_utils.h
+.\output\debug\py32ca70_ll_utils.o: ..\Drivers\CMSIS\Device\PY32CA7xx\Include\py32ca7xx.h
+.\output\debug\py32ca70_ll_utils.o: ..\Drivers\CMSIS\Device\PY32CA7xx\Include\py32ca70x4.h
+.\output\debug\py32ca70_ll_utils.o: ..\Drivers\CMSIS\Include\core_cm0plus.h
+.\output\debug\py32ca70_ll_utils.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\output\debug\py32ca70_ll_utils.o: ..\Drivers\CMSIS\Include\core_cmInstr.h
+.\output\debug\py32ca70_ll_utils.o: ..\Drivers\CMSIS\Include\cmsis_armcc.h
+.\output\debug\py32ca70_ll_utils.o: ..\Drivers\CMSIS\Include\core_cmFunc.h
+.\output\debug\py32ca70_ll_utils.o: ..\Drivers\CMSIS\Device\PY32CA7xx\Include\system_py32ca7xx.h
+.\output\debug\py32ca70_ll_utils.o: ..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_rcc.h
+.\output\debug\py32ca70_ll_utils.o: ..\Drivers\CMSIS\Device\PY32CA7xx\Include\py32ca7xx.h
+.\output\debug\py32ca70_ll_utils.o: ..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_system.h
+.\output\debug\py32ca70_ll_utils.o: ..\Drivers\CMSIS\Device\PY32CA7xx\Include\py32ca7xx.h

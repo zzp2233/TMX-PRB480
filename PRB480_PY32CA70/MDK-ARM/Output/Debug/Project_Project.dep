@@ -1,0 +1,148 @@
+Dependencies for Project 'Project', Target 'Project': (DO NOT MODIFY !)
+F (..\Src\system_py32ca70.c)(0x69BCE5F9)(--c99 -c --cpu Cortex-M0+ -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\Inc -I ..\User_Drivers\PRB480 -I ..\Drivers\PY32CA70_HAL_Driver\Inc -I ..\Drivers\BSP\PY32CA70xx_Start_Kit -I ..\Drivers\CMSIS\Include -I ..\Drivers\CMSIS\Device\PY32CA7xx\Include-I.\RTE\_Project-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Puya\PY32CA7xx_DFP\1.0.0\Drivers\CMSIS\Device\PUYA\Include-D__UVISION_VERSION="524" -D_RTE_ -DPY32CA70x4 -DUSE_FULL_LL_DRIVER-o .\output\debug\system_py32ca70.o --omf_browse .\output\debug\system_py32ca70.crf --depend .\output\debug\system_py32ca70.d)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\py32ca7xx.h)(0x69BCE666)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\py32ca70x4.h)(0x69BCE5FF)
+I (..\Drivers\CMSIS\Include\core_cm0plus.h)(0x69BCE5FD)
+I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x588B8344)
+I (..\Drivers\CMSIS\Include\core_cmInstr.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Include\cmsis_armcc.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Include\core_cmFunc.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\system_py32ca7xx.h)(0x69BCE5FF)
+F (.\startup_py32ca70xx.s)(0x69BCE5F9)(--cpu Cortex-M0+ -g --apcs=interwork --pd "__MICROLIB SETA 1"-I.\RTE\_Project-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Puya\PY32CA7xx_DFP\1.0.0\Drivers\CMSIS\Device\PUYA\Include--pd "__UVISION_VERSION SETA 524" --pd "_RTE_ SETA 1"--list .\output\debug\startup_py32ca70xx.lst --xref -o .\output\debug\startup_py32ca70xx.o --depend .\output\debug\startup_py32ca70xx.d)
+F (..\Src\main.c)(0x6A7436BB)(--c99 -c --cpu Cortex-M0+ -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\Inc -I ..\User_Drivers\PRB480 -I ..\Drivers\PY32CA70_HAL_Driver\Inc -I ..\Drivers\BSP\PY32CA70xx_Start_Kit -I ..\Drivers\CMSIS\Include -I ..\Drivers\CMSIS\Device\PY32CA7xx\Include-I.\RTE\_Project-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Puya\PY32CA7xx_DFP\1.0.0\Drivers\CMSIS\Device\PUYA\Include-D__UVISION_VERSION="524" -D_RTE_ -DPY32CA70x4 -DUSE_FULL_LL_DRIVER-o .\output\debug\main.o --omf_browse .\output\debug\main.crf --depend .\output\debug\main.d)
+I (..\Inc\main.h)(0x69BCE5F9)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_rcc.h)(0x69BCE600)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\py32ca7xx.h)(0x69BCE666)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\py32ca70x4.h)(0x69BCE5FF)
+I (..\Drivers\CMSIS\Include\core_cm0plus.h)(0x69BCE5FD)
+I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x588B8344)
+I (..\Drivers\CMSIS\Include\core_cmInstr.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Include\cmsis_armcc.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Include\core_cmFunc.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\system_py32ca7xx.h)(0x69BCE5FF)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_bus.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_system.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_cortex.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_utils.h)(0x69BCE5FF)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_pwr.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_gpio.h)(0x69BCE5FF)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_adc.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_tim.h)(0x69BCE600)
+I (..\Drivers\BSP\PY32CA70xx_Start_Kit\py32ca70xx_ll_Start_Kit.h)(0x6A74595C)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x588B8344)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_exti.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_uart.h)(0x69BCE5FF)
+I (..\User_Drivers\PRB480\PRB480.h)(0x6A7435F8)
+F (..\Src\py32ca70_it.c)(0x69BCE5F9)(--c99 -c --cpu Cortex-M0+ -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\Inc -I ..\User_Drivers\PRB480 -I ..\Drivers\PY32CA70_HAL_Driver\Inc -I ..\Drivers\BSP\PY32CA70xx_Start_Kit -I ..\Drivers\CMSIS\Include -I ..\Drivers\CMSIS\Device\PY32CA7xx\Include-I.\RTE\_Project-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Puya\PY32CA7xx_DFP\1.0.0\Drivers\CMSIS\Device\PUYA\Include-D__UVISION_VERSION="524" -D_RTE_ -DPY32CA70x4 -DUSE_FULL_LL_DRIVER-o .\output\debug\py32ca70_it.o --omf_browse .\output\debug\py32ca70_it.crf --depend .\output\debug\py32ca70_it.d)
+I (..\Inc\main.h)(0x69BCE5F9)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_rcc.h)(0x69BCE600)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\py32ca7xx.h)(0x69BCE666)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\py32ca70x4.h)(0x69BCE5FF)
+I (..\Drivers\CMSIS\Include\core_cm0plus.h)(0x69BCE5FD)
+I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x588B8344)
+I (..\Drivers\CMSIS\Include\core_cmInstr.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Include\cmsis_armcc.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Include\core_cmFunc.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\system_py32ca7xx.h)(0x69BCE5FF)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_bus.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_system.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_cortex.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_utils.h)(0x69BCE5FF)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_pwr.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_gpio.h)(0x69BCE5FF)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_adc.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_tim.h)(0x69BCE600)
+I (..\Inc\py32ca70_it.h)(0x69BCE5F9)
+F (..\Drivers\BSP\PY32CA70xx_Start_Kit\py32ca70xx_ll_Start_Kit.c)(0x6A7455B7)(--c99 -c --cpu Cortex-M0+ -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\Inc -I ..\User_Drivers\PRB480 -I ..\Drivers\PY32CA70_HAL_Driver\Inc -I ..\Drivers\BSP\PY32CA70xx_Start_Kit -I ..\Drivers\CMSIS\Include -I ..\Drivers\CMSIS\Device\PY32CA7xx\Include-I.\RTE\_Project-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Puya\PY32CA7xx_DFP\1.0.0\Drivers\CMSIS\Device\PUYA\Include-D__UVISION_VERSION="524" -D_RTE_ -DPY32CA70x4 -DUSE_FULL_LL_DRIVER-o .\output\debug\py32ca70xx_ll_start_kit.o --omf_browse .\output\debug\py32ca70xx_ll_start_kit.crf --depend .\output\debug\py32ca70xx_ll_start_kit.d)
+I (..\Drivers\BSP\PY32CA70xx_Start_Kit\py32ca70xx_ll_Start_Kit.h)(0x6A74595C)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x588B8344)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_rcc.h)(0x69BCE600)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\py32ca7xx.h)(0x69BCE666)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\py32ca70x4.h)(0x69BCE5FF)
+I (..\Drivers\CMSIS\Include\core_cm0plus.h)(0x69BCE5FD)
+I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x588B8344)
+I (..\Drivers\CMSIS\Include\core_cmInstr.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Include\cmsis_armcc.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Include\core_cmFunc.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\system_py32ca7xx.h)(0x69BCE5FF)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_bus.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_system.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_exti.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_cortex.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_utils.h)(0x69BCE5FF)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_pwr.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_gpio.h)(0x69BCE5FF)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_uart.h)(0x69BCE5FF)
+F (..\User_Drivers\PRB480\PRB480.c)(0x6A75434B)(--c99 -c --cpu Cortex-M0+ -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\Inc -I ..\User_Drivers\PRB480 -I ..\Drivers\PY32CA70_HAL_Driver\Inc -I ..\Drivers\BSP\PY32CA70xx_Start_Kit -I ..\Drivers\CMSIS\Include -I ..\Drivers\CMSIS\Device\PY32CA7xx\Include-I.\RTE\_Project-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Puya\PY32CA7xx_DFP\1.0.0\Drivers\CMSIS\Device\PUYA\Include-D__UVISION_VERSION="524" -D_RTE_ -DPY32CA70x4 -DUSE_FULL_LL_DRIVER-o .\output\debug\prb480.o --omf_browse .\output\debug\prb480.crf --depend .\output\debug\prb480.d)
+I (..\User_Drivers\PRB480\PRB480.h)(0x6A7435F8)
+I (..\Inc\main.h)(0x69BCE5F9)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_rcc.h)(0x69BCE600)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\py32ca7xx.h)(0x69BCE666)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\py32ca70x4.h)(0x69BCE5FF)
+I (..\Drivers\CMSIS\Include\core_cm0plus.h)(0x69BCE5FD)
+I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x588B8344)
+I (..\Drivers\CMSIS\Include\core_cmInstr.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Include\cmsis_armcc.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Include\core_cmFunc.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\system_py32ca7xx.h)(0x69BCE5FF)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_bus.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_system.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_cortex.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_utils.h)(0x69BCE5FF)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_pwr.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_gpio.h)(0x69BCE5FF)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_adc.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_tim.h)(0x69BCE600)
+I (..\User_Drivers\PRB480\CRC16.h)(0x6A7435A8)
+I (..\User_Drivers\PRB480\SHA1.h)(0x6A7435A8)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x588B8344)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x588B8344)
+F (..\User_Drivers\PRB480\CRC16.c)(0x6A7435A8)(--c99 -c --cpu Cortex-M0+ -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\Inc -I ..\User_Drivers\PRB480 -I ..\Drivers\PY32CA70_HAL_Driver\Inc -I ..\Drivers\BSP\PY32CA70xx_Start_Kit -I ..\Drivers\CMSIS\Include -I ..\Drivers\CMSIS\Device\PY32CA7xx\Include-I.\RTE\_Project-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Puya\PY32CA7xx_DFP\1.0.0\Drivers\CMSIS\Device\PUYA\Include-D__UVISION_VERSION="524" -D_RTE_ -DPY32CA70x4 -DUSE_FULL_LL_DRIVER-o .\output\debug\crc16.o --omf_browse .\output\debug\crc16.crf --depend .\output\debug\crc16.d)
+I (..\User_Drivers\PRB480\CRC16.h)(0x6A7435A8)
+I (..\User_Drivers\PRB480\PRB480.h)(0x6A7435F8)
+I (..\Inc\main.h)(0x69BCE5F9)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_rcc.h)(0x69BCE600)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\py32ca7xx.h)(0x69BCE666)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\py32ca70x4.h)(0x69BCE5FF)
+I (..\Drivers\CMSIS\Include\core_cm0plus.h)(0x69BCE5FD)
+I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x588B8344)
+I (..\Drivers\CMSIS\Include\core_cmInstr.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Include\cmsis_armcc.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Include\core_cmFunc.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\system_py32ca7xx.h)(0x69BCE5FF)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_bus.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_system.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_cortex.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_utils.h)(0x69BCE5FF)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_pwr.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_gpio.h)(0x69BCE5FF)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_adc.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_tim.h)(0x69BCE600)
+F (..\User_Drivers\PRB480\SHA1.c)(0x6A7435A8)(--c99 -c --cpu Cortex-M0+ -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\Inc -I ..\User_Drivers\PRB480 -I ..\Drivers\PY32CA70_HAL_Driver\Inc -I ..\Drivers\BSP\PY32CA70xx_Start_Kit -I ..\Drivers\CMSIS\Include -I ..\Drivers\CMSIS\Device\PY32CA7xx\Include-I.\RTE\_Project-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Puya\PY32CA7xx_DFP\1.0.0\Drivers\CMSIS\Device\PUYA\Include-D__UVISION_VERSION="524" -D_RTE_ -DPY32CA70x4 -DUSE_FULL_LL_DRIVER-o .\output\debug\sha1.o --omf_browse .\output\debug\sha1.crf --depend .\output\debug\sha1.d)
+I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x588B8344)
+I (C:\Keil_v5\ARM\ARMCC\include\string.h)(0x588B8344)
+I (..\User_Drivers\PRB480\SHA1.h)(0x6A7435A8)
+F (..\Drivers\PY32CA70_HAL_Driver\Src\py32ca70_ll_adc.c)(0x69BCE5FF)(--c99 -c --cpu Cortex-M0+ -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\Inc -I ..\User_Drivers\PRB480 -I ..\Drivers\PY32CA70_HAL_Driver\Inc -I ..\Drivers\BSP\PY32CA70xx_Start_Kit -I ..\Drivers\CMSIS\Include -I ..\Drivers\CMSIS\Device\PY32CA7xx\Include-I.\RTE\_Project-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Puya\PY32CA7xx_DFP\1.0.0\Drivers\CMSIS\Device\PUYA\Include-D__UVISION_VERSION="524" -D_RTE_ -DPY32CA70x4 -DUSE_FULL_LL_DRIVER-o .\output\debug\py32ca70_ll_adc.o --omf_browse .\output\debug\py32ca70_ll_adc.crf --depend .\output\debug\py32ca70_ll_adc.d)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_adc.h)(0x69BCE600)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\py32ca7xx.h)(0x69BCE666)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\py32ca70x4.h)(0x69BCE5FF)
+I (..\Drivers\CMSIS\Include\core_cm0plus.h)(0x69BCE5FD)
+I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x588B8344)
+I (..\Drivers\CMSIS\Include\core_cmInstr.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Include\cmsis_armcc.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Include\core_cmFunc.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\system_py32ca7xx.h)(0x69BCE5FF)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_bus.h)(0x69BCE600)
+F (..\Drivers\PY32CA70_HAL_Driver\Src\py32ca70_ll_utils.c)(0x69BCE5FF)(--c99 -c --cpu Cortex-M0+ -D__MICROLIB -g -O0 --apcs=interwork --split_sections -I ..\Inc -I ..\User_Drivers\PRB480 -I ..\Drivers\PY32CA70_HAL_Driver\Inc -I ..\Drivers\BSP\PY32CA70xx_Start_Kit -I ..\Drivers\CMSIS\Include -I ..\Drivers\CMSIS\Device\PY32CA7xx\Include-I.\RTE\_Project-IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.6.0\CMSIS\Core\Include-IC:\Keil_v5\ARM\PACK\Puya\PY32CA7xx_DFP\1.0.0\Drivers\CMSIS\Device\PUYA\Include-D__UVISION_VERSION="524" -D_RTE_ -DPY32CA70x4 -DUSE_FULL_LL_DRIVER-o .\output\debug\py32ca70_ll_utils.o --omf_browse .\output\debug\py32ca70_ll_utils.crf --depend .\output\debug\py32ca70_ll_utils.d)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_utils.h)(0x69BCE5FF)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\py32ca7xx.h)(0x69BCE666)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\py32ca70x4.h)(0x69BCE5FF)
+I (..\Drivers\CMSIS\Include\core_cm0plus.h)(0x69BCE5FD)
+I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x588B8344)
+I (..\Drivers\CMSIS\Include\core_cmInstr.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Include\cmsis_armcc.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Include\core_cmFunc.h)(0x69BCE5FD)
+I (..\Drivers\CMSIS\Device\PY32CA7xx\Include\system_py32ca7xx.h)(0x69BCE5FF)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_rcc.h)(0x69BCE600)
+I (..\Drivers\PY32CA70_HAL_Driver\Inc\py32ca70_ll_system.h)(0x69BCE600)
+F (..\readme.txt)(0x69BCE5F9)()

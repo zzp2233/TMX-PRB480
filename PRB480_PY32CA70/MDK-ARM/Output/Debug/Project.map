@@ -1,0 +1,1356 @@
+Component: ARM Compiler 5.06 update 5 (build 528) Tool: armlink [4d35e2]
+
+==============================================================================
+
+Section Cross References
+
+    system_py32ca70.o(i.SystemCoreClockUpdate) refers to uidiv.o(.text) for __aeabi_uidivmod
+    system_py32ca70.o(i.SystemCoreClockUpdate) refers to system_py32ca70.o(.data) for SystemCoreClock
+    system_py32ca70.o(i.SystemCoreClockUpdate) refers to system_py32ca70.o(.constdata) for HSIFreqTable
+    startup_py32ca70xx.o(RESET) refers to startup_py32ca70xx.o(STACK) for __initial_sp
+    startup_py32ca70xx.o(RESET) refers to startup_py32ca70xx.o(.text) for Reset_Handler
+    startup_py32ca70xx.o(RESET) refers to py32ca70_it.o(i.NMI_Handler) for NMI_Handler
+    startup_py32ca70xx.o(RESET) refers to py32ca70_it.o(i.HardFault_Handler) for HardFault_Handler
+    startup_py32ca70xx.o(RESET) refers to py32ca70_it.o(i.SVC_Handler) for SVC_Handler
+    startup_py32ca70xx.o(RESET) refers to py32ca70_it.o(i.PendSV_Handler) for PendSV_Handler
+    startup_py32ca70xx.o(RESET) refers to py32ca70_it.o(i.SysTick_Handler) for SysTick_Handler
+    startup_py32ca70xx.o(.text) refers to system_py32ca70.o(i.SystemInit) for SystemInit
+    startup_py32ca70xx.o(.text) refers to entry.o(.ARM.Collect$$$$00000000) for __main
+    main.o(i.APP_SystemClockConfig) refers to py32ca70_ll_utils.o(i.LL_Init1msTick) for LL_Init1msTick
+    main.o(i.APP_SystemClockConfig) refers to py32ca70_ll_utils.o(i.LL_SetSystemCoreClock) for LL_SetSystemCoreClock
+    main.o(i.main) refers to memseta.o(.text) for __aeabi_memclr4
+    main.o(i.main) refers to main.o(i.APP_SystemClockConfig) for APP_SystemClockConfig
+    main.o(i.main) refers to py32ca70xx_ll_start_kit.o(i.BSP_UART_Config) for BSP_UART_Config
+    main.o(i.main) refers to printf8.o(i.__0printf$8) for __2printf
+    main.o(i.main) refers to prb480.o(i.PRB480_BoardInterfaceConfig) for PRB480_BoardInterfaceConfig
+    main.o(i.main) refers to prb480.o(i.PRB480_SetAdcThreshold) for PRB480_SetAdcThreshold
+    main.o(i.main) refers to prb480.o(i.PRB480_Init) for PRB480_Init
+    main.o(i.main) refers to prb480.o(i.PRB480_ReadROM) for PRB480_ReadROM
+    main.o(i.main) refers to prb480.o(i.PRB480_ReadMemory) for PRB480_ReadMemory
+    main.o(i.main) refers to prb480.o(i.PRB480_LoadFirstSecret) for PRB480_LoadFirstSecret
+    main.o(i.main) refers to prb480.o(i.PRB480_ReadAuthenticatedPageEx) for PRB480_ReadAuthenticatedPageEx
+    main.o(i.main) refers to prb480.o(i.PRB480_CopyScratchpadVerified) for PRB480_CopyScratchpadVerified
+    main.o(i.main) refers to prb480.o(i.PRB480_FRAM_Verify) for PRB480_FRAM_Verify
+    main.o(i.main) refers to prb480.o(i.PRB480_ResponsePMOS_Off) for PRB480_ResponsePMOS_Off
+    main.o(i.main) refers to prb480.o(i.PRB480_PowerPMOS_Off) for PRB480_PowerPMOS_Off
+    main.o(i.main) refers to py32ca70_ll_utils.o(i.LL_mDelay) for LL_mDelay
+    py32ca70xx_ll_start_kit.o(i.BSP_LED_DeInit) refers to py32ca70xx_ll_start_kit.o(i.LL_GPIO_ResetOutputPin) for LL_GPIO_ResetOutputPin
+    py32ca70xx_ll_start_kit.o(i.BSP_LED_DeInit) refers to py32ca70xx_ll_start_kit.o(i.LL_GPIO_SetPinMode) for LL_GPIO_SetPinMode
+    py32ca70xx_ll_start_kit.o(i.BSP_LED_DeInit) refers to py32ca70xx_ll_start_kit.o(.constdata) for LED_PIN
+    py32ca70xx_ll_start_kit.o(i.BSP_LED_DeInit) refers to py32ca70xx_ll_start_kit.o(.data) for LED_PORT
+    py32ca70xx_ll_start_kit.o(i.BSP_LED_Init) refers to py32ca70xx_ll_start_kit.o(i.LL_IOP_GRP1_EnableClock) for LL_IOP_GRP1_EnableClock
+    py32ca70xx_ll_start_kit.o(i.BSP_LED_Init) refers to py32ca70xx_ll_start_kit.o(i.LL_GPIO_SetPinMode) for LL_GPIO_SetPinMode
+    py32ca70xx_ll_start_kit.o(i.BSP_LED_Init) refers to py32ca70xx_ll_start_kit.o(i.LL_GPIO_SetOutputPin) for LL_GPIO_SetOutputPin
+    py32ca70xx_ll_start_kit.o(i.BSP_LED_Init) refers to py32ca70xx_ll_start_kit.o(.constdata) for LED_PIN
+    py32ca70xx_ll_start_kit.o(i.BSP_LED_Init) refers to py32ca70xx_ll_start_kit.o(.data) for LED_PORT
+    py32ca70xx_ll_start_kit.o(i.BSP_LED_Off) refers to py32ca70xx_ll_start_kit.o(i.LL_GPIO_SetOutputPin) for LL_GPIO_SetOutputPin
+    py32ca70xx_ll_start_kit.o(i.BSP_LED_Off) refers to py32ca70xx_ll_start_kit.o(.constdata) for LED_PIN
+    py32ca70xx_ll_start_kit.o(i.BSP_LED_Off) refers to py32ca70xx_ll_start_kit.o(.data) for LED_PORT
+    py32ca70xx_ll_start_kit.o(i.BSP_LED_On) refers to py32ca70xx_ll_start_kit.o(i.LL_GPIO_ResetOutputPin) for LL_GPIO_ResetOutputPin
+    py32ca70xx_ll_start_kit.o(i.BSP_LED_On) refers to py32ca70xx_ll_start_kit.o(.constdata) for LED_PIN
+    py32ca70xx_ll_start_kit.o(i.BSP_LED_On) refers to py32ca70xx_ll_start_kit.o(.data) for LED_PORT
+    py32ca70xx_ll_start_kit.o(i.BSP_LED_Toggle) refers to py32ca70xx_ll_start_kit.o(.data) for LED_PORT
+    py32ca70xx_ll_start_kit.o(i.BSP_LED_Toggle) refers to py32ca70xx_ll_start_kit.o(.constdata) for LED_PIN
+    py32ca70xx_ll_start_kit.o(i.BSP_PB_DeInit) refers to py32ca70xx_ll_start_kit.o(i.LL_GPIO_SetPinMode) for LL_GPIO_SetPinMode
+    py32ca70xx_ll_start_kit.o(i.BSP_PB_DeInit) refers to py32ca70xx_ll_start_kit.o(.constdata) for BUTTON_IRQn
+    py32ca70xx_ll_start_kit.o(i.BSP_PB_DeInit) refers to py32ca70xx_ll_start_kit.o(.data) for BUTTON_PORT
+    py32ca70xx_ll_start_kit.o(i.BSP_PB_GetState) refers to py32ca70xx_ll_start_kit.o(.data) for BUTTON_PORT
+    py32ca70xx_ll_start_kit.o(i.BSP_PB_GetState) refers to py32ca70xx_ll_start_kit.o(.constdata) for BUTTON_PIN
+    py32ca70xx_ll_start_kit.o(i.BSP_PB_Init) refers to py32ca70xx_ll_start_kit.o(i.LL_IOP_GRP1_EnableClock) for LL_IOP_GRP1_EnableClock
+    py32ca70xx_ll_start_kit.o(i.BSP_PB_Init) refers to py32ca70xx_ll_start_kit.o(i.LL_GPIO_SetPinMode) for LL_GPIO_SetPinMode
+    py32ca70xx_ll_start_kit.o(i.BSP_PB_Init) refers to py32ca70xx_ll_start_kit.o(i.LL_GPIO_SetPinPull) for LL_GPIO_SetPinPull
+    py32ca70xx_ll_start_kit.o(i.BSP_PB_Init) refers to py32ca70xx_ll_start_kit.o(i.NVIC_SetPriority) for NVIC_SetPriority
+    py32ca70xx_ll_start_kit.o(i.BSP_PB_Init) refers to py32ca70xx_ll_start_kit.o(.constdata) for BUTTON_PIN
+    py32ca70xx_ll_start_kit.o(i.BSP_PB_Init) refers to py32ca70xx_ll_start_kit.o(.data) for BUTTON_PORT
+    py32ca70xx_ll_start_kit.o(i.BSP_UART_Config) refers to py32ca70xx_ll_start_kit.o(i.LL_UART_SetBaudRate) for LL_UART_SetBaudRate
+    py32ca70xx_ll_start_kit.o(i.BSP_UART_Config) refers to py32ca70xx_ll_start_kit.o(i.LL_IOP_GRP1_EnableClock) for LL_IOP_GRP1_EnableClock
+    py32ca70xx_ll_start_kit.o(i.BSP_UART_Config) refers to py32ca70xx_ll_start_kit.o(i.LL_GPIO_SetAFPin) for LL_GPIO_SetAFPin
+    py32ca70xx_ll_start_kit.o(i.BSP_UART_Config) refers to py32ca70xx_ll_start_kit.o(i.LL_GPIO_SetPinMode) for LL_GPIO_SetPinMode
+    py32ca70xx_ll_start_kit.o(i.BSP_UART_Config) refers to py32ca70xx_ll_start_kit.o(i.LL_GPIO_SetPinSpeed) for LL_GPIO_SetPinSpeed
+    py32ca70xx_ll_start_kit.o(i.BSP_UART_Config) refers to py32ca70xx_ll_start_kit.o(i.LL_GPIO_SetPinPull) for LL_GPIO_SetPinPull
+    py32ca70xx_ll_start_kit.o(i.BSP_UART_Config) refers to system_py32ca70.o(.data) for SystemCoreClock
+    py32ca70xx_ll_start_kit.o(i.LL_UART_SetBaudRate) refers to uidiv.o(.text) for __aeabi_uidivmod
+    prb480.o(i.PRB480_ADC_Config) refers to prb480.o(i.PRB480_IO_ANALOG) for PRB480_IO_ANALOG
+    prb480.o(i.PRB480_ADC_Config) refers to printf8.o(i.__0printf$8) for __2printf
+    prb480.o(i.PRB480_AdcLogDump) refers to printf8.o(i.__0printf$8) for __2printf
+    prb480.o(i.PRB480_AdcLogDump) refers to prb480.o(.data) for PRB480_AdcLogEnabled
+    prb480.o(i.PRB480_AdcLogDump) refers to prb480.o(.bss) for PRB480_BitLog
+    prb480.o(i.PRB480_AdcLogStart) refers to prb480.o(.data) for PRB480_AdcLogIndex
+    prb480.o(i.PRB480_AdcLogStart) refers to prb480.o(.bss) for PRB480_AdcLog
+    prb480.o(i.PRB480_BoardInterfaceConfig) refers to prb480.o(i.LL_IOP_GRP1_EnableClock) for LL_IOP_GRP1_EnableClock
+    prb480.o(i.PRB480_BoardInterfaceConfig) refers to prb480.o(i.LL_GPIO_SetPinMode) for LL_GPIO_SetPinMode
+    prb480.o(i.PRB480_BoardInterfaceConfig) refers to prb480.o(i.LL_GPIO_SetPinOutputType) for LL_GPIO_SetPinOutputType
+    prb480.o(i.PRB480_BoardInterfaceConfig) refers to prb480.o(i.LL_GPIO_SetPinPull) for LL_GPIO_SetPinPull
+    prb480.o(i.PRB480_BoardInterfaceConfig) refers to prb480.o(i.LL_GPIO_SetPinSpeed) for LL_GPIO_SetPinSpeed
+    prb480.o(i.PRB480_BoardInterfaceConfig) refers to prb480.o(i.PRB480_ResponsePMOS_Off) for PRB480_ResponsePMOS_Off
+    prb480.o(i.PRB480_BoardInterfaceConfig) refers to prb480.o(i.PRB480_PowerPMOS_Off) for PRB480_PowerPMOS_Off
+    prb480.o(i.PRB480_BoardInterfaceConfig) refers to prb480.o(i.PRB480_IO_IN) for PRB480_IO_IN
+    prb480.o(i.PRB480_BoardInterfaceConfig) refers to prb480.o(i.PRB480_ADC_Config) for PRB480_ADC_Config
+    prb480.o(i.PRB480_BoardInterfaceConfig) refers to prb480.o(.data) for PRB480_DqPort
+    prb480.o(i.PRB480_CalcCRC16) refers to crc16.o(i.Cal_Crc16) for Cal_Crc16
+    prb480.o(i.PRB480_CalcSHA1) refers to sha1.o(i.SHA1Init) for SHA1Init
+    prb480.o(i.PRB480_CalcSHA1) refers to sha1.o(i.SHA1Update) for SHA1Update
+    prb480.o(i.PRB480_CalcSHA1) refers to sha1.o(i.SHA1Final) for SHA1Final
+    prb480.o(i.PRB480_CommandStart) refers to prb480.o(i.PRB480_Reset) for PRB480_Reset
+    prb480.o(i.PRB480_CommandStart) refers to prb480.o(i.PRB480_MatchROM) for PRB480_MatchROM
+    prb480.o(i.PRB480_CommandStart) refers to prb480.o(i.PRB480_SkipROM) for PRB480_SkipROM
+    prb480.o(i.PRB480_ComputeNextSecret) refers to prb480.o(i.PRB480_CheckDataPageAddress) for PRB480_CheckDataPageAddress
+    prb480.o(i.PRB480_ComputeNextSecret) refers to prb480.o(i.PRB480_CommandStart) for PRB480_CommandStart
+    prb480.o(i.PRB480_ComputeNextSecret) refers to prb480.o(i.PRB480_WriteByte) for PRB480_WriteByte
+    prb480.o(i.PRB480_ComputeNextSecret) refers to prb480.o(i.PRB480_ResponsePMOS_On) for PRB480_ResponsePMOS_On
+    prb480.o(i.PRB480_ComputeNextSecret) refers to prb480.o(i.PRB480_PowerPMOS_On) for PRB480_PowerPMOS_On
+    prb480.o(i.PRB480_ComputeNextSecret) refers to prb480.o(i.TMX_Delay_ms) for TMX_Delay_ms
+    prb480.o(i.PRB480_ComputeNextSecret) refers to prb480.o(i.PRB480_PowerPMOS_Off) for PRB480_PowerPMOS_Off
+    prb480.o(i.PRB480_ComputeNextSecret) refers to prb480.o(i.PRB480_WaitReady) for PRB480_WaitReady
+    prb480.o(i.PRB480_ComputeNextSecret) refers to prb480.o(i.PRB480_Reset) for PRB480_Reset
+    prb480.o(i.PRB480_CopyScratchpad) refers to prb480.o(i.PRB480_GetCopyTargetArea) for PRB480_GetCopyTargetArea
+    prb480.o(i.PRB480_CopyScratchpad) refers to prb480.o(i.PRB480_CheckWriteAddress) for PRB480_CheckWriteAddress
+    prb480.o(i.PRB480_CopyScratchpad) refers to prb480.o(i.PRB480_CheckScratchpadES) for PRB480_CheckScratchpadES
+    prb480.o(i.PRB480_CopyScratchpad) refers to prb480.o(i.PRB480_CommandStart) for PRB480_CommandStart
+    prb480.o(i.PRB480_CopyScratchpad) refers to prb480.o(i.PRB480_WriteByte) for PRB480_WriteByte
+    prb480.o(i.PRB480_CopyScratchpad) refers to prb480.o(i.TMX_Delay_ms) for TMX_Delay_ms
+    prb480.o(i.PRB480_CopyScratchpad) refers to prb480.o(i.PRB480_WaitCopyResult) for PRB480_WaitCopyResult
+    prb480.o(i.PRB480_CopyScratchpad) refers to printf8.o(i.__0printf$8) for __2printf
+    prb480.o(i.PRB480_CopyScratchpad) refers to prb480.o(i.PRB480_Reset) for PRB480_Reset
+    prb480.o(i.PRB480_CopyScratchpad) refers to prb480.o(.data) for PRB480_LastCopyStatus
+    prb480.o(i.PRB480_CopyScratchpad) refers to prb480.o(.conststring) for .conststring
+    prb480.o(i.PRB480_CopyScratchpadVerified) refers to prb480.o(i.PRB480_GetCopyTargetArea) for PRB480_GetCopyTargetArea
+    prb480.o(i.PRB480_CopyScratchpadVerified) refers to prb480.o(i.PRB480_CheckWriteAddress) for PRB480_CheckWriteAddress
+    prb480.o(i.PRB480_CopyScratchpadVerified) refers to prb480.o(i.PRB480_PageStart) for PRB480_PageStart
+    prb480.o(i.PRB480_CopyScratchpadVerified) refers to prb480.o(i.PRB480_ReadMemory) for PRB480_ReadMemory
+    prb480.o(i.PRB480_CopyScratchpadVerified) refers to prb480.o(i.PRB480_WriteScratchpad) for PRB480_WriteScratchpad
+    prb480.o(i.PRB480_CopyScratchpadVerified) refers to prb480.o(i.PRB480_Step5_ReadScratchpad) for PRB480_Step5_ReadScratchpad
+    prb480.o(i.PRB480_CopyScratchpadVerified) refers to printf8.o(i.__0printf$8) for __2printf
+    prb480.o(i.PRB480_CopyScratchpadVerified) refers to prb480.o(i.PRB480_CheckScratchpadES) for PRB480_CheckScratchpadES
+    prb480.o(i.PRB480_CopyScratchpadVerified) refers to memcmp.o(.text) for memcmp
+    prb480.o(i.PRB480_CopyScratchpadVerified) refers to prb480.o(i.PRB480_DebugPrintCopyMACInputs) for PRB480_DebugPrintCopyMACInputs
+    prb480.o(i.PRB480_CopyScratchpadVerified) refers to prb480.o(i.PRB480_GenerateCopyMAC) for PRB480_GenerateCopyMAC
+    prb480.o(i.PRB480_CopyScratchpadVerified) refers to prb480.o(i.PRB480_Step5_CopyScratchpad) for PRB480_Step5_CopyScratchpad
+    prb480.o(i.PRB480_CopyScratchpadVerified) refers to prb480.o(.data) for PRB480_LastCopyStatus
+    prb480.o(i.PRB480_DebugAdcLevels) refers to prb480.o(i.PRB480_PowerPMOS_Off) for PRB480_PowerPMOS_Off
+    prb480.o(i.PRB480_DebugAdcLevels) refers to prb480.o(i.PRB480_ResponsePMOS_On) for PRB480_ResponsePMOS_On
+    prb480.o(i.PRB480_DebugAdcLevels) refers to prb480.o(i.TMX_Delay_us) for TMX_Delay_us
+    prb480.o(i.PRB480_DebugAdcLevels) refers to prb480.o(i.PRB480_ReadAdcValue) for PRB480_ReadAdcValue
+    prb480.o(i.PRB480_DebugAdcLevels) refers to prb480.o(i.PRB480_ResponsePMOS_Off) for PRB480_ResponsePMOS_Off
+    prb480.o(i.PRB480_DebugAdcLevels) refers to prb480.o(i.PRB480_PowerPMOS_On) for PRB480_PowerPMOS_On
+    prb480.o(i.PRB480_DebugAdcLevels) refers to prb480.o(i.PRB480_IO_IN) for PRB480_IO_IN
+    prb480.o(i.PRB480_DebugAdcLevels) refers to printf8.o(i.__0printf$8) for __2printf
+    prb480.o(i.PRB480_DebugAdcLevels) refers to prb480.o(.conststring) for .conststring
+    prb480.o(i.PRB480_DebugPrintCopyMACInputs) refers to memseta.o(.text) for __aeabi_memclr4
+    prb480.o(i.PRB480_DebugPrintCopyMACInputs) refers to prb480.o(i.PRB480_GetCopyTargetArea) for PRB480_GetCopyTargetArea
+    prb480.o(i.PRB480_DebugPrintCopyMACInputs) refers to prb480.o(i.PRB480_PageStart) for PRB480_PageStart
+    prb480.o(i.PRB480_DebugPrintCopyMACInputs) refers to printf8.o(i.__0printf$8) for __2printf
+    prb480.o(i.PRB480_DebugPrintCopyMACInputs) refers to prb480.o(.conststring) for .conststring
+    prb480.o(i.PRB480_DebugQ2Q3PulseTest) refers to printf8.o(i.__0printf$8) for __2printf
+    prb480.o(i.PRB480_DebugQ2Q3PulseTest) refers to prb480.o(i.PRB480_ResponsePMOS_Off) for PRB480_ResponsePMOS_Off
+    prb480.o(i.PRB480_DebugQ2Q3PulseTest) refers to prb480.o(i.PRB480_PowerPMOS_Off) for PRB480_PowerPMOS_Off
+    prb480.o(i.PRB480_DebugQ2Q3PulseTest) refers to prb480.o(i.TMX_Delay_ms) for TMX_Delay_ms
+    prb480.o(i.PRB480_DebugQ2Q3PulseTest) refers to prb480.o(i.PRB480_ReadAdcValue) for PRB480_ReadAdcValue
+    prb480.o(i.PRB480_DebugQ2Q3PulseTest) refers to prb480.o(i.PRB480_ResponsePMOS_On) for PRB480_ResponsePMOS_On
+    prb480.o(i.PRB480_DebugQ2Q3PulseTest) refers to prb480.o(i.TMX_Delay_us) for TMX_Delay_us
+    prb480.o(i.PRB480_DebugQ2Q3PulseTest) refers to prb480.o(i.PRB480_PowerPMOS_On) for PRB480_PowerPMOS_On
+    prb480.o(i.PRB480_DebugQ2Q3PulseTest) refers to prb480.o(.constdata) for .constdata
+    prb480.o(i.PRB480_DebugReadSlotLoop) refers to prb480.o(i.PRB480_ResponsePMOS_Off) for PRB480_ResponsePMOS_Off
+    prb480.o(i.PRB480_DebugReadSlotLoop) refers to prb480.o(i.PRB480_PowerPMOS_On) for PRB480_PowerPMOS_On
+    prb480.o(i.PRB480_DebugReadSlotLoop) refers to prb480.o(i.PRB480_IO_ANALOG) for PRB480_IO_ANALOG
+    prb480.o(i.PRB480_DebugReadSlotLoop) refers to prb480.o(i.PRB480_Delay_Read) for PRB480_Delay_Read
+    prb480.o(i.PRB480_DebugReadSlotLoop) refers to prb480.o(i.TMX_Delay_us) for TMX_Delay_us
+    prb480.o(i.PRB480_DebugReadSlotLoop) refers to prb480.o(i.PRB480_ReadAdcRaw) for PRB480_ReadAdcRaw
+    prb480.o(i.PRB480_DebugReadSlotLoop) refers to prb480.o(i.PRB480_PowerPMOS_Off) for PRB480_PowerPMOS_Off
+    prb480.o(i.PRB480_DebugReadSlotLoop) refers to prb480.o(i.PRB480_ResponsePMOS_On) for PRB480_ResponsePMOS_On
+    prb480.o(i.PRB480_DebugReadSlotLoop) refers to prb480.o(i.PRB480_IO_IN) for PRB480_IO_IN
+    prb480.o(i.PRB480_DebugReadSlotLoop) refers to prb480.o(.data) for PRB480_LastReadAdc
+    prb480.o(i.PRB480_FRAM_Verify) refers to prb480.o(i.PRB480_Reset) for PRB480_Reset
+    prb480.o(i.PRB480_FRAM_Verify) refers to prb480.o(i.PRB480_WriteByte) for PRB480_WriteByte
+    prb480.o(i.PRB480_FRAM_Verify) refers to prb480.o(i.PRB480_WriteBit) for PRB480_WriteBit
+    prb480.o(i.PRB480_FRAM_Verify) refers to prb480.o(i.TMX_Delay_us) for TMX_Delay_us
+    prb480.o(i.PRB480_FRAM_Verify) refers to prb480.o(i.PRB480_ReadByte) for PRB480_ReadByte
+    prb480.o(i.PRB480_FRAM_Verify) refers to printf8.o(i.__0printf$8) for __2printf
+    prb480.o(i.PRB480_GenerateCopyConfigPageMAC) refers to memseta.o(.text) for __aeabi_memclr4
+    prb480.o(i.PRB480_GenerateCopyConfigPageMAC) refers to prb480.o(i.PRB480_GetCopyTargetArea) for PRB480_GetCopyTargetArea
+    prb480.o(i.PRB480_GenerateCopyConfigPageMAC) refers to prb480.o(i.PRB480_RunMacCompression) for PRB480_RunMacCompression
+    prb480.o(i.PRB480_GenerateCopyConfigPageMAC) refers to prb480.o(i.PRB480_StateToBusMAC) for PRB480_StateToBusMAC
+    prb480.o(i.PRB480_GenerateCopyDataPageMAC) refers to memseta.o(.text) for __aeabi_memclr4
+    prb480.o(i.PRB480_GenerateCopyDataPageMAC) refers to prb480.o(i.PRB480_PageStart) for PRB480_PageStart
+    prb480.o(i.PRB480_GenerateCopyDataPageMAC) refers to prb480.o(i.PRB480_RunMacCompression) for PRB480_RunMacCompression
+    prb480.o(i.PRB480_GenerateCopyDataPageMAC) refers to prb480.o(i.PRB480_StateToBusMAC) for PRB480_StateToBusMAC
+    prb480.o(i.PRB480_GenerateCopyMAC) refers to prb480.o(i.PRB480_GetCopyTargetArea) for PRB480_GetCopyTargetArea
+    prb480.o(i.PRB480_GenerateCopyMAC) refers to prb480.o(i.PRB480_GenerateCopyDataPageMAC) for PRB480_GenerateCopyDataPageMAC
+    prb480.o(i.PRB480_GenerateCopyMAC) refers to prb480.o(i.PRB480_GenerateCopyConfigPageMAC) for PRB480_GenerateCopyConfigPageMAC
+    prb480.o(i.PRB480_GenerateCopyMAC) refers to printf8.o(i.__0printf$8) for __2printf
+    prb480.o(i.PRB480_GenerateReadAuthPageMAC) refers to memseta.o(.text) for __aeabi_memclr4
+    prb480.o(i.PRB480_GenerateReadAuthPageMAC) refers to prb480.o(i.PRB480_PageStart) for PRB480_PageStart
+    prb480.o(i.PRB480_GenerateReadAuthPageMAC) refers to printf8.o(i.__0printf$8) for __2printf
+    prb480.o(i.PRB480_GenerateReadAuthPageMAC) refers to prb480.o(i.PRB480_RunMacCompression) for PRB480_RunMacCompression
+    prb480.o(i.PRB480_GenerateReadAuthPageMAC) refers to prb480.o(i.PRB480_StateToBusMAC) for PRB480_StateToBusMAC
+    prb480.o(i.PRB480_GetLastReadAdc) refers to prb480.o(.data) for PRB480_LastReadAdc
+    prb480.o(i.PRB480_IO_ANALOG) refers to prb480.o(i.LL_GPIO_SetPinMode) for LL_GPIO_SetPinMode
+    prb480.o(i.PRB480_IO_ANALOG) refers to prb480.o(i.LL_GPIO_SetPinPull) for LL_GPIO_SetPinPull
+    prb480.o(i.PRB480_IO_ANALOG) refers to prb480.o(i.LL_GPIO_SetPinSpeed) for LL_GPIO_SetPinSpeed
+    prb480.o(i.PRB480_IO_ANALOG) refers to prb480.o(.data) for PRB480_DqPin
+    prb480.o(i.PRB480_IO_IN) refers to prb480.o(i.PRB480_GetPinPos) for PRB480_GetPinPos
+    prb480.o(i.PRB480_IO_IN) refers to prb480.o(.data) for PRB480_DqPin
+    prb480.o(i.PRB480_IO_OUT) refers to prb480.o(i.PRB480_IO_IN) for PRB480_IO_IN
+    prb480.o(i.PRB480_Init) refers to prb480.o(i.PRB480_IO_IN) for PRB480_IO_IN
+    prb480.o(i.PRB480_Init) refers to prb480.o(i.PRB480_ResponsePMOS_On) for PRB480_ResponsePMOS_On
+    prb480.o(i.PRB480_Init) refers to prb480.o(i.PRB480_PowerPMOS_Off) for PRB480_PowerPMOS_Off
+    prb480.o(i.PRB480_Init) refers to prb480.o(i.TMX_Delay_ms) for TMX_Delay_ms
+    prb480.o(i.PRB480_LoadChallengeScratchpad) refers to prb480.o(i.PRB480_PageStart) for PRB480_PageStart
+    prb480.o(i.PRB480_LoadChallengeScratchpad) refers to printf8.o(i.__0printf$8) for __2printf
+    prb480.o(i.PRB480_LoadChallengeScratchpad) refers to prb480.o(i.PRB480_WriteAndVerifyScratchpad) for PRB480_WriteAndVerifyScratchpad
+    prb480.o(i.PRB480_LoadChallengeScratchpad) refers to prb480.o(.conststring) for .conststring
+    prb480.o(i.PRB480_LoadFirstSecret) refers to prb480.o(i.PRB480_CheckWriteAddress) for PRB480_CheckWriteAddress
+    prb480.o(i.PRB480_LoadFirstSecret) refers to prb480.o(i.PRB480_WriteScratchpad) for PRB480_WriteScratchpad
+    prb480.o(i.PRB480_LoadFirstSecret) refers to prb480.o(i.PRB480_Step5_ReadScratchpad) for PRB480_Step5_ReadScratchpad
+    prb480.o(i.PRB480_LoadFirstSecret) refers to prb480.o(i.PRB480_WriteByte) for PRB480_WriteByte
+    prb480.o(i.PRB480_LoadFirstSecret) refers to prb480.o(i.PRB480_WriteBit) for PRB480_WriteBit
+    prb480.o(i.PRB480_LoadFirstSecret) refers to prb480.o(i.PRB480_DelayNop) for PRB480_DelayNop
+    prb480.o(i.PRB480_LoadFirstSecret) refers to prb480.o(i.TMX_Delay_ms) for TMX_Delay_ms
+    prb480.o(i.PRB480_LoadFirstSecret) refers to prb480.o(i.PRB480_ReadByte) for PRB480_ReadByte
+    prb480.o(i.PRB480_LoadFirstSecret) refers to printf8.o(i.__0printf$8) for __2printf
+    prb480.o(i.PRB480_LoadFirstSecret) refers to prb480.o(i.PRB480_CheckAlternatingResponse) for PRB480_CheckAlternatingResponse
+    prb480.o(i.PRB480_LoadPartialSecretScratchpad) refers to prb480.o(i.PRB480_CheckDataPageAddress) for PRB480_CheckDataPageAddress
+    prb480.o(i.PRB480_LoadPartialSecretScratchpad) refers to prb480.o(i.PRB480_WriteAndVerifyScratchpad) for PRB480_WriteAndVerifyScratchpad
+    prb480.o(i.PRB480_MatchROM) refers to prb480.o(i.PRB480_WriteByte) for PRB480_WriteByte
+    prb480.o(i.PRB480_PowerPMOS_Off) refers to prb480.o(.data) for PRB480_PowerPin
+    prb480.o(i.PRB480_PowerPMOS_On) refers to prb480.o(.data) for PRB480_PowerPin
+    prb480.o(i.PRB480_ReadAdcValue) refers to prb480.o(i.PRB480_IO_ANALOG) for PRB480_IO_ANALOG
+    prb480.o(i.PRB480_ReadAdcValue) refers to prb480.o(i.PRB480_ReadAdcRaw) for PRB480_ReadAdcRaw
+    prb480.o(i.PRB480_ReadAdcValue) refers to prb480.o(i.PRB480_IO_IN) for PRB480_IO_IN
+    prb480.o(i.PRB480_ReadAuthenticatedPage) refers to prb480.o(i.PRB480_CommandStart) for PRB480_CommandStart
+    prb480.o(i.PRB480_ReadAuthenticatedPage) refers to prb480.o(i.PRB480_WriteByte) for PRB480_WriteByte
+    prb480.o(i.PRB480_ReadAuthenticatedPage) refers to prb480.o(i.PRB480_ReadByte) for PRB480_ReadByte
+    prb480.o(i.PRB480_ReadAuthenticatedPage) refers to prb480.o(i.TMX_Delay_ms) for TMX_Delay_ms
+    prb480.o(i.PRB480_ReadAuthenticatedPageEx) refers to printf8.o(i.__0printf$8) for __2printf
+    prb480.o(i.PRB480_ReadAuthenticatedPageEx) refers to prb480.o(i.PRB480_ReadAuthenticatedPageRaw) for PRB480_ReadAuthenticatedPageRaw
+    prb480.o(i.PRB480_ReadAuthenticatedPageEx) refers to prb480.o(i.PRB480_GenerateReadAuthPageMAC) for PRB480_GenerateReadAuthPageMAC
+    prb480.o(i.PRB480_ReadAuthenticatedPageEx) refers to memcmp.o(.text) for memcmp
+    prb480.o(i.PRB480_ReadAuthenticatedPageRaw) refers to printf8.o(i.__0printf$8) for __2printf
+    prb480.o(i.PRB480_ReadAuthenticatedPageRaw) refers to memseta.o(.text) for __aeabi_memclr
+    prb480.o(i.PRB480_ReadAuthenticatedPageRaw) refers to memcpya.o(.text) for __aeabi_memcpy
+    prb480.o(i.PRB480_ReadAuthenticatedPageRaw) refers to prb480.o(i.PRB480_LoadChallengeScratchpad) for PRB480_LoadChallengeScratchpad
+    prb480.o(i.PRB480_ReadAuthenticatedPageRaw) refers to prb480.o(i.PRB480_CommandStart) for PRB480_CommandStart
+    prb480.o(i.PRB480_ReadAuthenticatedPageRaw) refers to prb480.o(i.PRB480_WriteByte) for PRB480_WriteByte
+    prb480.o(i.PRB480_ReadAuthenticatedPageRaw) refers to prb480.o(i.PRB480_ReadByte) for PRB480_ReadByte
+    prb480.o(i.PRB480_ReadAuthenticatedPageRaw) refers to prb480.o(i.TMX_Delay_ms) for TMX_Delay_ms
+    prb480.o(i.PRB480_ReadAuthenticatedPageRaw) refers to prb480.o(i.PRB480_CheckAlternatingResponse) for PRB480_CheckAlternatingResponse
+    prb480.o(i.PRB480_ReadAuthenticatedPageRaw) refers to prb480.o(i.PRB480_Reset) for PRB480_Reset
+    prb480.o(i.PRB480_ReadAuthenticatedPageRaw) refers to prb480.o(i.PRB480_VerifyReadAuthPageDataCRC) for PRB480_VerifyReadAuthPageDataCRC
+    prb480.o(i.PRB480_ReadAuthenticatedPageRaw) refers to prb480.o(i.PRB480_VerifyReadAuthPageCRC) for PRB480_VerifyReadAuthPageCRC
+    prb480.o(i.PRB480_ReadBit) refers to prb480.o(i.PRB480_ReadAdcRaw) for PRB480_ReadAdcRaw
+    prb480.o(i.PRB480_ReadBit) refers to prb480.o(i.PRB480_DelayNop) for PRB480_DelayNop
+    prb480.o(i.PRB480_ReadBit) refers to prb480.o(.data) for PRB480_RespPin
+    prb480.o(i.PRB480_ReadBit) refers to prb480.o(.bss) for PRB480_AdcLog
+    prb480.o(i.PRB480_ReadByte) refers to prb480.o(i.PRB480_IO_ANALOG) for PRB480_IO_ANALOG
+    prb480.o(i.PRB480_ReadByte) refers to prb480.o(i.PRB480_ReadBit) for PRB480_ReadBit
+    prb480.o(i.PRB480_ReadByte) refers to prb480.o(i.PRB480_IO_IN) for PRB480_IO_IN
+    prb480.o(i.PRB480_ReadByte) refers to prb480.o(i.TMX_Delay_us) for TMX_Delay_us
+    prb480.o(i.PRB480_ReadMemory) refers to prb480.o(i.PRB480_CommandStart) for PRB480_CommandStart
+    prb480.o(i.PRB480_ReadMemory) refers to prb480.o(i.PRB480_WriteByte) for PRB480_WriteByte
+    prb480.o(i.PRB480_ReadMemory) refers to prb480.o(i.PRB480_ReadByte) for PRB480_ReadByte
+    prb480.o(i.PRB480_ReadMemory) refers to prb480.o(i.PRB480_Reset) for PRB480_Reset
+    prb480.o(i.PRB480_ReadROM) refers to prb480.o(i.PRB480_AdcLogStart) for PRB480_AdcLogStart
+    prb480.o(i.PRB480_ReadROM) refers to prb480.o(i.PRB480_Reset) for PRB480_Reset
+    prb480.o(i.PRB480_ReadROM) refers to printf8.o(i.__0printf$8) for __2printf
+    prb480.o(i.PRB480_ReadROM) refers to prb480.o(i.PRB480_WriteByte) for PRB480_WriteByte
+    prb480.o(i.PRB480_ReadROM) refers to prb480.o(i.PRB480_ReadByte) for PRB480_ReadByte
+    prb480.o(i.PRB480_ReadROM) refers to prb480.o(i.PRB480_AdcLogDump) for PRB480_AdcLogDump
+    prb480.o(i.PRB480_ReadROM) refers to prb480.o(i.PRB480_CalcCRC8) for PRB480_CalcCRC8
+    prb480.o(i.PRB480_ReadScratchpad) refers to prb480.o(i.PRB480_CommandStart) for PRB480_CommandStart
+    prb480.o(i.PRB480_ReadScratchpad) refers to prb480.o(i.PRB480_WriteByte) for PRB480_WriteByte
+    prb480.o(i.PRB480_ReadScratchpad) refers to prb480.o(i.PRB480_ReadByte) for PRB480_ReadByte
+    prb480.o(i.PRB480_ReadScratchpad) refers to prb480.o(i.PRB480_CalcCRC16) for PRB480_CalcCRC16
+    prb480.o(i.PRB480_Reset) refers to prb480.o(i.PRB480_PowerPMOS_Off) for PRB480_PowerPMOS_Off
+    prb480.o(i.PRB480_Reset) refers to prb480.o(i.PRB480_ResponsePMOS_Off) for PRB480_ResponsePMOS_Off
+    prb480.o(i.PRB480_Reset) refers to prb480.o(i.TMX_Delay_us) for TMX_Delay_us
+    prb480.o(i.PRB480_Reset) refers to prb480.o(i.PRB480_ResponsePMOS_On) for PRB480_ResponsePMOS_On
+    prb480.o(i.PRB480_Reset) refers to prb480.o(i.TMX_Delay_ms) for TMX_Delay_ms
+    prb480.o(i.PRB480_ResponsePMOS_Off) refers to prb480.o(.data) for PRB480_RespPin
+    prb480.o(i.PRB480_ResponsePMOS_On) refers to prb480.o(.data) for PRB480_RespPin
+    prb480.o(i.PRB480_SendCodeReset) refers to prb480.o(i.PRB480_WriteBit) for PRB480_WriteBit
+    prb480.o(i.PRB480_SendCodeReset) refers to prb480.o(i.PRB480_WriteByte) for PRB480_WriteByte
+    prb480.o(i.PRB480_SetAdcThreshold) refers to prb480.o(.data) for PRB480_AdcThreshold
+    prb480.o(i.PRB480_SetPinRoles) refers to prb480.o(.data) for PRB480_DqPin
+    prb480.o(i.PRB480_SetReadSampleDelay) refers to prb480.o(.data) for PRB480_ReadSampleDelayUs
+    prb480.o(i.PRB480_SkipROM) refers to prb480.o(i.PRB480_WriteByte) for PRB480_WriteByte
+    prb480.o(i.PRB480_Step5_CopyScratchpad) refers to prb480.o(i.PRB480_GetCopyTargetArea) for PRB480_GetCopyTargetArea
+    prb480.o(i.PRB480_Step5_CopyScratchpad) refers to prb480.o(i.PRB480_CheckWriteAddress) for PRB480_CheckWriteAddress
+    prb480.o(i.PRB480_Step5_CopyScratchpad) refers to prb480.o(i.PRB480_CheckScratchpadES) for PRB480_CheckScratchpadES
+    prb480.o(i.PRB480_Step5_CopyScratchpad) refers to prb480.o(i.PRB480_WriteByte) for PRB480_WriteByte
+    prb480.o(i.PRB480_Step5_CopyScratchpad) refers to prb480.o(i.PRB480_WriteBit) for PRB480_WriteBit
+    prb480.o(i.PRB480_Step5_CopyScratchpad) refers to prb480.o(i.PRB480_DelayNop) for PRB480_DelayNop
+    prb480.o(i.PRB480_Step5_CopyScratchpad) refers to prb480.o(i.TMX_Delay_ms) for TMX_Delay_ms
+    prb480.o(i.PRB480_Step5_CopyScratchpad) refers to prb480.o(i.PRB480_WaitCopyResult) for PRB480_WaitCopyResult
+    prb480.o(i.PRB480_Step5_CopyScratchpad) refers to printf8.o(i.__0printf$8) for __2printf
+    prb480.o(i.PRB480_Step5_CopyScratchpad) refers to prb480.o(i.PRB480_Reset) for PRB480_Reset
+    prb480.o(i.PRB480_Step5_CopyScratchpad) refers to prb480.o(.data) for PRB480_LastCopyStatus
+    prb480.o(i.PRB480_Step5_ReadScratchpad) refers to prb480.o(i.PRB480_WriteByte) for PRB480_WriteByte
+    prb480.o(i.PRB480_Step5_ReadScratchpad) refers to prb480.o(i.PRB480_WriteBit) for PRB480_WriteBit
+    prb480.o(i.PRB480_Step5_ReadScratchpad) refers to prb480.o(i.PRB480_DelayNop) for PRB480_DelayNop
+    prb480.o(i.PRB480_Step5_ReadScratchpad) refers to prb480.o(i.PRB480_ReadByte) for PRB480_ReadByte
+    prb480.o(i.PRB480_Step5_ReadScratchpad) refers to prb480.o(i.PRB480_CalcCRC16) for PRB480_CalcCRC16
+    prb480.o(i.PRB480_Step5_SendCodeReset) refers to prb480.o(i.PRB480_WriteBit) for PRB480_WriteBit
+    prb480.o(i.PRB480_Step5_SendCodeReset) refers to prb480.o(i.PRB480_WriteByte) for PRB480_WriteByte
+    prb480.o(i.PRB480_Step5_WriteScratchpad) refers to prb480.o(i.PRB480_CheckWriteAddress) for PRB480_CheckWriteAddress
+    prb480.o(i.PRB480_Step5_WriteScratchpad) refers to prb480.o(i.PRB480_Reset) for PRB480_Reset
+    prb480.o(i.PRB480_Step5_WriteScratchpad) refers to prb480.o(i.PRB480_MatchROM) for PRB480_MatchROM
+    prb480.o(i.PRB480_Step5_WriteScratchpad) refers to prb480.o(i.PRB480_SkipROM) for PRB480_SkipROM
+    prb480.o(i.PRB480_Step5_WriteScratchpad) refers to prb480.o(i.PRB480_WriteByte) for PRB480_WriteByte
+    prb480.o(i.PRB480_Step5_WriteScratchpad) refers to prb480.o(i.PRB480_ReadByte) for PRB480_ReadByte
+    prb480.o(i.PRB480_Step5_WriteScratchpad) refers to prb480.o(i.PRB480_CalcCRC16) for PRB480_CalcCRC16
+    prb480.o(i.PRB480_Step5_WriteScratchpad) refers to printf8.o(i.__0printf$8) for __2printf
+    prb480.o(i.PRB480_Test_step1_step2) refers to prb480.o(i.PRB480_AdcLogStart) for PRB480_AdcLogStart
+    prb480.o(i.PRB480_Test_step1_step2) refers to prb480.o(i.PRB480_Reset) for PRB480_Reset
+    prb480.o(i.PRB480_Test_step1_step2) refers to prb480.o(i.PRB480_WriteByte) for PRB480_WriteByte
+    prb480.o(i.PRB480_Test_step1_step2) refers to prb480.o(i.TMX_Delay_us) for TMX_Delay_us
+    prb480.o(i.PRB480_Test_step1_step2) refers to prb480.o(i.PRB480_ReadByte) for PRB480_ReadByte
+    prb480.o(i.PRB480_Test_step1_step2) refers to prb480.o(i.PRB480_ResponsePMOS_Off) for PRB480_ResponsePMOS_Off
+    prb480.o(i.PRB480_Test_step1_step2) refers to prb480.o(i.PRB480_PowerPMOS_Off) for PRB480_PowerPMOS_Off
+    prb480.o(i.PRB480_Test_step1_step2) refers to py32ca70_ll_utils.o(i.LL_mDelay) for LL_mDelay
+    prb480.o(i.PRB480_VerifyPostCopyScratchpad) refers to prb480.o(i.PRB480_ReadScratchpad) for PRB480_ReadScratchpad
+    prb480.o(i.PRB480_VerifyPostCopyScratchpad) refers to prb480.o(i.PRB480_CheckPostCopyES) for PRB480_CheckPostCopyES
+    prb480.o(i.PRB480_VerifyReadAuthPageCRC) refers to prb480.o(i.PRB480_CalcCRC16) for PRB480_CalcCRC16
+    prb480.o(i.PRB480_VerifyReadAuthPageCRC) refers to printf8.o(i.__0printf$8) for __2printf
+    prb480.o(i.PRB480_VerifyReadAuthPageDataCRC) refers to printf8.o(i.__0printf$8) for __2printf
+    prb480.o(i.PRB480_VerifyReadAuthPageDataCRC) refers to prb480.o(i.PRB480_CalcCRC16) for PRB480_CalcCRC16
+    prb480.o(i.PRB480_VerifyScratchpad) refers to prb480.o(i.PRB480_ReadScratchpad) for PRB480_ReadScratchpad
+    prb480.o(i.PRB480_VerifyScratchpad) refers to prb480.o(i.PRB480_CheckScratchpadES) for PRB480_CheckScratchpadES
+    prb480.o(i.PRB480_VerifyScratchpad) refers to memcmp.o(.text) for memcmp
+    prb480.o(i.PRB480_VerifyScratchpadFilledAA) refers to prb480.o(i.PRB480_ReadScratchpad) for PRB480_ReadScratchpad
+    prb480.o(i.PRB480_WaitCopyResult) refers to prb480.o(i.PRB480_ReadByte) for PRB480_ReadByte
+    prb480.o(i.PRB480_WaitCopyResult) refers to printf8.o(i.__0printf$8) for __2printf
+    prb480.o(i.PRB480_WaitCopyResult) refers to prb480.o(i.PRB480_CheckAlternatingResponse) for PRB480_CheckAlternatingResponse
+    prb480.o(i.PRB480_WaitCopyResult) refers to prb480.o(i.TMX_Delay_ms) for TMX_Delay_ms
+    prb480.o(i.PRB480_WaitFromStart) refers to uidiv.o(.text) for __aeabi_uidivmod
+    prb480.o(i.PRB480_WaitFromStart) refers to system_py32ca70.o(.data) for SystemCoreClock
+    prb480.o(i.PRB480_WaitReady) refers to prb480.o(i.PRB480_ReadBit) for PRB480_ReadBit
+    prb480.o(i.PRB480_WaitReady) refers to prb480.o(i.TMX_Delay_us) for TMX_Delay_us
+    prb480.o(i.PRB480_WaitSlotEnd) refers to uidiv.o(.text) for __aeabi_uidivmod
+    prb480.o(i.PRB480_WaitSlotEnd) refers to system_py32ca70.o(.data) for SystemCoreClock
+    prb480.o(i.PRB480_WriteAndVerifyScratchpad) refers to prb480.o(i.PRB480_CheckWriteAddress) for PRB480_CheckWriteAddress
+    prb480.o(i.PRB480_WriteAndVerifyScratchpad) refers to prb480.o(i.PRB480_WriteScratchpad) for PRB480_WriteScratchpad
+    prb480.o(i.PRB480_WriteAndVerifyScratchpad) refers to printf8.o(i.__0printf$8) for __2printf
+    prb480.o(i.PRB480_WriteAndVerifyScratchpad) refers to prb480.o(i.PRB480_Step5_ReadScratchpad) for PRB480_Step5_ReadScratchpad
+    prb480.o(i.PRB480_WriteAndVerifyScratchpad) refers to prb480.o(i.PRB480_CheckScratchpadES) for PRB480_CheckScratchpadES
+    prb480.o(i.PRB480_WriteAndVerifyScratchpad) refers to prb480.o(.conststring) for .conststring
+    prb480.o(i.PRB480_WriteAuthorizedBlock) refers to prb480.o(i.PRB480_GetCopyTargetArea) for PRB480_GetCopyTargetArea
+    prb480.o(i.PRB480_WriteAuthorizedBlock) refers to prb480.o(i.PRB480_CheckWriteAddress) for PRB480_CheckWriteAddress
+    prb480.o(i.PRB480_WriteAuthorizedBlock) refers to prb480.o(i.PRB480_CopyScratchpadVerified) for PRB480_CopyScratchpadVerified
+    prb480.o(i.PRB480_WriteBit) refers to prb480.o(i.PRB480_DelayNop) for PRB480_DelayNop
+    prb480.o(i.PRB480_WriteBit) refers to prb480.o(i.PRB480_WaitSlotEnd) for PRB480_WaitSlotEnd
+    prb480.o(i.PRB480_WriteBit) refers to prb480.o(.data) for PRB480_RespPin
+    prb480.o(i.PRB480_WriteByte) refers to prb480.o(i.PRB480_ResponsePMOS_On) for PRB480_ResponsePMOS_On
+    prb480.o(i.PRB480_WriteByte) refers to prb480.o(i.PRB480_PowerPMOS_Off) for PRB480_PowerPMOS_Off
+    prb480.o(i.PRB480_WriteByte) refers to prb480.o(i.PRB480_WriteBit) for PRB480_WriteBit
+    prb480.o(i.PRB480_WriteByte) refers to prb480.o(i.PRB480_DelayNop) for PRB480_DelayNop
+    prb480.o(i.PRB480_WriteScratchpad) refers to prb480.o(i.PRB480_CheckWriteAddress) for PRB480_CheckWriteAddress
+    prb480.o(i.PRB480_WriteScratchpad) refers to prb480.o(i.PRB480_CommandStart) for PRB480_CommandStart
+    prb480.o(i.PRB480_WriteScratchpad) refers to prb480.o(i.PRB480_WriteByte) for PRB480_WriteByte
+    prb480.o(i.PRB480_WriteScratchpad) refers to prb480.o(i.PRB480_ReadByte) for PRB480_ReadByte
+    prb480.o(i.PRB480_WriteScratchpad) refers to prb480.o(i.PRB480_CalcCRC16) for PRB480_CalcCRC16
+    prb480.o(i.TMX_Delay_ms) refers to py32ca70_ll_utils.o(i.LL_mDelay) for LL_mDelay
+    prb480.o(i.TMX_Delay_us) refers to uidiv.o(.text) for __aeabi_uidivmod
+    prb480.o(i.TMX_Delay_us) refers to system_py32ca70.o(.data) for SystemCoreClock
+    crc16.o(i.Cal_Crc16) refers to crc16.o(i.Cal_Crc16_bit) for Cal_Crc16_bit
+    sha1.o(i.SHA1) refers to sha1.o(i.SHA1Init) for SHA1Init
+    sha1.o(i.SHA1) refers to sha1.o(i.SHA1Update) for SHA1Update
+    sha1.o(i.SHA1) refers to sha1.o(i.SHA1Final) for SHA1Final
+    sha1.o(i.SHA1) refers to sha1.o(.data) for count_time
+    sha1.o(i.SHA1) refers to sha1.o(.bss) for hash
+    sha1.o(i.SHA1Final) refers to sha1.o(i.SHA1Update) for SHA1Update
+    sha1.o(i.SHA1Final) refers to memseta.o(.text) for __aeabi_memclr4
+    sha1.o(i.SHA1Transform) refers to sha1.o(.data) for count_time
+    sha1.o(i.SHA1Transform) refers to memcpya.o(.text) for __aeabi_memcpy
+    sha1.o(i.SHA1Transform) refers to sha1.o(.bss) for sha_result
+    sha1.o(i.SHA1Update) refers to memcpya.o(.text) for __aeabi_memcpy
+    sha1.o(i.SHA1Update) refers to sha1.o(i.SHA1Transform) for SHA1Transform
+    sha1.o(i.SHA1_change) refers to memseta.o(.text) for __aeabi_memclr4
+    sha1.o(i.SHA1_change) refers to sha1.o(i.SHA1init) for SHA1init
+    sha1.o(i.SHA1_change) refers to sha1.o(i.SHA1Update) for SHA1Update
+    sha1.o(i.SHA1_change) refers to sha1.o(i.SHA1Final) for SHA1Final
+    sha1.o(i.SHA1_change) refers to sha1.o(.data) for count_time
+    sha1.o(i.SHA1_change) refers to sha1.o(.bss) for hash
+    py32ca70_ll_adc.o(i.LL_ADC_DeInit) refers to py32ca70_ll_adc.o(i.LL_ADC_IsEnabled) for LL_ADC_IsEnabled
+    py32ca70_ll_adc.o(i.LL_ADC_DeInit) refers to py32ca70_ll_adc.o(i.LL_ADC_REG_IsStopConversionOngoing) for LL_ADC_REG_IsStopConversionOngoing
+    py32ca70_ll_adc.o(i.LL_ADC_Init) refers to py32ca70_ll_adc.o(i.LL_ADC_IsEnabled) for LL_ADC_IsEnabled
+    py32ca70_ll_adc.o(i.LL_ADC_REG_Init) refers to py32ca70_ll_adc.o(i.LL_ADC_IsEnabled) for LL_ADC_IsEnabled
+    py32ca70_ll_utils.o(i.LL_Init1msTick) refers to uidiv.o(.text) for __aeabi_uidivmod
+    py32ca70_ll_utils.o(i.LL_SetSystemCoreClock) refers to system_py32ca70.o(.data) for SystemCoreClock
+    entry.o(.ARM.Collect$$$$00000000) refers (Special) to entry10a.o(.ARM.Collect$$$$0000000D) for __rt_final_cpp
+    entry.o(.ARM.Collect$$$$00000000) refers (Special) to entry11a.o(.ARM.Collect$$$$0000000F) for __rt_final_exit
+    entry.o(.ARM.Collect$$$$00000000) refers (Special) to entry7b.o(.ARM.Collect$$$$00000008) for _main_clock
+    entry.o(.ARM.Collect$$$$00000000) refers (Special) to entry8b.o(.ARM.Collect$$$$0000000A) for _main_cpp_init
+    entry.o(.ARM.Collect$$$$00000000) refers (Special) to entry9a.o(.ARM.Collect$$$$0000000B) for _main_init
+    entry.o(.ARM.Collect$$$$00000000) refers (Special) to entry5.o(.ARM.Collect$$$$00000004) for _main_scatterload
+    entry.o(.ARM.Collect$$$$00000000) refers (Special) to entry2.o(.ARM.Collect$$$$00000001) for _main_stk
+    printfb.o(i.__0fprintf$bare) refers to printfb.o(i._printf_core) for _printf_core
+    printfb.o(i.__0fprintf$bare) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printfb.o(i.__0printf$bare) refers to printfb.o(i._printf_core) for _printf_core
+    printfb.o(i.__0printf$bare) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printfb.o(i.__0printf$bare) refers to stdout.o(.data) for __stdout
+    printfb.o(i.__0snprintf$bare) refers to printfb.o(i._printf_core) for _printf_core
+    printfb.o(i.__0snprintf$bare) refers to printfb.o(i._snputc) for _snputc
+    printfb.o(i.__0sprintf$bare) refers to printfb.o(i._printf_core) for _printf_core
+    printfb.o(i.__0sprintf$bare) refers to printfb.o(i._sputc) for _sputc
+    printfb.o(i.__0vfprintf$bare) refers to printfb.o(i._printf_core) for _printf_core
+    printfb.o(i.__0vfprintf$bare) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printfb.o(i.__0vprintf$bare) refers to printfb.o(i._printf_core) for _printf_core
+    printfb.o(i.__0vprintf$bare) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printfb.o(i.__0vprintf$bare) refers to stdout.o(.data) for __stdout
+    printfb.o(i.__0vsnprintf$bare) refers to printfb.o(i._printf_core) for _printf_core
+    printfb.o(i.__0vsnprintf$bare) refers to printfb.o(i._snputc) for _snputc
+    printfb.o(i.__0vsprintf$bare) refers to printfb.o(i._printf_core) for _printf_core
+    printfb.o(i.__0vsprintf$bare) refers to printfb.o(i._sputc) for _sputc
+    printf0.o(i.__0fprintf$0) refers to printf0.o(i._printf_core) for _printf_core
+    printf0.o(i.__0fprintf$0) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf0.o(i.__0printf$0) refers to printf0.o(i._printf_core) for _printf_core
+    printf0.o(i.__0printf$0) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf0.o(i.__0printf$0) refers to stdout.o(.data) for __stdout
+    printf0.o(i.__0snprintf$0) refers to printf0.o(i._printf_core) for _printf_core
+    printf0.o(i.__0snprintf$0) refers to printf0.o(i._snputc) for _snputc
+    printf0.o(i.__0sprintf$0) refers to printf0.o(i._printf_core) for _printf_core
+    printf0.o(i.__0sprintf$0) refers to printf0.o(i._sputc) for _sputc
+    printf0.o(i.__0vfprintf$0) refers to printf0.o(i._printf_core) for _printf_core
+    printf0.o(i.__0vfprintf$0) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf0.o(i.__0vprintf$0) refers to printf0.o(i._printf_core) for _printf_core
+    printf0.o(i.__0vprintf$0) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf0.o(i.__0vprintf$0) refers to stdout.o(.data) for __stdout
+    printf0.o(i.__0vsnprintf$0) refers to printf0.o(i._printf_core) for _printf_core
+    printf0.o(i.__0vsnprintf$0) refers to printf0.o(i._snputc) for _snputc
+    printf0.o(i.__0vsprintf$0) refers to printf0.o(i._printf_core) for _printf_core
+    printf0.o(i.__0vsprintf$0) refers to printf0.o(i._sputc) for _sputc
+    printf1.o(i.__0fprintf$1) refers to printf1.o(i._printf_core) for _printf_core
+    printf1.o(i.__0fprintf$1) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf1.o(i.__0printf$1) refers to printf1.o(i._printf_core) for _printf_core
+    printf1.o(i.__0printf$1) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf1.o(i.__0printf$1) refers to stdout.o(.data) for __stdout
+    printf1.o(i.__0snprintf$1) refers to printf1.o(i._printf_core) for _printf_core
+    printf1.o(i.__0snprintf$1) refers to printf1.o(i._snputc) for _snputc
+    printf1.o(i.__0sprintf$1) refers to printf1.o(i._printf_core) for _printf_core
+    printf1.o(i.__0sprintf$1) refers to printf1.o(i._sputc) for _sputc
+    printf1.o(i.__0vfprintf$1) refers to printf1.o(i._printf_core) for _printf_core
+    printf1.o(i.__0vfprintf$1) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf1.o(i.__0vprintf$1) refers to printf1.o(i._printf_core) for _printf_core
+    printf1.o(i.__0vprintf$1) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf1.o(i.__0vprintf$1) refers to stdout.o(.data) for __stdout
+    printf1.o(i.__0vsnprintf$1) refers to printf1.o(i._printf_core) for _printf_core
+    printf1.o(i.__0vsnprintf$1) refers to printf1.o(i._snputc) for _snputc
+    printf1.o(i.__0vsprintf$1) refers to printf1.o(i._printf_core) for _printf_core
+    printf1.o(i.__0vsprintf$1) refers to printf1.o(i._sputc) for _sputc
+    printf1.o(i._printf_core) refers to uidiv.o(.text) for __aeabi_uidivmod
+    printf2.o(i.__0fprintf$2) refers to printf2.o(i._printf_core) for _printf_core
+    printf2.o(i.__0fprintf$2) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf2.o(i.__0printf$2) refers to printf2.o(i._printf_core) for _printf_core
+    printf2.o(i.__0printf$2) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf2.o(i.__0printf$2) refers to stdout.o(.data) for __stdout
+    printf2.o(i.__0snprintf$2) refers to printf2.o(i._printf_core) for _printf_core
+    printf2.o(i.__0snprintf$2) refers to printf2.o(i._snputc) for _snputc
+    printf2.o(i.__0sprintf$2) refers to printf2.o(i._printf_core) for _printf_core
+    printf2.o(i.__0sprintf$2) refers to printf2.o(i._sputc) for _sputc
+    printf2.o(i.__0vfprintf$2) refers to printf2.o(i._printf_core) for _printf_core
+    printf2.o(i.__0vfprintf$2) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf2.o(i.__0vprintf$2) refers to printf2.o(i._printf_core) for _printf_core
+    printf2.o(i.__0vprintf$2) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf2.o(i.__0vprintf$2) refers to stdout.o(.data) for __stdout
+    printf2.o(i.__0vsnprintf$2) refers to printf2.o(i._printf_core) for _printf_core
+    printf2.o(i.__0vsnprintf$2) refers to printf2.o(i._snputc) for _snputc
+    printf2.o(i.__0vsprintf$2) refers to printf2.o(i._printf_core) for _printf_core
+    printf2.o(i.__0vsprintf$2) refers to printf2.o(i._sputc) for _sputc
+    printf3.o(i.__0fprintf$3) refers to printf3.o(i._printf_core) for _printf_core
+    printf3.o(i.__0fprintf$3) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf3.o(i.__0printf$3) refers to printf3.o(i._printf_core) for _printf_core
+    printf3.o(i.__0printf$3) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf3.o(i.__0printf$3) refers to stdout.o(.data) for __stdout
+    printf3.o(i.__0snprintf$3) refers to printf3.o(i._printf_core) for _printf_core
+    printf3.o(i.__0snprintf$3) refers to printf3.o(i._snputc) for _snputc
+    printf3.o(i.__0sprintf$3) refers to printf3.o(i._printf_core) for _printf_core
+    printf3.o(i.__0sprintf$3) refers to printf3.o(i._sputc) for _sputc
+    printf3.o(i.__0vfprintf$3) refers to printf3.o(i._printf_core) for _printf_core
+    printf3.o(i.__0vfprintf$3) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf3.o(i.__0vprintf$3) refers to printf3.o(i._printf_core) for _printf_core
+    printf3.o(i.__0vprintf$3) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf3.o(i.__0vprintf$3) refers to stdout.o(.data) for __stdout
+    printf3.o(i.__0vsnprintf$3) refers to printf3.o(i._printf_core) for _printf_core
+    printf3.o(i.__0vsnprintf$3) refers to printf3.o(i._snputc) for _snputc
+    printf3.o(i.__0vsprintf$3) refers to printf3.o(i._printf_core) for _printf_core
+    printf3.o(i.__0vsprintf$3) refers to printf3.o(i._sputc) for _sputc
+    printf3.o(i._printf_core) refers to uidiv.o(.text) for __aeabi_uidivmod
+    printf4.o(i.__0fprintf$4) refers to printf4.o(i._printf_core) for _printf_core
+    printf4.o(i.__0fprintf$4) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf4.o(i.__0printf$4) refers to printf4.o(i._printf_core) for _printf_core
+    printf4.o(i.__0printf$4) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf4.o(i.__0printf$4) refers to stdout.o(.data) for __stdout
+    printf4.o(i.__0snprintf$4) refers to printf4.o(i._printf_core) for _printf_core
+    printf4.o(i.__0snprintf$4) refers to printf4.o(i._snputc) for _snputc
+    printf4.o(i.__0sprintf$4) refers to printf4.o(i._printf_core) for _printf_core
+    printf4.o(i.__0sprintf$4) refers to printf4.o(i._sputc) for _sputc
+    printf4.o(i.__0vfprintf$4) refers to printf4.o(i._printf_core) for _printf_core
+    printf4.o(i.__0vfprintf$4) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf4.o(i.__0vprintf$4) refers to printf4.o(i._printf_core) for _printf_core
+    printf4.o(i.__0vprintf$4) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf4.o(i.__0vprintf$4) refers to stdout.o(.data) for __stdout
+    printf4.o(i.__0vsnprintf$4) refers to printf4.o(i._printf_core) for _printf_core
+    printf4.o(i.__0vsnprintf$4) refers to printf4.o(i._snputc) for _snputc
+    printf4.o(i.__0vsprintf$4) refers to printf4.o(i._printf_core) for _printf_core
+    printf4.o(i.__0vsprintf$4) refers to printf4.o(i._sputc) for _sputc
+    printf4.o(i._printf_core) refers to uldiv.o(.text) for __aeabi_uldivmod
+    printf5.o(i.__0fprintf$5) refers to printf5.o(i._printf_core) for _printf_core
+    printf5.o(i.__0fprintf$5) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf5.o(i.__0printf$5) refers to printf5.o(i._printf_core) for _printf_core
+    printf5.o(i.__0printf$5) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf5.o(i.__0printf$5) refers to stdout.o(.data) for __stdout
+    printf5.o(i.__0snprintf$5) refers to printf5.o(i._printf_core) for _printf_core
+    printf5.o(i.__0snprintf$5) refers to printf5.o(i._snputc) for _snputc
+    printf5.o(i.__0sprintf$5) refers to printf5.o(i._printf_core) for _printf_core
+    printf5.o(i.__0sprintf$5) refers to printf5.o(i._sputc) for _sputc
+    printf5.o(i.__0vfprintf$5) refers to printf5.o(i._printf_core) for _printf_core
+    printf5.o(i.__0vfprintf$5) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf5.o(i.__0vprintf$5) refers to printf5.o(i._printf_core) for _printf_core
+    printf5.o(i.__0vprintf$5) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf5.o(i.__0vprintf$5) refers to stdout.o(.data) for __stdout
+    printf5.o(i.__0vsnprintf$5) refers to printf5.o(i._printf_core) for _printf_core
+    printf5.o(i.__0vsnprintf$5) refers to printf5.o(i._snputc) for _snputc
+    printf5.o(i.__0vsprintf$5) refers to printf5.o(i._printf_core) for _printf_core
+    printf5.o(i.__0vsprintf$5) refers to printf5.o(i._sputc) for _sputc
+    printf5.o(i._printf_core) refers to uldiv.o(.text) for __aeabi_uldivmod
+    printf6.o(i.__0fprintf$6) refers to printf6.o(i._printf_core) for _printf_core
+    printf6.o(i.__0fprintf$6) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf6.o(i.__0printf$6) refers to printf6.o(i._printf_core) for _printf_core
+    printf6.o(i.__0printf$6) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf6.o(i.__0printf$6) refers to stdout.o(.data) for __stdout
+    printf6.o(i.__0snprintf$6) refers to printf6.o(i._printf_core) for _printf_core
+    printf6.o(i.__0snprintf$6) refers to printf6.o(i._snputc) for _snputc
+    printf6.o(i.__0sprintf$6) refers to printf6.o(i._printf_core) for _printf_core
+    printf6.o(i.__0sprintf$6) refers to printf6.o(i._sputc) for _sputc
+    printf6.o(i.__0vfprintf$6) refers to printf6.o(i._printf_core) for _printf_core
+    printf6.o(i.__0vfprintf$6) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf6.o(i.__0vprintf$6) refers to printf6.o(i._printf_core) for _printf_core
+    printf6.o(i.__0vprintf$6) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf6.o(i.__0vprintf$6) refers to stdout.o(.data) for __stdout
+    printf6.o(i.__0vsnprintf$6) refers to printf6.o(i._printf_core) for _printf_core
+    printf6.o(i.__0vsnprintf$6) refers to printf6.o(i._snputc) for _snputc
+    printf6.o(i.__0vsprintf$6) refers to printf6.o(i._printf_core) for _printf_core
+    printf6.o(i.__0vsprintf$6) refers to printf6.o(i._sputc) for _sputc
+    printf6.o(i._printf_core) refers to printf6.o(i._printf_pre_padding) for _printf_pre_padding
+    printf6.o(i._printf_core) refers to printf6.o(i._printf_post_padding) for _printf_post_padding
+    printf6.o(i._printf_core) refers to uidiv.o(.text) for __aeabi_uidivmod
+    printf7.o(i.__0fprintf$7) refers to printf7.o(i._printf_core) for _printf_core
+    printf7.o(i.__0fprintf$7) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf7.o(i.__0printf$7) refers to printf7.o(i._printf_core) for _printf_core
+    printf7.o(i.__0printf$7) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf7.o(i.__0printf$7) refers to stdout.o(.data) for __stdout
+    printf7.o(i.__0snprintf$7) refers to printf7.o(i._printf_core) for _printf_core
+    printf7.o(i.__0snprintf$7) refers to printf7.o(i._snputc) for _snputc
+    printf7.o(i.__0sprintf$7) refers to printf7.o(i._printf_core) for _printf_core
+    printf7.o(i.__0sprintf$7) refers to printf7.o(i._sputc) for _sputc
+    printf7.o(i.__0vfprintf$7) refers to printf7.o(i._printf_core) for _printf_core
+    printf7.o(i.__0vfprintf$7) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf7.o(i.__0vprintf$7) refers to printf7.o(i._printf_core) for _printf_core
+    printf7.o(i.__0vprintf$7) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf7.o(i.__0vprintf$7) refers to stdout.o(.data) for __stdout
+    printf7.o(i.__0vsnprintf$7) refers to printf7.o(i._printf_core) for _printf_core
+    printf7.o(i.__0vsnprintf$7) refers to printf7.o(i._snputc) for _snputc
+    printf7.o(i.__0vsprintf$7) refers to printf7.o(i._printf_core) for _printf_core
+    printf7.o(i.__0vsprintf$7) refers to printf7.o(i._sputc) for _sputc
+    printf7.o(i._printf_core) refers to printf7.o(i._printf_pre_padding) for _printf_pre_padding
+    printf7.o(i._printf_core) refers to printf7.o(i._printf_post_padding) for _printf_post_padding
+    printf7.o(i._printf_core) refers to uldiv.o(.text) for __aeabi_uldivmod
+    printf8.o(i.__0fprintf$8) refers to printf8.o(i._printf_core) for _printf_core
+    printf8.o(i.__0fprintf$8) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf8.o(i.__0printf$8) refers to printf8.o(i._printf_core) for _printf_core
+    printf8.o(i.__0printf$8) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf8.o(i.__0printf$8) refers to stdout.o(.data) for __stdout
+    printf8.o(i.__0snprintf$8) refers to printf8.o(i._printf_core) for _printf_core
+    printf8.o(i.__0snprintf$8) refers to printf8.o(i._snputc) for _snputc
+    printf8.o(i.__0sprintf$8) refers to printf8.o(i._printf_core) for _printf_core
+    printf8.o(i.__0sprintf$8) refers to printf8.o(i._sputc) for _sputc
+    printf8.o(i.__0vfprintf$8) refers to printf8.o(i._printf_core) for _printf_core
+    printf8.o(i.__0vfprintf$8) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf8.o(i.__0vprintf$8) refers to printf8.o(i._printf_core) for _printf_core
+    printf8.o(i.__0vprintf$8) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printf8.o(i.__0vprintf$8) refers to stdout.o(.data) for __stdout
+    printf8.o(i.__0vsnprintf$8) refers to printf8.o(i._printf_core) for _printf_core
+    printf8.o(i.__0vsnprintf$8) refers to printf8.o(i._snputc) for _snputc
+    printf8.o(i.__0vsprintf$8) refers to printf8.o(i._printf_core) for _printf_core
+    printf8.o(i.__0vsprintf$8) refers to printf8.o(i._sputc) for _sputc
+    printf8.o(i._printf_core) refers to printf8.o(i._printf_pre_padding) for _printf_pre_padding
+    printf8.o(i._printf_core) refers to printf8.o(i._printf_post_padding) for _printf_post_padding
+    printf8.o(i._printf_core) refers to uldiv.o(.text) for __aeabi_uldivmod
+    printfa.o(i.__0fprintf) refers (Special) to iusefp.o(.text) for __I$use$fp
+    printfa.o(i.__0fprintf) refers to printfa.o(i._printf_core) for _printf_core
+    printfa.o(i.__0fprintf) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printfa.o(i.__0printf) refers (Special) to iusefp.o(.text) for __I$use$fp
+    printfa.o(i.__0printf) refers to printfa.o(i._printf_core) for _printf_core
+    printfa.o(i.__0printf) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printfa.o(i.__0printf) refers to stdout.o(.data) for __stdout
+    printfa.o(i.__0snprintf) refers (Special) to iusefp.o(.text) for __I$use$fp
+    printfa.o(i.__0snprintf) refers to printfa.o(i._printf_core) for _printf_core
+    printfa.o(i.__0snprintf) refers to printfa.o(i._snputc) for _snputc
+    printfa.o(i.__0sprintf) refers (Special) to iusefp.o(.text) for __I$use$fp
+    printfa.o(i.__0sprintf) refers to printfa.o(i._printf_core) for _printf_core
+    printfa.o(i.__0sprintf) refers to printfa.o(i._sputc) for _sputc
+    printfa.o(i.__0vfprintf) refers (Special) to iusefp.o(.text) for __I$use$fp
+    printfa.o(i.__0vfprintf) refers to printfa.o(i._printf_core) for _printf_core
+    printfa.o(i.__0vfprintf) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printfa.o(i.__0vprintf) refers (Special) to iusefp.o(.text) for __I$use$fp
+    printfa.o(i.__0vprintf) refers to printfa.o(i._printf_core) for _printf_core
+    printfa.o(i.__0vprintf) refers to py32ca70xx_ll_start_kit.o(i.fputc) for fputc
+    printfa.o(i.__0vprintf) refers to stdout.o(.data) for __stdout
+    printfa.o(i.__0vsnprintf) refers (Special) to iusefp.o(.text) for __I$use$fp
+    printfa.o(i.__0vsnprintf) refers to printfa.o(i._printf_core) for _printf_core
+    printfa.o(i.__0vsnprintf) refers to printfa.o(i._snputc) for _snputc
+    printfa.o(i.__0vsprintf) refers (Special) to iusefp.o(.text) for __I$use$fp
+    printfa.o(i.__0vsprintf) refers to printfa.o(i._printf_core) for _printf_core
+    printfa.o(i.__0vsprintf) refers to printfa.o(i._sputc) for _sputc
+    printfa.o(i._fp_digits) refers (Special) to iusefp.o(.text) for __I$use$fp
+    printfa.o(i._fp_digits) refers to dmul.o(.text) for __aeabi_dmul
+    printfa.o(i._fp_digits) refers to ddiv.o(.text) for __aeabi_ddiv
+    printfa.o(i._fp_digits) refers to cdrcmple.o(.text) for __aeabi_cdrcmple
+    printfa.o(i._fp_digits) refers to dadd.o(.text) for __aeabi_dadd
+    printfa.o(i._fp_digits) refers to dfixul.o(.text) for __aeabi_d2ulz
+    printfa.o(i._fp_digits) refers to uldiv.o(.text) for __aeabi_uldivmod
+    printfa.o(i._printf_core) refers (Special) to iusefp.o(.text) for __I$use$fp
+    printfa.o(i._printf_core) refers to printfa.o(i._printf_pre_padding) for _printf_pre_padding
+    printfa.o(i._printf_core) refers to uldiv.o(.text) for __aeabi_uldivmod
+    printfa.o(i._printf_core) refers to printfa.o(i._printf_post_padding) for _printf_post_padding
+    printfa.o(i._printf_core) refers to printfa.o(i._fp_digits) for _fp_digits
+    printfa.o(i._printf_core) refers to uidiv.o(.text) for __aeabi_uidivmod
+    printfa.o(i._printf_post_padding) refers (Special) to iusefp.o(.text) for __I$use$fp
+    printfa.o(i._printf_pre_padding) refers (Special) to iusefp.o(.text) for __I$use$fp
+    printfa.o(i._snputc) refers (Special) to iusefp.o(.text) for __I$use$fp
+    printfa.o(i._sputc) refers (Special) to iusefp.o(.text) for __I$use$fp
+    entry2.o(.ARM.Collect$$$$00000001) refers to entry2.o(.ARM.Collect$$$$00002712) for __lit__00000000
+    entry2.o(.ARM.Collect$$$$00002712) refers to startup_py32ca70xx.o(STACK) for __initial_sp
+    entry2.o(__vectab_stack_and_reset_area) refers to startup_py32ca70xx.o(STACK) for __initial_sp
+    entry2.o(__vectab_stack_and_reset_area) refers to entry.o(.ARM.Collect$$$$00000000) for __main
+    entry5.o(.ARM.Collect$$$$00000004) refers to init.o(.text) for __scatterload
+    entry9a.o(.ARM.Collect$$$$0000000B) refers to main.o(i.main) for main
+    entry9b.o(.ARM.Collect$$$$0000000C) refers to main.o(i.main) for main
+    uldiv.o(.text) refers to llushr.o(.text) for __aeabi_llsr
+    uldiv.o(.text) refers to llshl.o(.text) for __aeabi_llsl
+    dadd.o(.text) refers to llshl.o(.text) for __aeabi_llsl
+    dadd.o(.text) refers to llsshr.o(.text) for __aeabi_lasr
+    dadd.o(.text) refers to depilogue.o(.text) for _double_epilogue
+    dmul.o(.text) refers to depilogue.o(.text) for _double_epilogue
+    ddiv.o(.text) refers to depilogue.o(.text) for _double_round
+    dfixul.o(.text) refers to llushr.o(.text) for __aeabi_llsr
+    dfixul.o(.text) refers to llshl.o(.text) for __aeabi_llsl
+    init.o(.text) refers to entry5.o(.ARM.Collect$$$$00000004) for __main_after_scatterload
+    depilogue.o(.text) refers to depilogue.o(i.__ARM_clz) for __ARM_clz
+    depilogue.o(.text) refers to llshl.o(.text) for __aeabi_llsl
+    depilogue.o(.text) refers to llushr.o(.text) for __aeabi_llsr
+
+
+==============================================================================
+
+Removing Unused input sections from the image.
+
+    Removing system_py32ca70.o(.rev16_text), (4 bytes).
+    Removing system_py32ca70.o(.revsh_text), (4 bytes).
+    Removing system_py32ca70.o(i.SystemCoreClockUpdate), (156 bytes).
+    Removing system_py32ca70.o(.constdata), (128 bytes).
+    Removing startup_py32ca70xx.o(HEAP), (0 bytes).
+    Removing main.o(.rev16_text), (4 bytes).
+    Removing main.o(.revsh_text), (4 bytes).
+    Removing main.o(.constdata), (35 bytes).
+    Removing py32ca70_it.o(.rev16_text), (4 bytes).
+    Removing py32ca70_it.o(.revsh_text), (4 bytes).
+    Removing py32ca70_it.o(.constdata), (35 bytes).
+    Removing py32ca70xx_ll_start_kit.o(.rev16_text), (4 bytes).
+    Removing py32ca70xx_ll_start_kit.o(.revsh_text), (4 bytes).
+    Removing py32ca70xx_ll_start_kit.o(i.BSP_GetVersion), (6 bytes).
+    Removing py32ca70xx_ll_start_kit.o(i.BSP_LED_DeInit), (48 bytes).
+    Removing py32ca70xx_ll_start_kit.o(i.BSP_LED_Init), (60 bytes).
+    Removing py32ca70xx_ll_start_kit.o(i.BSP_LED_Off), (32 bytes).
+    Removing py32ca70xx_ll_start_kit.o(i.BSP_LED_On), (32 bytes).
+    Removing py32ca70xx_ll_start_kit.o(i.BSP_LED_Toggle), (32 bytes).
+    Removing py32ca70xx_ll_start_kit.o(i.BSP_PB_DeInit), (60 bytes).
+    Removing py32ca70xx_ll_start_kit.o(i.BSP_PB_GetState), (44 bytes).
+    Removing py32ca70xx_ll_start_kit.o(i.BSP_PB_Init), (160 bytes).
+    Removing py32ca70xx_ll_start_kit.o(i.LL_GPIO_ResetOutputPin), (4 bytes).
+    Removing py32ca70xx_ll_start_kit.o(i.LL_GPIO_SetOutputPin), (4 bytes).
+    Removing py32ca70xx_ll_start_kit.o(i.NVIC_SetPriority), (120 bytes).
+    Removing py32ca70xx_ll_start_kit.o(i.fgetc), (40 bytes).
+    Removing py32ca70xx_ll_start_kit.o(.constdata), (12 bytes).
+    Removing py32ca70xx_ll_start_kit.o(.data), (8 bytes).
+    Removing prb480.o(.rev16_text), (4 bytes).
+    Removing prb480.o(.revsh_text), (4 bytes).
+    Removing prb480.o(i.PRB480_CalcSHA1), (38 bytes).
+    Removing prb480.o(i.PRB480_CheckDataPageAddress), (26 bytes).
+    Removing prb480.o(i.PRB480_CheckPostCopyES), (42 bytes).
+    Removing prb480.o(i.PRB480_ComputeNextSecret), (104 bytes).
+    Removing prb480.o(i.PRB480_CopyScratchpad), (476 bytes).
+    Removing prb480.o(i.PRB480_DebugAdcLevels), (88 bytes).
+    Removing prb480.o(i.PRB480_DebugQ2Q3PulseTest), (764 bytes).
+    Removing prb480.o(i.PRB480_DebugReadSlotLoop), (84 bytes).
+    Removing prb480.o(i.PRB480_DelayTlow), (24 bytes).
+    Removing prb480.o(i.PRB480_Delay_Read), (24 bytes).
+    Removing prb480.o(i.PRB480_GetLastReadAdc), (12 bytes).
+    Removing prb480.o(i.PRB480_IO_OUT), (8 bytes).
+    Removing prb480.o(i.PRB480_LoadPartialSecretScratchpad), (56 bytes).
+    Removing prb480.o(i.PRB480_PowerPMOS_On), (20 bytes).
+    Removing prb480.o(i.PRB480_ReadAdcValue), (20 bytes).
+    Removing prb480.o(i.PRB480_ReadAuthenticatedPage), (154 bytes).
+    Removing prb480.o(i.PRB480_ReadScratchpad), (202 bytes).
+    Removing prb480.o(i.PRB480_SendCodeReset), (28 bytes).
+    Removing prb480.o(i.PRB480_SetPinRoles), (44 bytes).
+    Removing prb480.o(i.PRB480_SetReadSampleDelay), (12 bytes).
+    Removing prb480.o(i.PRB480_Step5_SendCodeReset), (28 bytes).
+    Removing prb480.o(i.PRB480_Step5_WriteScratchpad), (236 bytes).
+    Removing prb480.o(i.PRB480_Test_step1_step2), (132 bytes).
+    Removing prb480.o(i.PRB480_VerifyPostCopyScratchpad), (102 bytes).
+    Removing prb480.o(i.PRB480_VerifyScratchpad), (108 bytes).
+    Removing prb480.o(i.PRB480_VerifyScratchpadFilledAA), (68 bytes).
+    Removing prb480.o(i.PRB480_WaitFromStart), (80 bytes).
+    Removing prb480.o(i.PRB480_WaitReady), (38 bytes).
+    Removing prb480.o(i.PRB480_WriteAuthorizedBlock), (104 bytes).
+    Removing prb480.o(.constdata), (50 bytes).
+    Removing crc16.o(.rev16_text), (4 bytes).
+    Removing crc16.o(.revsh_text), (4 bytes).
+    Removing crc16.o(.constdata), (35 bytes).
+    Removing sha1.o(i.SHA1), (52 bytes).
+    Removing sha1.o(i.SHA1Final), (168 bytes).
+    Removing sha1.o(i.SHA1Init), (44 bytes).
+    Removing sha1.o(i.SHA1Transform), (6268 bytes).
+    Removing sha1.o(i.SHA1Update), (120 bytes).
+    Removing sha1.o(i.SHA1_change), (116 bytes).
+    Removing sha1.o(i.SHA1init), (28 bytes).
+    Removing sha1.o(.bss), (220 bytes).
+    Removing sha1.o(.data), (1 bytes).
+    Removing py32ca70_ll_adc.o(.rev16_text), (4 bytes).
+    Removing py32ca70_ll_adc.o(.revsh_text), (4 bytes).
+    Removing py32ca70_ll_adc.o(i.LL_ADC_CommonDeInit), (40 bytes).
+    Removing py32ca70_ll_adc.o(i.LL_ADC_DeInit), (260 bytes).
+    Removing py32ca70_ll_adc.o(i.LL_ADC_Init), (64 bytes).
+    Removing py32ca70_ll_adc.o(i.LL_ADC_IsEnabled), (16 bytes).
+    Removing py32ca70_ll_adc.o(i.LL_ADC_REG_Init), (56 bytes).
+    Removing py32ca70_ll_adc.o(i.LL_ADC_REG_IsStopConversionOngoing), (12 bytes).
+    Removing py32ca70_ll_adc.o(i.LL_ADC_REG_StructInit), (16 bytes).
+    Removing py32ca70_ll_adc.o(i.LL_ADC_StructInit), (16 bytes).
+    Removing py32ca70_ll_utils.o(.rev16_text), (4 bytes).
+    Removing py32ca70_ll_utils.o(.revsh_text), (4 bytes).
+    Removing dadd.o(.text), (356 bytes).
+    Removing dmul.o(.text), (208 bytes).
+    Removing ddiv.o(.text), (240 bytes).
+    Removing dfixul.o(.text), (64 bytes).
+    Removing cdrcmple.o(.text), (40 bytes).
+    Removing depilogue.o(.text), (190 bytes).
+    Removing depilogue.o(i.__ARM_clz), (46 bytes).
+
+91 unused section(s) (total 12928 bytes) removed from the image.
+
+==============================================================================
+
+Image Symbol Table
+
+    Local Symbols
+
+    Symbol Name                              Value     Ov Type        Size  Object(Section)
+
+    ../clib/microlib/division.c              0x00000000   Number         0  uidiv.o ABSOLUTE
+    ../clib/microlib/division.c              0x00000000   Number         0  uldiv.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry5.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry7b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry7a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry9b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry11b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry8b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10a.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry10b.o ABSOLUTE
+    ../clib/microlib/init/entry.s            0x00000000   Number         0  entry2.o ABSOLUTE
+    ../clib/microlib/longlong.c              0x00000000   Number         0  llsshr.o ABSOLUTE
+    ../clib/microlib/longlong.c              0x00000000   Number         0  llushr.o ABSOLUTE
+    ../clib/microlib/longlong.c              0x00000000   Number         0  llshl.o ABSOLUTE
+    ../clib/microlib/printf/printf.c         0x00000000   Number         0  printf7.o ABSOLUTE
+    ../clib/microlib/printf/printf.c         0x00000000   Number         0  printf4.o ABSOLUTE
+    ../clib/microlib/printf/printf.c         0x00000000   Number         0  printf5.o ABSOLUTE
+    ../clib/microlib/printf/printf.c         0x00000000   Number         0  printfa.o ABSOLUTE
+    ../clib/microlib/printf/printf.c         0x00000000   Number         0  printf8.o ABSOLUTE
+    ../clib/microlib/printf/printf.c         0x00000000   Number         0  printf6.o ABSOLUTE
+    ../clib/microlib/printf/printf.c         0x00000000   Number         0  printf3.o ABSOLUTE
+    ../clib/microlib/printf/printf.c         0x00000000   Number         0  printf2.o ABSOLUTE
+    ../clib/microlib/printf/printf.c         0x00000000   Number         0  printf1.o ABSOLUTE
+    ../clib/microlib/printf/printf.c         0x00000000   Number         0  printf0.o ABSOLUTE
+    ../clib/microlib/printf/printf.c         0x00000000   Number         0  printfb.o ABSOLUTE
+    ../clib/microlib/printf/stubs.s          0x00000000   Number         0  stubs.o ABSOLUTE
+    ../clib/microlib/stdio/streams.c         0x00000000   Number         0  stdout.o ABSOLUTE
+    ../clib/microlib/string/memcmp.c         0x00000000   Number         0  memcmp.o ABSOLUTE
+    ../clib/microlib/string/memcpy.c         0x00000000   Number         0  memcpya.o ABSOLUTE
+    ../clib/microlib/string/memcpy.c         0x00000000   Number         0  memcpyb.o ABSOLUTE
+    ../clib/microlib/string/memset.c         0x00000000   Number         0  memseta.o ABSOLUTE
+    ../clib/microlib/stubs.s                 0x00000000   Number         0  iusefp.o ABSOLUTE
+    ../fplib/microlib/fpadd.c                0x00000000   Number         0  dadd.o ABSOLUTE
+    ../fplib/microlib/fpdiv.c                0x00000000   Number         0  ddiv.o ABSOLUTE
+    ../fplib/microlib/fpepilogue.c           0x00000000   Number         0  depilogue.o ABSOLUTE
+    ../fplib/microlib/fpfix.c                0x00000000   Number         0  dfixul.o ABSOLUTE
+    ../fplib/microlib/fpmul.c                0x00000000   Number         0  dmul.o ABSOLUTE
+    ..\Drivers\BSP\PY32CA70xx_Start_Kit\py32ca70xx_ll_Start_Kit.c 0x00000000   Number         0  py32ca70xx_ll_start_kit.o ABSOLUTE
+    ..\Drivers\PY32CA70_HAL_Driver\Src\py32ca70_ll_adc.c 0x00000000   Number         0  py32ca70_ll_adc.o ABSOLUTE
+    ..\Drivers\PY32CA70_HAL_Driver\Src\py32ca70_ll_utils.c 0x00000000   Number         0  py32ca70_ll_utils.o ABSOLUTE
+    ..\Src\main.c                            0x00000000   Number         0  main.o ABSOLUTE
+    ..\Src\py32ca70_it.c                     0x00000000   Number         0  py32ca70_it.o ABSOLUTE
+    ..\Src\system_py32ca70.c                 0x00000000   Number         0  system_py32ca70.o ABSOLUTE
+    ..\User_Drivers\PRB480\CRC16.c           0x00000000   Number         0  crc16.o ABSOLUTE
+    ..\User_Drivers\PRB480\PRB480.c          0x00000000   Number         0  prb480.o ABSOLUTE
+    ..\User_Drivers\PRB480\SHA1.c            0x00000000   Number         0  sha1.o ABSOLUTE
+    ..\\Drivers\\BSP\\PY32CA70xx_Start_Kit\\py32ca70xx_ll_Start_Kit.c 0x00000000   Number         0  py32ca70xx_ll_start_kit.o ABSOLUTE
+    ..\\Drivers\\PY32CA70_HAL_Driver\\Src\\py32ca70_ll_adc.c 0x00000000   Number         0  py32ca70_ll_adc.o ABSOLUTE
+    ..\\Drivers\\PY32CA70_HAL_Driver\\Src\\py32ca70_ll_utils.c 0x00000000   Number         0  py32ca70_ll_utils.o ABSOLUTE
+    ..\\Src\\main.c                          0x00000000   Number         0  main.o ABSOLUTE
+    ..\\Src\\py32ca70_it.c                   0x00000000   Number         0  py32ca70_it.o ABSOLUTE
+    ..\\Src\\system_py32ca70.c               0x00000000   Number         0  system_py32ca70.o ABSOLUTE
+    ..\\User_Drivers\\PRB480\\CRC16.c        0x00000000   Number         0  crc16.o ABSOLUTE
+    ..\\User_Drivers\\PRB480\\PRB480.c       0x00000000   Number         0  prb480.o ABSOLUTE
+    cdrcmple.s                               0x00000000   Number         0  cdrcmple.o ABSOLUTE
+    dc.s                                     0x00000000   Number         0  dc.o ABSOLUTE
+    handlers.s                               0x00000000   Number         0  handlers.o ABSOLUTE
+    init.s                                   0x00000000   Number         0  init.o ABSOLUTE
+    startup_py32ca70xx.s                     0x00000000   Number         0  startup_py32ca70xx.o ABSOLUTE
+    RESET                                    0x08000000   Section      192  startup_py32ca70xx.o(RESET)
+    .ARM.Collect$$$$00000000                 0x080000c0   Section        0  entry.o(.ARM.Collect$$$$00000000)
+    .ARM.Collect$$$$00000001                 0x080000c0   Section        4  entry2.o(.ARM.Collect$$$$00000001)
+    .ARM.Collect$$$$00000004                 0x080000c4   Section        4  entry5.o(.ARM.Collect$$$$00000004)
+    .ARM.Collect$$$$00000008                 0x080000c8   Section        0  entry7b.o(.ARM.Collect$$$$00000008)
+    .ARM.Collect$$$$0000000A                 0x080000c8   Section        0  entry8b.o(.ARM.Collect$$$$0000000A)
+    .ARM.Collect$$$$0000000B                 0x080000c8   Section        8  entry9a.o(.ARM.Collect$$$$0000000B)
+    .ARM.Collect$$$$0000000D                 0x080000d0   Section        0  entry10a.o(.ARM.Collect$$$$0000000D)
+    .ARM.Collect$$$$0000000F                 0x080000d0   Section        0  entry11a.o(.ARM.Collect$$$$0000000F)
+    .ARM.Collect$$$$00002712                 0x080000d0   Section        4  entry2.o(.ARM.Collect$$$$00002712)
+    __lit__00000000                          0x080000d0   Data           4  entry2.o(.ARM.Collect$$$$00002712)
+    .text                                    0x080000d4   Section       28  startup_py32ca70xx.o(.text)
+    .text                                    0x080000f0   Section        0  uidiv.o(.text)
+    .text                                    0x0800011c   Section        0  memcpya.o(.text)
+    .text                                    0x08000140   Section        0  memseta.o(.text)
+    .text                                    0x08000164   Section        0  memcmp.o(.text)
+    .text                                    0x0800017e   Section        0  uldiv.o(.text)
+    .text                                    0x080001e0   Section       36  init.o(.text)
+    .text                                    0x08000204   Section        0  llshl.o(.text)
+    .text                                    0x08000224   Section        0  llushr.o(.text)
+    i.APP_SystemClockConfig                  0x08000248   Section        0  main.o(i.APP_SystemClockConfig)
+    APP_SystemClockConfig                    0x08000249   Thumb Code   126  main.o(i.APP_SystemClockConfig)
+    i.BSP_UART_Config                        0x080002d0   Section        0  py32ca70xx_ll_start_kit.o(i.BSP_UART_Config)
+    i.Cal_Crc16                              0x080003dc   Section        0  crc16.o(i.Cal_Crc16)
+    i.Cal_Crc16_bit                          0x08000418   Section        0  crc16.o(i.Cal_Crc16_bit)
+    i.HardFault_Handler                      0x0800045c   Section        0  py32ca70_it.o(i.HardFault_Handler)
+    i.LL_GPIO_SetAFPin                       0x08000460   Section        0  py32ca70xx_ll_start_kit.o(i.LL_GPIO_SetAFPin)
+    LL_GPIO_SetAFPin                         0x08000461   Thumb Code    36  py32ca70xx_ll_start_kit.o(i.LL_GPIO_SetAFPin)
+    i.LL_GPIO_SetPinMode                     0x08000484   Section        0  py32ca70xx_ll_start_kit.o(i.LL_GPIO_SetPinMode)
+    LL_GPIO_SetPinMode                       0x08000485   Thumb Code    26  py32ca70xx_ll_start_kit.o(i.LL_GPIO_SetPinMode)
+    i.LL_GPIO_SetPinMode                     0x0800049e   Section        0  prb480.o(i.LL_GPIO_SetPinMode)
+    LL_GPIO_SetPinMode                       0x0800049f   Thumb Code    26  prb480.o(i.LL_GPIO_SetPinMode)
+    i.LL_GPIO_SetPinOutputType               0x080004b8   Section        0  prb480.o(i.LL_GPIO_SetPinOutputType)
+    LL_GPIO_SetPinOutputType                 0x080004b9   Thumb Code    16  prb480.o(i.LL_GPIO_SetPinOutputType)
+    i.LL_GPIO_SetPinPull                     0x080004c8   Section        0  py32ca70xx_ll_start_kit.o(i.LL_GPIO_SetPinPull)
+    LL_GPIO_SetPinPull                       0x080004c9   Thumb Code    26  py32ca70xx_ll_start_kit.o(i.LL_GPIO_SetPinPull)
+    i.LL_GPIO_SetPinPull                     0x080004e2   Section        0  prb480.o(i.LL_GPIO_SetPinPull)
+    LL_GPIO_SetPinPull                       0x080004e3   Thumb Code    26  prb480.o(i.LL_GPIO_SetPinPull)
+    i.LL_GPIO_SetPinSpeed                    0x080004fc   Section        0  py32ca70xx_ll_start_kit.o(i.LL_GPIO_SetPinSpeed)
+    LL_GPIO_SetPinSpeed                      0x080004fd   Thumb Code    26  py32ca70xx_ll_start_kit.o(i.LL_GPIO_SetPinSpeed)
+    i.LL_GPIO_SetPinSpeed                    0x08000516   Section        0  prb480.o(i.LL_GPIO_SetPinSpeed)
+    LL_GPIO_SetPinSpeed                      0x08000517   Thumb Code    26  prb480.o(i.LL_GPIO_SetPinSpeed)
+    i.LL_IOP_GRP1_EnableClock                0x08000530   Section        0  py32ca70xx_ll_start_kit.o(i.LL_IOP_GRP1_EnableClock)
+    LL_IOP_GRP1_EnableClock                  0x08000531   Thumb Code    24  py32ca70xx_ll_start_kit.o(i.LL_IOP_GRP1_EnableClock)
+    i.LL_IOP_GRP1_EnableClock                0x0800054c   Section        0  prb480.o(i.LL_IOP_GRP1_EnableClock)
+    LL_IOP_GRP1_EnableClock                  0x0800054d   Thumb Code    24  prb480.o(i.LL_IOP_GRP1_EnableClock)
+    i.LL_Init1msTick                         0x08000568   Section        0  py32ca70_ll_utils.o(i.LL_Init1msTick)
+    i.LL_SetSystemCoreClock                  0x08000590   Section        0  py32ca70_ll_utils.o(i.LL_SetSystemCoreClock)
+    i.LL_UART_SetBaudRate                    0x0800059c   Section        0  py32ca70xx_ll_start_kit.o(i.LL_UART_SetBaudRate)
+    LL_UART_SetBaudRate                      0x0800059d   Thumb Code   292  py32ca70xx_ll_start_kit.o(i.LL_UART_SetBaudRate)
+    i.LL_mDelay                              0x080006c0   Section        0  py32ca70_ll_utils.o(i.LL_mDelay)
+    i.NMI_Handler                            0x080006f4   Section        0  py32ca70_it.o(i.NMI_Handler)
+    i.PRB480_ADC_Config                      0x080006f8   Section        0  prb480.o(i.PRB480_ADC_Config)
+    PRB480_ADC_Config                        0x080006f9   Thumb Code   426  prb480.o(i.PRB480_ADC_Config)
+    i.PRB480_AdcLogDump                      0x08000900   Section        0  prb480.o(i.PRB480_AdcLogDump)
+    PRB480_AdcLogDump                        0x08000901   Thumb Code    80  prb480.o(i.PRB480_AdcLogDump)
+    i.PRB480_AdcLogStart                     0x080009a0   Section        0  prb480.o(i.PRB480_AdcLogStart)
+    PRB480_AdcLogStart                       0x080009a1   Thumb Code    38  prb480.o(i.PRB480_AdcLogStart)
+    i.PRB480_BoardInterfaceConfig            0x080009d8   Section        0  prb480.o(i.PRB480_BoardInterfaceConfig)
+    i.PRB480_CalcCRC16                       0x08000a90   Section        0  prb480.o(i.PRB480_CalcCRC16)
+    i.PRB480_CalcCRC8                        0x08000aa0   Section        0  prb480.o(i.PRB480_CalcCRC8)
+    PRB480_CalcCRC8                          0x08000aa1   Thumb Code    56  prb480.o(i.PRB480_CalcCRC8)
+    i.PRB480_CheckAlternatingResponse        0x08000ad8   Section        0  prb480.o(i.PRB480_CheckAlternatingResponse)
+    PRB480_CheckAlternatingResponse          0x08000ad9   Thumb Code    30  prb480.o(i.PRB480_CheckAlternatingResponse)
+    i.PRB480_CheckScratchpadES               0x08000af6   Section        0  prb480.o(i.PRB480_CheckScratchpadES)
+    PRB480_CheckScratchpadES                 0x08000af7   Thumb Code    42  prb480.o(i.PRB480_CheckScratchpadES)
+    i.PRB480_CheckWriteAddress               0x08000b20   Section        0  prb480.o(i.PRB480_CheckWriteAddress)
+    PRB480_CheckWriteAddress                 0x08000b21   Thumb Code    26  prb480.o(i.PRB480_CheckWriteAddress)
+    i.PRB480_CommandStart                    0x08000b3a   Section        0  prb480.o(i.PRB480_CommandStart)
+    PRB480_CommandStart                      0x08000b3b   Thumb Code    36  prb480.o(i.PRB480_CommandStart)
+    i.PRB480_CopyScratchpadVerified          0x08000b60   Section        0  prb480.o(i.PRB480_CopyScratchpadVerified)
+    i.PRB480_DebugPrintCopyMACInputs         0x08000df0   Section        0  prb480.o(i.PRB480_DebugPrintCopyMACInputs)
+    PRB480_DebugPrintCopyMACInputs           0x08000df1   Thumb Code   728  prb480.o(i.PRB480_DebugPrintCopyMACInputs)
+    i.PRB480_DelayNop                        0x08001204   Section        0  prb480.o(i.PRB480_DelayNop)
+    PRB480_DelayNop                          0x08001205   Thumb Code    24  prb480.o(i.PRB480_DelayNop)
+    i.PRB480_FRAM_Verify                     0x0800121c   Section        0  prb480.o(i.PRB480_FRAM_Verify)
+    i.PRB480_GenerateCopyConfigPageMAC       0x08001410   Section        0  prb480.o(i.PRB480_GenerateCopyConfigPageMAC)
+    PRB480_GenerateCopyConfigPageMAC         0x08001411   Thumb Code   276  prb480.o(i.PRB480_GenerateCopyConfigPageMAC)
+    i.PRB480_GenerateCopyDataPageMAC         0x08001524   Section        0  prb480.o(i.PRB480_GenerateCopyDataPageMAC)
+    PRB480_GenerateCopyDataPageMAC           0x08001525   Thumb Code   194  prb480.o(i.PRB480_GenerateCopyDataPageMAC)
+    i.PRB480_GenerateCopyMAC                 0x080015e8   Section        0  prb480.o(i.PRB480_GenerateCopyMAC)
+    PRB480_GenerateCopyMAC                   0x080015e9   Thumb Code    76  prb480.o(i.PRB480_GenerateCopyMAC)
+    i.PRB480_GenerateReadAuthPageMAC         0x08001660   Section        0  prb480.o(i.PRB480_GenerateReadAuthPageMAC)
+    PRB480_GenerateReadAuthPageMAC           0x08001661   Thumb Code   234  prb480.o(i.PRB480_GenerateReadAuthPageMAC)
+    i.PRB480_GetCopyTargetArea               0x0800176c   Section        0  prb480.o(i.PRB480_GetCopyTargetArea)
+    PRB480_GetCopyTargetArea                 0x0800176d   Thumb Code    26  prb480.o(i.PRB480_GetCopyTargetArea)
+    i.PRB480_GetPinPos                       0x08001786   Section        0  prb480.o(i.PRB480_GetPinPos)
+    PRB480_GetPinPos                         0x08001787   Thumb Code    20  prb480.o(i.PRB480_GetPinPos)
+    i.PRB480_IO_ANALOG                       0x0800179c   Section        0  prb480.o(i.PRB480_IO_ANALOG)
+    PRB480_IO_ANALOG                         0x0800179d   Thumb Code    46  prb480.o(i.PRB480_IO_ANALOG)
+    i.PRB480_IO_IN                           0x080017d4   Section        0  prb480.o(i.PRB480_IO_IN)
+    i.PRB480_Init                            0x08001830   Section        0  prb480.o(i.PRB480_Init)
+    i.PRB480_LoadChallengeScratchpad         0x08001848   Section        0  prb480.o(i.PRB480_LoadChallengeScratchpad)
+    PRB480_LoadChallengeScratchpad           0x08001849   Thumb Code   164  prb480.o(i.PRB480_LoadChallengeScratchpad)
+    i.PRB480_LoadFirstSecret                 0x08001934   Section        0  prb480.o(i.PRB480_LoadFirstSecret)
+    i.PRB480_MatchROM                        0x08001b40   Section        0  prb480.o(i.PRB480_MatchROM)
+    i.PRB480_PageStart                       0x08001b60   Section        0  prb480.o(i.PRB480_PageStart)
+    PRB480_PageStart                         0x08001b61   Thumb Code     8  prb480.o(i.PRB480_PageStart)
+    i.PRB480_PowerPMOS_Off                   0x08001b6c   Section        0  prb480.o(i.PRB480_PowerPMOS_Off)
+    i.PRB480_ReadAdcRaw                      0x08001b80   Section        0  prb480.o(i.PRB480_ReadAdcRaw)
+    PRB480_ReadAdcRaw                        0x08001b81   Thumb Code    56  prb480.o(i.PRB480_ReadAdcRaw)
+    i.PRB480_ReadAuthenticatedPageEx         0x08001bc0   Section        0  prb480.o(i.PRB480_ReadAuthenticatedPageEx)
+    i.PRB480_ReadAuthenticatedPageRaw        0x08001d50   Section        0  prb480.o(i.PRB480_ReadAuthenticatedPageRaw)
+    PRB480_ReadAuthenticatedPageRaw          0x08001d51   Thumb Code   674  prb480.o(i.PRB480_ReadAuthenticatedPageRaw)
+    i.PRB480_ReadBit                         0x08002270   Section        0  prb480.o(i.PRB480_ReadBit)
+    i.PRB480_ReadByte                        0x0800230c   Section        0  prb480.o(i.PRB480_ReadByte)
+    i.PRB480_ReadMemory                      0x0800233e   Section        0  prb480.o(i.PRB480_ReadMemory)
+    i.PRB480_ReadROM                         0x08002384   Section        0  prb480.o(i.PRB480_ReadROM)
+    i.PRB480_Reset                           0x08002468   Section        0  prb480.o(i.PRB480_Reset)
+    i.PRB480_ResponsePMOS_Off                0x08002490   Section        0  prb480.o(i.PRB480_ResponsePMOS_Off)
+    i.PRB480_ResponsePMOS_On                 0x080024a4   Section        0  prb480.o(i.PRB480_ResponsePMOS_On)
+    i.PRB480_RunMacCompression               0x080024b8   Section        0  prb480.o(i.PRB480_RunMacCompression)
+    PRB480_RunMacCompression                 0x080024b9   Thumb Code   298  prb480.o(i.PRB480_RunMacCompression)
+    i.PRB480_SetAdcThreshold                 0x08002600   Section        0  prb480.o(i.PRB480_SetAdcThreshold)
+    i.PRB480_SkipROM                         0x0800260c   Section        0  prb480.o(i.PRB480_SkipROM)
+    i.PRB480_StateToBusMAC                   0x08002616   Section        0  prb480.o(i.PRB480_StateToBusMAC)
+    PRB480_StateToBusMAC                     0x08002617   Thumb Code    78  prb480.o(i.PRB480_StateToBusMAC)
+    i.PRB480_Step5_CopyScratchpad            0x08002664   Section        0  prb480.o(i.PRB480_Step5_CopyScratchpad)
+    PRB480_Step5_CopyScratchpad              0x08002665   Thumb Code   258  prb480.o(i.PRB480_Step5_CopyScratchpad)
+    i.PRB480_Step5_ReadScratchpad            0x080027e4   Section        0  prb480.o(i.PRB480_Step5_ReadScratchpad)
+    i.PRB480_VerifyReadAuthPageCRC           0x080028d4   Section        0  prb480.o(i.PRB480_VerifyReadAuthPageCRC)
+    PRB480_VerifyReadAuthPageCRC             0x080028d5   Thumb Code   102  prb480.o(i.PRB480_VerifyReadAuthPageCRC)
+    i.PRB480_VerifyReadAuthPageDataCRC       0x08002954   Section        0  prb480.o(i.PRB480_VerifyReadAuthPageDataCRC)
+    PRB480_VerifyReadAuthPageDataCRC         0x08002955   Thumb Code   174  prb480.o(i.PRB480_VerifyReadAuthPageDataCRC)
+    i.PRB480_WaitCopyResult                  0x08002ac8   Section        0  prb480.o(i.PRB480_WaitCopyResult)
+    PRB480_WaitCopyResult                    0x08002ac9   Thumb Code   156  prb480.o(i.PRB480_WaitCopyResult)
+    i.PRB480_WaitSlotEnd                     0x08002b80   Section        0  prb480.o(i.PRB480_WaitSlotEnd)
+    PRB480_WaitSlotEnd                       0x08002b81   Thumb Code    66  prb480.o(i.PRB480_WaitSlotEnd)
+    i.PRB480_WriteAndVerifyScratchpad        0x08002bd0   Section        0  prb480.o(i.PRB480_WriteAndVerifyScratchpad)
+    i.PRB480_WriteBit                        0x08002e3c   Section        0  prb480.o(i.PRB480_WriteBit)
+    i.PRB480_WriteByte                       0x08002ea0   Section        0  prb480.o(i.PRB480_WriteByte)
+    i.PRB480_WriteScratchpad                 0x08002eca   Section        0  prb480.o(i.PRB480_WriteScratchpad)
+    i.PendSV_Handler                         0x08002f70   Section        0  py32ca70_it.o(i.PendSV_Handler)
+    i.SVC_Handler                            0x08002f72   Section        0  py32ca70_it.o(i.SVC_Handler)
+    i.SysTick_Handler                        0x08002f74   Section        0  py32ca70_it.o(i.SysTick_Handler)
+    i.SystemInit                             0x08002f78   Section        0  system_py32ca70.o(i.SystemInit)
+    i.TMX_Delay_ms                           0x08002fac   Section        0  prb480.o(i.TMX_Delay_ms)
+    i.TMX_Delay_us                           0x08002fb8   Section        0  prb480.o(i.TMX_Delay_us)
+    i.__0printf$8                            0x0800301c   Section        0  printf8.o(i.__0printf$8)
+    i.__scatterload_copy                     0x0800303c   Section       14  handlers.o(i.__scatterload_copy)
+    i.__scatterload_null                     0x0800304a   Section        2  handlers.o(i.__scatterload_null)
+    i.__scatterload_zeroinit                 0x0800304c   Section       14  handlers.o(i.__scatterload_zeroinit)
+    i._printf_core                           0x0800305c   Section        0  printf8.o(i._printf_core)
+    _printf_core                             0x0800305d   Thumb Code  1020  printf8.o(i._printf_core)
+    i._printf_post_padding                   0x08003484   Section        0  printf8.o(i._printf_post_padding)
+    _printf_post_padding                     0x08003485   Thumb Code    32  printf8.o(i._printf_post_padding)
+    i._printf_pre_padding                    0x080034a4   Section        0  printf8.o(i._printf_pre_padding)
+    _printf_pre_padding                      0x080034a5   Thumb Code    44  printf8.o(i._printf_pre_padding)
+    i.fputc                                  0x080034d0   Section        0  py32ca70xx_ll_start_kit.o(i.fputc)
+    i.main                                   0x080034f4   Section        0  main.o(i.main)
+    .conststring                             0x08003d2c   Section      311  prb480.o(.conststring)
+    .data                                    0x20000000   Section        4  system_py32ca70.o(.data)
+    .data                                    0x20000004   Section       19  prb480.o(.data)
+    PRB480_DqPort                            0x20000004   Data           4  prb480.o(.data)
+    PRB480_DqPin                             0x20000008   Data           2  prb480.o(.data)
+    PRB480_RespPin                           0x2000000a   Data           2  prb480.o(.data)
+    PRB480_PowerPin                          0x2000000c   Data           2  prb480.o(.data)
+    PRB480_ReadSampleDelayUs                 0x2000000e   Data           1  prb480.o(.data)
+    PRB480_AdcThreshold                      0x20000010   Data           2  prb480.o(.data)
+    PRB480_LastReadAdc                       0x20000012   Data           2  prb480.o(.data)
+    PRB480_AdcLogIndex                       0x20000014   Data           1  prb480.o(.data)
+    PRB480_AdcLogEnabled                     0x20000015   Data           1  prb480.o(.data)
+    PRB480_LastCopyStatus                    0x20000016   Data           1  prb480.o(.data)
+    .data                                    0x20000018   Section        4  stdout.o(.data)
+    .bss                                     0x2000001c   Section      192  prb480.o(.bss)
+    PRB480_AdcLog                            0x2000001c   Data         128  prb480.o(.bss)
+    PRB480_BitLog                            0x2000009c   Data          64  prb480.o(.bss)
+    STACK                                    0x200000e0   Section     1024  startup_py32ca70xx.o(STACK)
+
+    Global Symbols
+
+    Symbol Name                              Value     Ov Type        Size  Object(Section)
+
+    BuildAttributes$$THM_ISAv3M$S$PE$A:L22$X:L11$S22$IEEE1$IW$USESV6$~STKCKD$USESV7$~SHL$OSPACE$ROPI$EBA8$MICROLIB$REQ8$PRES8$EABIv2 0x00000000   Number         0  anon$$obj.o ABSOLUTE
+    __ARM_use_no_argv                        0x00000000   Number         0  main.o ABSOLUTE
+    _printf_a                                0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_c                                0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_charcount                        0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_d                                0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_e                                0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_f                                0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_flags                            0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_fp_dec                           0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_fp_hex                           0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_g                                0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_i                                0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_int_dec                          0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_l                                0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_lc                               0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_ll                               0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_lld                              0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_lli                              0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_llo                              0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_llu                              0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_llx                              0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_longlong_dec                     0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_longlong_hex                     0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_longlong_oct                     0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_ls                               0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_mbtowc                           0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_n                                0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_o                                0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_p                                0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_percent                          0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_pre_padding                      0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_return_value                     0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_s                                0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_sizespec                         0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_str                              0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_truncate_signed                  0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_truncate_unsigned                0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_u                                0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_wc                               0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_wctomb                           0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_widthprec                        0x00000000   Number         0  stubs.o ABSOLUTE
+    _printf_x                                0x00000000   Number         0  stubs.o ABSOLUTE
+    __cpp_initialize__aeabi_                  - Undefined Weak Reference
+    __cxa_finalize                            - Undefined Weak Reference
+    __decompress                              - Undefined Weak Reference
+    _clock_init                               - Undefined Weak Reference
+    _microlib_exit                            - Undefined Weak Reference
+    __Vectors_Size                           0x000000c0   Number         0  startup_py32ca70xx.o ABSOLUTE
+    __Vectors                                0x08000000   Data           4  startup_py32ca70xx.o(RESET)
+    __Vectors_End                            0x080000c0   Data           0  startup_py32ca70xx.o(RESET)
+    __main                                   0x080000c1   Thumb Code     0  entry.o(.ARM.Collect$$$$00000000)
+    _main_stk                                0x080000c1   Thumb Code     0  entry2.o(.ARM.Collect$$$$00000001)
+    _main_scatterload                        0x080000c5   Thumb Code     0  entry5.o(.ARM.Collect$$$$00000004)
+    __main_after_scatterload                 0x080000c9   Thumb Code     0  entry5.o(.ARM.Collect$$$$00000004)
+    _main_clock                              0x080000c9   Thumb Code     0  entry7b.o(.ARM.Collect$$$$00000008)
+    _main_cpp_init                           0x080000c9   Thumb Code     0  entry8b.o(.ARM.Collect$$$$0000000A)
+    _main_init                               0x080000c9   Thumb Code     0  entry9a.o(.ARM.Collect$$$$0000000B)
+    __rt_final_cpp                           0x080000d1   Thumb Code     0  entry10a.o(.ARM.Collect$$$$0000000D)
+    __rt_final_exit                          0x080000d1   Thumb Code     0  entry11a.o(.ARM.Collect$$$$0000000F)
+    Reset_Handler                            0x080000d5   Thumb Code     8  startup_py32ca70xx.o(.text)
+    ADC1_IRQHandler                          0x080000e7   Thumb Code     0  startup_py32ca70xx.o(.text)
+    EXTI0_1_IRQHandler                       0x080000e7   Thumb Code     0  startup_py32ca70xx.o(.text)
+    EXTI2_3_IRQHandler                       0x080000e7   Thumb Code     0  startup_py32ca70xx.o(.text)
+    EXTI4_7_IRQHandler                       0x080000e7   Thumb Code     0  startup_py32ca70xx.o(.text)
+    FLASH_IRQHandler                         0x080000e7   Thumb Code     0  startup_py32ca70xx.o(.text)
+    LPTIM1_IRQHandler                        0x080000e7   Thumb Code     0  startup_py32ca70xx.o(.text)
+    PVD_IRQHandler                           0x080000e7   Thumb Code     0  startup_py32ca70xx.o(.text)
+    PWM1_IRQHandler                          0x080000e7   Thumb Code     0  startup_py32ca70xx.o(.text)
+    RCC_IRQHandler                           0x080000e7   Thumb Code     0  startup_py32ca70xx.o(.text)
+    TIM14_IRQHandler                         0x080000e7   Thumb Code     0  startup_py32ca70xx.o(.text)
+    TIM1_BRK_UP_TRG_COM_IRQHandler           0x080000e7   Thumb Code     0  startup_py32ca70xx.o(.text)
+    TIM1_CC_IRQHandler                       0x080000e7   Thumb Code     0  startup_py32ca70xx.o(.text)
+    UART1_IRQHandler                         0x080000e7   Thumb Code     0  startup_py32ca70xx.o(.text)
+    __aeabi_uidiv                            0x080000f1   Thumb Code     0  uidiv.o(.text)
+    __aeabi_uidivmod                         0x080000f1   Thumb Code    44  uidiv.o(.text)
+    __aeabi_memcpy                           0x0800011d   Thumb Code    36  memcpya.o(.text)
+    __aeabi_memcpy4                          0x0800011d   Thumb Code     0  memcpya.o(.text)
+    __aeabi_memcpy8                          0x0800011d   Thumb Code     0  memcpya.o(.text)
+    __aeabi_memset                           0x08000141   Thumb Code    14  memseta.o(.text)
+    __aeabi_memset4                          0x08000141   Thumb Code     0  memseta.o(.text)
+    __aeabi_memset8                          0x08000141   Thumb Code     0  memseta.o(.text)
+    __aeabi_memclr                           0x0800014f   Thumb Code     4  memseta.o(.text)
+    __aeabi_memclr4                          0x0800014f   Thumb Code     0  memseta.o(.text)
+    __aeabi_memclr8                          0x0800014f   Thumb Code     0  memseta.o(.text)
+    _memset$wrapper                          0x08000153   Thumb Code    18  memseta.o(.text)
+    memcmp                                   0x08000165   Thumb Code    26  memcmp.o(.text)
+    __aeabi_uldivmod                         0x0800017f   Thumb Code    96  uldiv.o(.text)
+    __scatterload                            0x080001e1   Thumb Code    28  init.o(.text)
+    __scatterload_rt2                        0x080001e1   Thumb Code     0  init.o(.text)
+    __aeabi_llsl                             0x08000205   Thumb Code    32  llshl.o(.text)
+    _ll_shift_l                              0x08000205   Thumb Code     0  llshl.o(.text)
+    __aeabi_llsr                             0x08000225   Thumb Code    34  llushr.o(.text)
+    _ll_ushift_r                             0x08000225   Thumb Code     0  llushr.o(.text)
+    BSP_UART_Config                          0x080002d1   Thumb Code   254  py32ca70xx_ll_start_kit.o(i.BSP_UART_Config)
+    Cal_Crc16                                0x080003dd   Thumb Code    60  crc16.o(i.Cal_Crc16)
+    Cal_Crc16_bit                            0x08000419   Thumb Code    64  crc16.o(i.Cal_Crc16_bit)
+    HardFault_Handler                        0x0800045d   Thumb Code     4  py32ca70_it.o(i.HardFault_Handler)
+    LL_Init1msTick                           0x08000569   Thumb Code    34  py32ca70_ll_utils.o(i.LL_Init1msTick)
+    LL_SetSystemCoreClock                    0x08000591   Thumb Code     6  py32ca70_ll_utils.o(i.LL_SetSystemCoreClock)
+    LL_mDelay                                0x080006c1   Thumb Code    46  py32ca70_ll_utils.o(i.LL_mDelay)
+    NMI_Handler                              0x080006f5   Thumb Code     2  py32ca70_it.o(i.NMI_Handler)
+    PRB480_BoardInterfaceConfig              0x080009d9   Thumb Code   158  prb480.o(i.PRB480_BoardInterfaceConfig)
+    PRB480_CalcCRC16                         0x08000a91   Thumb Code    16  prb480.o(i.PRB480_CalcCRC16)
+    PRB480_CopyScratchpadVerified            0x08000b61   Thumb Code   528  prb480.o(i.PRB480_CopyScratchpadVerified)
+    PRB480_FRAM_Verify                       0x0800121d   Thumb Code   436  prb480.o(i.PRB480_FRAM_Verify)
+    PRB480_IO_IN                             0x080017d5   Thumb Code    84  prb480.o(i.PRB480_IO_IN)
+    PRB480_Init                              0x08001831   Thumb Code    24  prb480.o(i.PRB480_Init)
+    PRB480_LoadFirstSecret                   0x08001935   Thumb Code   338  prb480.o(i.PRB480_LoadFirstSecret)
+    PRB480_MatchROM                          0x08001b41   Thumb Code    30  prb480.o(i.PRB480_MatchROM)
+    PRB480_PowerPMOS_Off                     0x08001b6d   Thumb Code    10  prb480.o(i.PRB480_PowerPMOS_Off)
+    PRB480_ReadAuthenticatedPageEx           0x08001bc1   Thumb Code   196  prb480.o(i.PRB480_ReadAuthenticatedPageEx)
+    PRB480_ReadBit                           0x08002271   Thumb Code   114  prb480.o(i.PRB480_ReadBit)
+    PRB480_ReadByte                          0x0800230d   Thumb Code    50  prb480.o(i.PRB480_ReadByte)
+    PRB480_ReadMemory                        0x0800233f   Thumb Code    70  prb480.o(i.PRB480_ReadMemory)
+    PRB480_ReadROM                           0x08002385   Thumb Code   138  prb480.o(i.PRB480_ReadROM)
+    PRB480_Reset                             0x08002469   Thumb Code    38  prb480.o(i.PRB480_Reset)
+    PRB480_ResponsePMOS_Off                  0x08002491   Thumb Code    10  prb480.o(i.PRB480_ResponsePMOS_Off)
+    PRB480_ResponsePMOS_On                   0x080024a5   Thumb Code    10  prb480.o(i.PRB480_ResponsePMOS_On)
+    PRB480_SetAdcThreshold                   0x08002601   Thumb Code     6  prb480.o(i.PRB480_SetAdcThreshold)
+    PRB480_SkipROM                           0x0800260d   Thumb Code    10  prb480.o(i.PRB480_SkipROM)
+    PRB480_Step5_ReadScratchpad              0x080027e5   Thumb Code   236  prb480.o(i.PRB480_Step5_ReadScratchpad)
+    PRB480_WriteAndVerifyScratchpad          0x08002bd1   Thumb Code   284  prb480.o(i.PRB480_WriteAndVerifyScratchpad)
+    PRB480_WriteBit                          0x08002e3d   Thumb Code    88  prb480.o(i.PRB480_WriteBit)
+    PRB480_WriteByte                         0x08002ea1   Thumb Code    42  prb480.o(i.PRB480_WriteByte)
+    PRB480_WriteScratchpad                   0x08002ecb   Thumb Code   166  prb480.o(i.PRB480_WriteScratchpad)
+    PendSV_Handler                           0x08002f71   Thumb Code     2  py32ca70_it.o(i.PendSV_Handler)
+    SVC_Handler                              0x08002f73   Thumb Code     2  py32ca70_it.o(i.SVC_Handler)
+    SysTick_Handler                          0x08002f75   Thumb Code     2  py32ca70_it.o(i.SysTick_Handler)
+    SystemInit                               0x08002f79   Thumb Code    38  system_py32ca70.o(i.SystemInit)
+    TMX_Delay_ms                             0x08002fad   Thumb Code    12  prb480.o(i.TMX_Delay_ms)
+    TMX_Delay_us                             0x08002fb9   Thumb Code    86  prb480.o(i.TMX_Delay_us)
+    __0printf$8                              0x0800301d   Thumb Code    24  printf8.o(i.__0printf$8)
+    __1printf$8                              0x0800301d   Thumb Code     0  printf8.o(i.__0printf$8)
+    __2printf                                0x0800301d   Thumb Code     0  printf8.o(i.__0printf$8)
+    __scatterload_copy                       0x0800303d   Thumb Code    14  handlers.o(i.__scatterload_copy)
+    __scatterload_null                       0x0800304b   Thumb Code     2  handlers.o(i.__scatterload_null)
+    __scatterload_zeroinit                   0x0800304d   Thumb Code    14  handlers.o(i.__scatterload_zeroinit)
+    fputc                                    0x080034d1   Thumb Code    30  py32ca70xx_ll_start_kit.o(i.fputc)
+    main                                     0x080034f5   Thumb Code  2014  main.o(i.main)
+    Region$$Table$$Base                      0x08003e64   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x08003e84   Number         0  anon$$obj.o(Region$$Table)
+    SystemCoreClock                          0x20000000   Data           4  system_py32ca70.o(.data)
+    __stdout                                 0x20000018   Data           4  stdout.o(.data)
+    __initial_sp                             0x200004e0   Data           0  startup_py32ca70xx.o(STACK)
+
+
+
+==============================================================================
+
+Memory Map of the image
+
+  Image Entry point : 0x080000c1
+
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00003ea0, Max: 0x00004000, ABSOLUTE)
+
+    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x00003e84, Max: 0x00004000, ABSOLUTE)
+
+    Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
+
+    0x08000000   0x08000000   0x000000c0   Data   RO           60    RESET               startup_py32ca70xx.o
+    0x080000c0   0x080000c0   0x00000000   Code   RO         1053  * .ARM.Collect$$$$00000000  mc_p.l(entry.o)
+    0x080000c0   0x080000c0   0x00000004   Code   RO         1327    .ARM.Collect$$$$00000001  mc_p.l(entry2.o)
+    0x080000c4   0x080000c4   0x00000004   Code   RO         1330    .ARM.Collect$$$$00000004  mc_p.l(entry5.o)
+    0x080000c8   0x080000c8   0x00000000   Code   RO         1332    .ARM.Collect$$$$00000008  mc_p.l(entry7b.o)
+    0x080000c8   0x080000c8   0x00000000   Code   RO         1334    .ARM.Collect$$$$0000000A  mc_p.l(entry8b.o)
+    0x080000c8   0x080000c8   0x00000008   Code   RO         1335    .ARM.Collect$$$$0000000B  mc_p.l(entry9a.o)
+    0x080000d0   0x080000d0   0x00000000   Code   RO         1337    .ARM.Collect$$$$0000000D  mc_p.l(entry10a.o)
+    0x080000d0   0x080000d0   0x00000000   Code   RO         1339    .ARM.Collect$$$$0000000F  mc_p.l(entry11a.o)
+    0x080000d0   0x080000d0   0x00000004   Code   RO         1328    .ARM.Collect$$$$00002712  mc_p.l(entry2.o)
+    0x080000d4   0x080000d4   0x0000001c   Code   RO           61    .text               startup_py32ca70xx.o
+    0x080000f0   0x080000f0   0x0000002c   Code   RO         1056    .text               mc_p.l(uidiv.o)
+    0x0800011c   0x0800011c   0x00000024   Code   RO         1058    .text               mc_p.l(memcpya.o)
+    0x08000140   0x08000140   0x00000024   Code   RO         1060    .text               mc_p.l(memseta.o)
+    0x08000164   0x08000164   0x0000001a   Code   RO         1062    .text               mc_p.l(memcmp.o)
+    0x0800017e   0x0800017e   0x00000060   Code   RO         1342    .text               mc_p.l(uldiv.o)
+    0x080001de   0x080001de   0x00000002   PAD
+    0x080001e0   0x080001e0   0x00000024   Code   RO         1355    .text               mc_p.l(init.o)
+    0x08000204   0x08000204   0x00000020   Code   RO         1357    .text               mc_p.l(llshl.o)
+    0x08000224   0x08000224   0x00000022   Code   RO         1359    .text               mc_p.l(llushr.o)
+    0x08000246   0x08000246   0x00000002   PAD
+    0x08000248   0x08000248   0x00000088   Code   RO           67    i.APP_SystemClockConfig  main.o
+    0x080002d0   0x080002d0   0x0000010c   Code   RO          208    i.BSP_UART_Config   py32ca70xx_ll_start_kit.o
+    0x080003dc   0x080003dc   0x0000003c   Code   RO          872    i.Cal_Crc16         crc16.o
+    0x08000418   0x08000418   0x00000044   Code   RO          873    i.Cal_Crc16_bit     crc16.o
+    0x0800045c   0x0800045c   0x00000004   Code   RO          144    i.HardFault_Handler  py32ca70_it.o
+    0x08000460   0x08000460   0x00000024   Code   RO          210    i.LL_GPIO_SetAFPin  py32ca70xx_ll_start_kit.o
+    0x08000484   0x08000484   0x0000001a   Code   RO          212    i.LL_GPIO_SetPinMode  py32ca70xx_ll_start_kit.o
+    0x0800049e   0x0800049e   0x0000001a   Code   RO          349    i.LL_GPIO_SetPinMode  prb480.o
+    0x080004b8   0x080004b8   0x00000010   Code   RO          350    i.LL_GPIO_SetPinOutputType  prb480.o
+    0x080004c8   0x080004c8   0x0000001a   Code   RO          213    i.LL_GPIO_SetPinPull  py32ca70xx_ll_start_kit.o
+    0x080004e2   0x080004e2   0x0000001a   Code   RO          351    i.LL_GPIO_SetPinPull  prb480.o
+    0x080004fc   0x080004fc   0x0000001a   Code   RO          214    i.LL_GPIO_SetPinSpeed  py32ca70xx_ll_start_kit.o
+    0x08000516   0x08000516   0x0000001a   Code   RO          352    i.LL_GPIO_SetPinSpeed  prb480.o
+    0x08000530   0x08000530   0x0000001c   Code   RO          215    i.LL_IOP_GRP1_EnableClock  py32ca70xx_ll_start_kit.o
+    0x0800054c   0x0800054c   0x0000001c   Code   RO          353    i.LL_IOP_GRP1_EnableClock  prb480.o
+    0x08000568   0x08000568   0x00000028   Code   RO         1020    i.LL_Init1msTick    py32ca70_ll_utils.o
+    0x08000590   0x08000590   0x0000000c   Code   RO         1021    i.LL_SetSystemCoreClock  py32ca70_ll_utils.o
+    0x0800059c   0x0800059c   0x00000124   Code   RO          216    i.LL_UART_SetBaudRate  py32ca70xx_ll_start_kit.o
+    0x080006c0   0x080006c0   0x00000034   Code   RO         1022    i.LL_mDelay         py32ca70_ll_utils.o
+    0x080006f4   0x080006f4   0x00000002   Code   RO          145    i.NMI_Handler       py32ca70_it.o
+    0x080006f6   0x080006f6   0x00000002   PAD
+    0x080006f8   0x080006f8   0x00000208   Code   RO          354    i.PRB480_ADC_Config  prb480.o
+    0x08000900   0x08000900   0x000000a0   Code   RO          355    i.PRB480_AdcLogDump  prb480.o
+    0x080009a0   0x080009a0   0x00000038   Code   RO          356    i.PRB480_AdcLogStart  prb480.o
+    0x080009d8   0x080009d8   0x000000b8   Code   RO          357    i.PRB480_BoardInterfaceConfig  prb480.o
+    0x08000a90   0x08000a90   0x00000010   Code   RO          358    i.PRB480_CalcCRC16  prb480.o
+    0x08000aa0   0x08000aa0   0x00000038   Code   RO          359    i.PRB480_CalcCRC8   prb480.o
+    0x08000ad8   0x08000ad8   0x0000001e   Code   RO          361    i.PRB480_CheckAlternatingResponse  prb480.o
+    0x08000af6   0x08000af6   0x0000002a   Code   RO          364    i.PRB480_CheckScratchpadES  prb480.o
+    0x08000b20   0x08000b20   0x0000001a   Code   RO          365    i.PRB480_CheckWriteAddress  prb480.o
+    0x08000b3a   0x08000b3a   0x00000024   Code   RO          366    i.PRB480_CommandStart  prb480.o
+    0x08000b5e   0x08000b5e   0x00000002   PAD
+    0x08000b60   0x08000b60   0x00000290   Code   RO          369    i.PRB480_CopyScratchpadVerified  prb480.o
+    0x08000df0   0x08000df0   0x00000414   Code   RO          371    i.PRB480_DebugPrintCopyMACInputs  prb480.o
+    0x08001204   0x08001204   0x00000018   Code   RO          374    i.PRB480_DelayNop   prb480.o
+    0x0800121c   0x0800121c   0x000001f4   Code   RO          377    i.PRB480_FRAM_Verify  prb480.o
+    0x08001410   0x08001410   0x00000114   Code   RO          378    i.PRB480_GenerateCopyConfigPageMAC  prb480.o
+    0x08001524   0x08001524   0x000000c2   Code   RO          379    i.PRB480_GenerateCopyDataPageMAC  prb480.o
+    0x080015e6   0x080015e6   0x00000002   PAD
+    0x080015e8   0x080015e8   0x00000078   Code   RO          380    i.PRB480_GenerateCopyMAC  prb480.o
+    0x08001660   0x08001660   0x0000010c   Code   RO          381    i.PRB480_GenerateReadAuthPageMAC  prb480.o
+    0x0800176c   0x0800176c   0x0000001a   Code   RO          382    i.PRB480_GetCopyTargetArea  prb480.o
+    0x08001786   0x08001786   0x00000014   Code   RO          384    i.PRB480_GetPinPos  prb480.o
+    0x0800179a   0x0800179a   0x00000002   PAD
+    0x0800179c   0x0800179c   0x00000038   Code   RO          385    i.PRB480_IO_ANALOG  prb480.o
+    0x080017d4   0x080017d4   0x0000005c   Code   RO          386    i.PRB480_IO_IN      prb480.o
+    0x08001830   0x08001830   0x00000018   Code   RO          388    i.PRB480_Init       prb480.o
+    0x08001848   0x08001848   0x000000ec   Code   RO          389    i.PRB480_LoadChallengeScratchpad  prb480.o
+    0x08001934   0x08001934   0x0000020c   Code   RO          390    i.PRB480_LoadFirstSecret  prb480.o
+    0x08001b40   0x08001b40   0x0000001e   Code   RO          392    i.PRB480_MatchROM   prb480.o
+    0x08001b5e   0x08001b5e   0x00000002   PAD
+    0x08001b60   0x08001b60   0x0000000c   Code   RO          393    i.PRB480_PageStart  prb480.o
+    0x08001b6c   0x08001b6c   0x00000014   Code   RO          394    i.PRB480_PowerPMOS_Off  prb480.o
+    0x08001b80   0x08001b80   0x00000040   Code   RO          396    i.PRB480_ReadAdcRaw  prb480.o
+    0x08001bc0   0x08001bc0   0x00000190   Code   RO          399    i.PRB480_ReadAuthenticatedPageEx  prb480.o
+    0x08001d50   0x08001d50   0x00000520   Code   RO          400    i.PRB480_ReadAuthenticatedPageRaw  prb480.o
+    0x08002270   0x08002270   0x0000009c   Code   RO          401    i.PRB480_ReadBit    prb480.o
+    0x0800230c   0x0800230c   0x00000032   Code   RO          402    i.PRB480_ReadByte   prb480.o
+    0x0800233e   0x0800233e   0x00000046   Code   RO          403    i.PRB480_ReadMemory  prb480.o
+    0x08002384   0x08002384   0x000000e4   Code   RO          404    i.PRB480_ReadROM    prb480.o
+    0x08002468   0x08002468   0x00000026   Code   RO          406    i.PRB480_Reset      prb480.o
+    0x0800248e   0x0800248e   0x00000002   PAD
+    0x08002490   0x08002490   0x00000014   Code   RO          407    i.PRB480_ResponsePMOS_Off  prb480.o
+    0x080024a4   0x080024a4   0x00000014   Code   RO          408    i.PRB480_ResponsePMOS_On  prb480.o
+    0x080024b8   0x080024b8   0x00000148   Code   RO          409    i.PRB480_RunMacCompression  prb480.o
+    0x08002600   0x08002600   0x0000000c   Code   RO          411    i.PRB480_SetAdcThreshold  prb480.o
+    0x0800260c   0x0800260c   0x0000000a   Code   RO          414    i.PRB480_SkipROM    prb480.o
+    0x08002616   0x08002616   0x0000004e   Code   RO          415    i.PRB480_StateToBusMAC  prb480.o
+    0x08002664   0x08002664   0x00000180   Code   RO          416    i.PRB480_Step5_CopyScratchpad  prb480.o
+    0x080027e4   0x080027e4   0x000000f0   Code   RO          417    i.PRB480_Step5_ReadScratchpad  prb480.o
+    0x080028d4   0x080028d4   0x00000080   Code   RO          422    i.PRB480_VerifyReadAuthPageCRC  prb480.o
+    0x08002954   0x08002954   0x00000174   Code   RO          423    i.PRB480_VerifyReadAuthPageDataCRC  prb480.o
+    0x08002ac8   0x08002ac8   0x000000b8   Code   RO          426    i.PRB480_WaitCopyResult  prb480.o
+    0x08002b80   0x08002b80   0x00000050   Code   RO          429    i.PRB480_WaitSlotEnd  prb480.o
+    0x08002bd0   0x08002bd0   0x0000026c   Code   RO          430    i.PRB480_WriteAndVerifyScratchpad  prb480.o
+    0x08002e3c   0x08002e3c   0x00000064   Code   RO          432    i.PRB480_WriteBit   prb480.o
+    0x08002ea0   0x08002ea0   0x0000002a   Code   RO          433    i.PRB480_WriteByte  prb480.o
+    0x08002eca   0x08002eca   0x000000a6   Code   RO          434    i.PRB480_WriteScratchpad  prb480.o
+    0x08002f70   0x08002f70   0x00000002   Code   RO          146    i.PendSV_Handler    py32ca70_it.o
+    0x08002f72   0x08002f72   0x00000002   Code   RO          147    i.SVC_Handler       py32ca70_it.o
+    0x08002f74   0x08002f74   0x00000002   Code   RO          148    i.SysTick_Handler   py32ca70_it.o
+    0x08002f76   0x08002f76   0x00000002   PAD
+    0x08002f78   0x08002f78   0x00000034   Code   RO            4    i.SystemInit        system_py32ca70.o
+    0x08002fac   0x08002fac   0x0000000c   Code   RO          435    i.TMX_Delay_ms      prb480.o
+    0x08002fb8   0x08002fb8   0x00000064   Code   RO          436    i.TMX_Delay_us      prb480.o
+    0x0800301c   0x0800301c   0x00000020   Code   RO         1273    i.__0printf$8       mc_p.l(printf8.o)
+    0x0800303c   0x0800303c   0x0000000e   Code   RO         1369    i.__scatterload_copy  mc_p.l(handlers.o)
+    0x0800304a   0x0800304a   0x00000002   Code   RO         1370    i.__scatterload_null  mc_p.l(handlers.o)
+    0x0800304c   0x0800304c   0x0000000e   Code   RO         1371    i.__scatterload_zeroinit  mc_p.l(handlers.o)
+    0x0800305a   0x0800305a   0x00000002   PAD
+    0x0800305c   0x0800305c   0x00000428   Code   RO         1280    i._printf_core      mc_p.l(printf8.o)
+    0x08003484   0x08003484   0x00000020   Code   RO         1281    i._printf_post_padding  mc_p.l(printf8.o)
+    0x080034a4   0x080034a4   0x0000002c   Code   RO         1282    i._printf_pre_padding  mc_p.l(printf8.o)
+    0x080034d0   0x080034d0   0x00000024   Code   RO          219    i.fputc             py32ca70xx_ll_start_kit.o
+    0x080034f4   0x080034f4   0x00000838   Code   RO           68    i.main              main.o
+    0x08003d2c   0x08003d2c   0x00000137   Data   RO          439    .conststring        prb480.o
+    0x08003e63   0x08003e63   0x00000001   PAD
+    0x08003e64   0x08003e64   0x00000020   Data   RO         1367    Region$$Table       anon$$obj.o
+
+
+    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x08003e84, Size: 0x000004e0, Max: 0x00000800, ABSOLUTE)
+
+    Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
+
+    0x20000000   0x08003e84   0x00000004   Data   RW            6    .data               system_py32ca70.o
+    0x20000004   0x08003e88   0x00000013   Data   RW          440    .data               prb480.o
+    0x20000017   0x08003e9b   0x00000001   PAD
+    0x20000018   0x08003e9c   0x00000004   Data   RW         1341    .data               mc_p.l(stdout.o)
+    0x2000001c        -       0x000000c0   Zero   RW          437    .bss                prb480.o
+    0x200000dc   0x08003ea0   0x00000004   PAD
+    0x200000e0        -       0x00000400   Zero   RW           58    STACK               startup_py32ca70xx.o
+
+
+==============================================================================
+
+Image component sizes
+
+
+      Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
+
+       128          4          0          0          0       1672   crc16.o
+      2240       1124          0          0          0      40107   main.o
+     10584       2894        311         19        192      77838   prb480.o
+        12          0          0          0          0       2215   py32ca70_it.o
+       104         18          0          0          0       4201   py32ca70_ll_utils.o
+       738         24          0          0          0      18922   py32ca70xx_ll_start_kit.o
+        28          8        192          0       1024        632   startup_py32ca70xx.o
+        52         14          0          4          0     104124   system_py32ca70.o
+
+    ----------------------------------------------------------------------
+     13900       4086        536         24       1220     249711   Object Totals
+         0          0         32          0          0          0   (incl. Generated)
+        14          0          1          1          4          0   (incl. Padding)
+
+    ----------------------------------------------------------------------
+
+      Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Library Member Name
+
+         0          0          0          0          0          0   entry.o
+         0          0          0          0          0          0   entry10a.o
+         0          0          0          0          0          0   entry11a.o
+         8          4          0          0          0          0   entry2.o
+         4          0          0          0          0          0   entry5.o
+         0          0          0          0          0          0   entry7b.o
+         0          0          0          0          0          0   entry8b.o
+         8          4          0          0          0          0   entry9a.o
+        30          0          0          0          0          0   handlers.o
+        36          8          0          0          0         68   init.o
+        32          0          0          0          0         68   llshl.o
+        34          0          0          0          0         68   llushr.o
+        26          0          0          0          0         72   memcmp.o
+        36          0          0          0          0         60   memcpya.o
+        36          0          0          0          0        100   memseta.o
+      1172         52          0          0          0        324   printf8.o
+         0          0          0          4          0          0   stdout.o
+        44          0          0          0          0         72   uidiv.o
+        96          0          0          0          0         84   uldiv.o
+
+    ----------------------------------------------------------------------
+      1568         68          0          4          0        916   Library Totals
+         6          0          0          0          0          0   (incl. Padding)
+
+    ----------------------------------------------------------------------
+
+      Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Library Name
+
+      1562         68          0          4          0        916   mc_p.l
+
+    ----------------------------------------------------------------------
+      1568         68          0          4          0        916   Library Totals
+
+    ----------------------------------------------------------------------
+
+==============================================================================
+
+
+      Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
+
+     15468       4154        536         28       1220     246951   Grand Totals
+     15468       4154        536         28       1220     246951   ELF Image Totals
+     15468       4154        536         28          0          0   ROM Totals
+
+==============================================================================
+
+    Total RO  Size (Code + RO Data)                16004 (  15.63kB)
+    Total RW  Size (RW Data + ZI Data)              1248 (   1.22kB)
+    Total ROM Size (Code + RO Data + RW Data)      16032 (  15.66kB)
+
+==============================================================================
+
