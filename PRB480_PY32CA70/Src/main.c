@@ -102,7 +102,14 @@ int main(void)
         //     HAL_Delay(120);
         // }
     }
+    // PRB480_ReadAuthenticatedPageEx(useRom, secret, 0x0060, challenge, &authPacket);
+    // PRB480_ResponsePMOS_Off();
+    // PRB480_PowerPMOS_Off();
 
+    // while (1)
+    // {
+    //     LL_mDelay(300);
+    // }
     printf("\r\n========== Step 2  Read_memory ==========\r\n");
     printf("Secret:");
     for (i = 0; i < 8; i++)
