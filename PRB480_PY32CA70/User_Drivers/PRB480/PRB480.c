@@ -32,7 +32,7 @@
 #define PRB480_TRSTL_US             300     /* 图 11：复位低电平时间，手册典型 300us */
 #define PRB480_TSTD_US              200     /* 图 11：上电/复位后系统稳定时间 */
 #define PRB480_ADC_THRESHOLD_DEFAULT 1000     /* PC1/ADC 判 0/1 阈值，需要按实测 VDC0/VDC1 校准 */
-#define PRB480_ADC_LOG_SIZE        64       /* 调试：缓存一次 Read ROM 的 64 个读 bit ADC 值 */
+#define PRB480_ADC_LOG_SIZE        64       /* 调试：缓存一个 8 字节块对应的 64 个 ADC 值 */
 #define PRB480_TLOW_CYCLES 1
 
 #define delay_us TMX_Delay_us
@@ -49,7 +49,6 @@ static u8 PRB480_ReadSampleDelayUs = 4;                                         
 static u16 PRB480_AdcThreshold = PRB480_ADC_THRESHOLD_DEFAULT;                       /* PC1 ADC 读 bit 阈值 */
 static u16 PRB480_LastReadAdc = 0;                                                   /* 最近一次 ReadBit 采样 ADC 值 */
 static u16 PRB480_AdcLog[PRB480_ADC_LOG_SIZE];                                      /* 调试：缓存每个读 bit 的 ADC 原始值 */
-static u8 PRB480_BitLog[PRB480_ADC_LOG_SIZE];                                       /* 调试：缓存每个读 bit 的判定结果 */
 static u8 PRB480_AdcLogIndex = 0;                                                   /* 调试：当前缓存写入位置 */
 static u8 PRB480_AdcLogEnabled = 0;                                                 /* 调试：是否记录读 bit 采样 */
 static u8 PRB480_LastCopyStatus = 0xFF;                                             /* 保存最近一次 Copy Scratchpad 原始状态字节 */
@@ -462,7 +461,10 @@ static u8 PRB480_VerifyReadAuthPageDataCRC(
            busCrc,
            standardCrc
            );
-
+    if (busCrc != standardCrc)
+    {
+        return 1;
+    }
 
     return 0;
 }
@@ -1205,7 +1207,6 @@ static void PRB480_AdcLogStart(void)
     for (i = 0; i < PRB480_ADC_LOG_SIZE; i++)
     {
         PRB480_AdcLog[i] = 0;
-        PRB480_BitLog[i] = 0;
     }
 }
 
@@ -1217,7 +1218,10 @@ static void PRB480_AdcLogDump(void)
     printf("ADC log threshold=%u count=%u\r\n", PRB480_AdcThreshold, PRB480_AdcLogIndex);
     for (i = 0; i < PRB480_AdcLogIndex; i++)
     {
-        printf("%02u: adc=%u bit=%u\r\n", i, PRB480_AdcLog[i], PRB480_BitLog[i]);
+        printf("%04u: adc=%u bit=%u\r\n",
+               i,
+               PRB480_AdcLog[i],
+               (PRB480_AdcLog[i] >= PRB480_AdcThreshold) ? 1 : 0);
         if (((i + 1) % 8) == 0)
         {
             printf("\r\n");
@@ -1714,6 +1718,37 @@ static void PRB480_WaitSlotEnd(u32 startVal, u32 slotUs)
     }
 }
 
+/**
+ * @brief 计算3个 u16 数值的中位数
+ */
+static u16 PRB480_Median3(u16 a, u16 b, u16 c)
+{
+    u16 temp;
+
+    if (a > b)
+    {
+        temp = a;
+        a = b;
+        b = temp;
+    }
+
+    if (b > c)
+    {
+        temp = b;
+        b = c;
+        c = temp;
+    }
+
+    if (a > b)
+    {
+        temp = a;
+        a = b;
+        b = temp;
+    }
+
+    return b;
+}
+
 void PRB480_WriteBit(u8 bit)
 {
     u32 slotStart;
@@ -1768,7 +1803,9 @@ u8 PRB480_ReadBit(void)
     u32 slotStart;
     u16 adc;
     u8 data;
-
+    u16 adc1;
+    u16 adc2;
+    u16 adc3;
     /*
      * 一个读 bit 的 30us 周期从这里开始计时。
      * 后面 7us 采样点、30us slot 结束点，都以这个时间为基准。
@@ -1784,10 +1821,13 @@ u8 PRB480_ReadBit(void)
     PRB480_RESP_GPIO_PORT->BRR = PRB480_RespPin;      /* IO1 拉低 */
     PRB480_POWER_GPIO_PORT->BSRR  = PRB480_PowerPin;    /* IO2 打开，PowerPMOS_On = 输出低 */
 
-    PRB480_DelayNop(21);//10us
+    PRB480_DelayNop(30);//15.4us
 
-    adc = PRB480_ReadAdcRaw();//5us
-    PRB480_DelayNop(49);//24us
+    adc1 = PRB480_ReadAdcRaw();//三个共12.4us
+    adc2 = PRB480_ReadAdcRaw();
+    adc3 = PRB480_ReadAdcRaw();
+    adc = PRB480_Median3(adc1, adc2, adc3);//2.4
+    PRB480_DelayNop(18);//8us
 
     /*
      * 恢复空闲状态：
@@ -1807,7 +1847,6 @@ u8 PRB480_ReadBit(void)
     if (PRB480_AdcLogEnabled && (PRB480_AdcLogIndex < PRB480_ADC_LOG_SIZE))
     {
         PRB480_AdcLog[PRB480_AdcLogIndex] = adc;
-        PRB480_BitLog[PRB480_AdcLogIndex] = data;
         PRB480_AdcLogIndex++;
     }
 
@@ -1873,7 +1912,7 @@ u8  PRB480_ReadByte(void)
         }
     }
     PRB480_IO_IN();
-    PRB480_DelayNop(55);
+    PRB480_DelayNop(60);
 
     return dat;
 }
@@ -2032,6 +2071,91 @@ u8 PRB480_ReadMemory(u8 *rom, u16 addr, u8 *buf, u8 len)
     }
 
     PRB480_Reset();      /* 退出 F0h Read Memory 状态 */
+
+    return 0;
+}
+
+/*******************************************************************************
+* 名    称         : PRB480_ReadMemoryWithAdcLog
+* 功    能         : 打印每 8 字节数据及其对应的 64 个读 bit ADC 值
+* 说    明         : 为避免占用 160*8*2 字节 RAM，本函数对每个 8 字节目标块
+*                    重复执行一次完整连续读事务。每轮仍从 addr 连续读到末尾，
+*                    只在读到目标块时记录 64 个 ADC 值，事务结束后再打印。
+*                    因而 printf 不会插入连续读时序，ADC bit 顺序为 LSB first。
+*******************************************************************************/
+u8 PRB480_ReadMemoryWithAdcLog(u8 *rom, u16 addr, u8 *buf, u8 len)
+{
+    u8 blockOffset;
+    u8 blockLen;
+    u8 i;
+    u8 bit;
+    u8 value;
+
+    if ((buf == 0) || (len == 0)) return 1;
+
+    for (blockOffset = 0;
+         blockOffset < len;
+         blockOffset = (u8)(blockOffset + blockLen))
+    {
+        blockLen = (u8)(len - blockOffset);
+        if (blockLen > 8) blockLen = 8;
+
+        /* 在事务开始前清日志，避免清数组的耗时插入连续读过程。 */
+        PRB480_AdcLogStart();
+        PRB480_AdcLogEnabled = 0;
+
+        /* 每个目标块都重新执行一次从起始地址开始的完整连续读。 */
+        if (PRB480_CommandStart(rom)) return 1;
+        PRB480_WriteByte(0xF0);
+        PRB480_WriteByte((u8)(addr & 0xFF));
+        PRB480_WriteByte((u8)(addr >> 8));
+
+        for (i = 0; i < len; i++)
+        {
+            if (i == blockOffset)
+            {
+                PRB480_AdcLogEnabled = 1;
+            }
+
+            value = PRB480_ReadByte();
+
+            if ((i >= blockOffset) && (i < (u8)(blockOffset + blockLen)))
+            {
+                buf[i] = value;
+            }
+
+            if (i == (u8)(blockOffset + blockLen - 1U))
+            {
+                PRB480_AdcLogEnabled = 0;
+            }
+        }
+
+        PRB480_Reset();
+
+        printf("0x%04X:", (u16)(addr + blockOffset));
+        for (i = 0; i < blockLen; i++)
+        {
+            printf(" %02X", buf[blockOffset + i]);
+        }
+        printf("\r\n");
+
+        printf("ADC log threshold=%u count=%u\r\n",
+               PRB480_AdcThreshold,
+               PRB480_AdcLogIndex);
+
+        for (bit = 0; bit < (u8)(blockLen * 8U); bit++)
+        {
+            printf("%02u: adc=%u bit=%u\r\n",
+                   bit,
+                   PRB480_AdcLog[bit],
+                   (PRB480_AdcLog[bit] >= PRB480_AdcThreshold) ? 1 : 0);
+
+            if (((bit + 1U) & 0x07U) == 0U)
+            {
+                printf("\r\n");
+            }
+        }
+    }
 
     return 0;
 }
@@ -3251,7 +3375,7 @@ static u8 PRB480_ReadAuthenticatedPageRaw(u8 *rom, u16 addr, u8 challenge[5], PR
     if (PRB480_VerifyReadAuthPageCRC(packet->device_mac, 20, 0, 0, packet->mac_crc16))
     {
         printf("RAP FAIL[5]: MAC CRC16 mismatch\r\n");
-        //return 1;
+        return 1;
     }
     else
     {
@@ -3317,6 +3441,13 @@ u8 PRB480_ReadAuthenticatedPageEx(u8 *rom, u8 *secret, u16 addr, u8 challenge[5]
     for (i = 0; i < 20; i++)
     {
         printf(" %02X", packet->host_mac[i]);
+    }
+    printf("\r\n");
+
+    printf("RAP bus MAC:  ");
+    for (i = 0; i < 20; i++)
+    {
+        printf(" %02X", packet->device_mac[i]);
     }
     printf("\r\n");
 

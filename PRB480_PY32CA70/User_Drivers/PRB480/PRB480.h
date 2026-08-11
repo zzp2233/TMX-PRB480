@@ -89,6 +89,8 @@ u8 PRB480_ReadMemory(u8 *rom, u16 addr, u8 *buf, u8 len);
      * @len: 读取长度
      * @返回: 0=成功, 1=失败
      */
+u8 PRB480_ReadMemoryWithAdcLog(u8 *rom, u16 addr, u8 *buf, u8 len);
+    /* 调试读取：每个8字节块执行一次完整连续读，只缓存该块的64个 ADC 值 */
 
 u8 PRB480_WriteScratchpad(u8 *rom, u16 addr, u8 *dat, u8 len, u16 *crc);
     /* 0x0F - 写入暂存区 (临时缓冲区，8字节)

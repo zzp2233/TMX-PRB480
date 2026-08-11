@@ -70,7 +70,7 @@ int main(void)
     printf("\r\nPRB480 PY32CA70 demo start\r\n");
 
     PRB480_BoardInterfaceConfig();
-    PRB480_SetAdcThreshold(820);
+    PRB480_SetAdcThreshold(850);
 // PRB480_DebugQ2Q3PulseTest();
 
     if (PRB480_Init())
@@ -102,14 +102,7 @@ int main(void)
         //     HAL_Delay(120);
         // }
     }
-    // PRB480_ReadAuthenticatedPageEx(useRom, secret, 0x0060, challenge, &authPacket);
-    // PRB480_ResponsePMOS_Off();
-    // PRB480_PowerPMOS_Off();
 
-    // while (1)
-    // {
-    //     LL_mDelay(300);
-    // }
     printf("\r\n========== Step 2  Read_memory ==========\r\n");
     printf("Secret:");
     for (i = 0; i < 8; i++)
@@ -132,6 +125,20 @@ int main(void)
         printf("Read config failed\r\n");
     }
 
+    //读取0x0000-0x009F 数据，以下二选一即可
+
+    //同时读取数据和ADC值
+    // printf("Read Memory 0x0000-0x009F with ADC log:\r\n");
+    // if (PRB480_ReadMemoryWithAdcLog(useRom, 0x0000, chipData, 160) == 0)
+    // {
+    //     printf("Read Memory with ADC log OK\r\n");
+    // }
+    // else
+    // {
+    //     printf("Read Memory 0x0000-0x009F failed\r\n");
+    // }
+
+    //只数据，不打印ad值
     if (PRB480_ReadMemory(useRom, 0x0000, chipData, 160) == 0)
     {
         printf("Read Memory 0x0000-0x009F:\r\n");
